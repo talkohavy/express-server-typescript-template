@@ -1,3 +1,5 @@
+import type { Server as HttpServer } from 'http';
+import type { Server as SocketIOServer } from 'socket.io';
 import type { CallContextService } from '../lib/call-context';
 import type { ConfigService } from '../lib/config-service';
 import type { LoggerService } from '../lib/logger-service';
@@ -29,4 +31,6 @@ export interface OptimizedApp {
   };
   pg: PgClient;
   logger: LoggerService;
+  httpServer: HttpServer;
+  io: SocketIOServer;
 }

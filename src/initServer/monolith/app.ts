@@ -8,6 +8,7 @@ import { DragonsModule } from '../../modules/dragons';
 import { FileUploadModule } from '../../modules/file-upload';
 import { HealthCheckModule } from '../../modules/health-check';
 // import { ServerSentEventModule } from '../../modules/serverSentEvents';
+import { WebsocketModule } from '../../modules/websocket';
 import { SwaggerModule } from '../../modules/swagger';
 import { UsersModule } from '../../modules/users';
 import { bodyLimitPlugin } from '../../plugins/bodyLimit.plugin';
@@ -23,6 +24,7 @@ import { postgresPlugin } from '../../plugins/postgres.plugin';
 import { redisPlugin } from '../../plugins/redis.plugin';
 import { addIdToRequestPlugin } from '../../plugins/request-id.plugin';
 import { urlEncodedPlugin } from '../../plugins/urlEncoded.plugin';
+import { socketIOPlugin } from '../../plugins/socket.io.plugin';
 
 export async function buildApp() {
   const app = express() as unknown as Application;
@@ -38,6 +40,7 @@ export async function buildApp() {
     loggerPlugin, // <--- dependencies: config-service plugin, call-context plugin
     postgresPlugin, // <--- dependencies: config-service plugin
     redisPlugin, // <--- dependencies: config-service plugin
+    socketIOPlugin,
     corsPlugin,
     helmetPlugin,
     bodyLimitPlugin,
@@ -53,6 +56,7 @@ export async function buildApp() {
     BooksModule,
     DragonsModule,
     FileUploadModule,
+    WebsocketModule,
     // - BFF module (route provider) - requires Main modules to be ready
     BackendModule,
     // - Utility modules

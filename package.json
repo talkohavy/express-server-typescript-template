@@ -34,6 +34,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@socket.io/admin-ui": "^0.5.1",
+    "@socket.io/redis-adapter": "^8.3.0",
     "api-opener": "^2.0.1",
     "color-my-json": "^0.0.9",
     "compression": "^1.8.1",
@@ -46,6 +48,7 @@
     "mongoose": "^9.1.5",
     "pg": "^8.17.2",
     "redis": "^5.10.0",
+    "socket.io": "^4.8.3",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {

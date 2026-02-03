@@ -103,4 +103,6 @@ export const optimizedApp: OptimizedApp = {
   pg: null as any,
   logger: null as any,
   callContextService: null as any,
+  httpServer: null as any,
+  io: null as any,
 };
