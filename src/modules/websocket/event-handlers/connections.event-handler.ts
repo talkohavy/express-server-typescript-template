@@ -3,6 +3,7 @@ import type { LoggerService } from '../../../lib/logger-service';
 import type { SocketType } from '../types';
 import { SOCKET_EVENTS } from '../logic/constants';
 import { getMasterRoomByConnectionId } from '../logic/utils/getMasterRoomByConnectionId';
+import { getSocketData } from '../logic/utils/getSocketData';
 
 export class ConnectionsEventHandler {
   constructor(
@@ -13,7 +14,8 @@ export class ConnectionsEventHandler {
   async joinMasterRoom(socket: SocketType, _data: any) {
     this.logger.debug(`[${SOCKET_EVENTS.Connection.JoinMasterRoom}] user joined master room`);
 
-    const { id: userId } = socket.data.user;
+    const { user } = getSocketData(socket);
+    const { id: userId } = user;
 
     const masterRoomName = getMasterRoomByConnectionId(userId);
     socket.join(masterRoomName);
