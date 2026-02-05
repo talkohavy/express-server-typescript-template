@@ -8,7 +8,7 @@ import { DragonsModule } from '../../modules/dragons';
 import { FileUploadModule } from '../../modules/file-upload';
 import { HealthCheckModule } from '../../modules/health-check';
 // import { ServerSentEventModule } from '../../modules/serverSentEvents';
-import { SocketIOModule } from '../../modules/socketio';
+// import { SocketIOModule } from '../../modules/socketio';
 import { SwaggerModule } from '../../modules/swagger';
 import { UsersModule } from '../../modules/users';
 import { WsModule } from '../../modules/ws';
@@ -59,7 +59,7 @@ export async function buildApp() {
     BooksModule,
     DragonsModule,
     FileUploadModule,
-    SocketIOModule,
+    // SocketIOModule,
     WsModule,
     // - BFF module (route provider) - requires Main modules to be ready
     BackendModule,

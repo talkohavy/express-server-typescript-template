@@ -17,6 +17,10 @@ export class TopicsRegistererEventHandler {
         console.log('received: %s', data);
       });
 
+      ws.on('close', () => {
+        this.logger.log('ws connection closed');
+      });
+
       // ws.send('something');
     });
   }
