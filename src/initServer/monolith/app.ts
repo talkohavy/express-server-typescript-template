@@ -11,6 +11,7 @@ import { HealthCheckModule } from '../../modules/health-check';
 import { SocketIOModule } from '../../modules/socketio';
 import { SwaggerModule } from '../../modules/swagger';
 import { UsersModule } from '../../modules/users';
+import { WsModule } from '../../modules/ws';
 import { bodyLimitPlugin } from '../../plugins/bodyLimit.plugin';
 import { callContextPlugin } from '../../plugins/call-context.plugin';
 import { configServicePlugin } from '../../plugins/config-service.plugin';
@@ -59,6 +60,7 @@ export async function buildApp() {
     DragonsModule,
     FileUploadModule,
     SocketIOModule,
+    WsModule,
     // - BFF module (route provider) - requires Main modules to be ready
     BackendModule,
     // - Utility modules
