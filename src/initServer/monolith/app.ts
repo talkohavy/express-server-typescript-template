@@ -8,7 +8,7 @@ import { DragonsModule } from '../../modules/dragons';
 import { FileUploadModule } from '../../modules/file-upload';
 import { HealthCheckModule } from '../../modules/health-check';
 // import { ServerSentEventModule } from '../../modules/serverSentEvents';
-import { WebsocketModule } from '../../modules/websocket';
+import { WebsocketModule } from '../../modules/socketio';
 import { SwaggerModule } from '../../modules/swagger';
 import { UsersModule } from '../../modules/users';
 import { bodyLimitPlugin } from '../../plugins/bodyLimit.plugin';
@@ -23,8 +23,8 @@ import { pathNotFoundPlugin } from '../../plugins/pathNotFound.plugin';
 import { postgresPlugin } from '../../plugins/postgres.plugin';
 import { redisPlugin } from '../../plugins/redis.plugin';
 import { addIdToRequestPlugin } from '../../plugins/request-id.plugin';
-import { urlEncodedPlugin } from '../../plugins/urlEncoded.plugin';
 import { socketIOPlugin } from '../../plugins/socket.io.plugin';
+import { urlEncodedPlugin } from '../../plugins/urlEncoded.plugin';
 
 export async function buildApp() {
   const app = express() as unknown as Application;
