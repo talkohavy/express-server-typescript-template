@@ -1,9 +1,13 @@
 export const SOCKET_EVENTS = {
-  Connection: {
-    JoinMasterRoom: 'connection:join-master-room',
-  },
+  RegisterToTopic: 'register-to-topic',
+  Data: 'data',
+  NotificationCenter: 'notifications',
 };
 
 export const CACHE_PREFIX_KEYS = {
   MasterRoom: 'master-room',
 };
+
+export const TOPICS = {
+  EventsStream: 'topics:events-stream',
+} as const;

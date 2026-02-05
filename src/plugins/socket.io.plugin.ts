@@ -1,9 +1,9 @@
-import type { Application } from 'express';
+import { createServer } from 'http';
 import { instrument } from '@socket.io/admin-ui';
 import { createAdapter } from '@socket.io/redis-adapter';
-import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import { ALLOWED_DOMAINS } from './cors';
+import type { Application } from 'express';
 
 /**
  * @dependencies
