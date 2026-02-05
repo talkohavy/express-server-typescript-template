@@ -3,7 +3,7 @@ import { SOCKET_EVENTS, TOPICS } from './logic/constants';
 import type { Application } from 'express';
 import type { Server as SocketIOServer } from 'socket.io';
 
-export class WebsocketModule {
+export class SocketIOModule {
   constructor(private readonly app: Application) {
     this.initializeModule();
   }
