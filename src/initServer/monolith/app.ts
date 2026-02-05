@@ -25,6 +25,7 @@ import { redisPlugin } from '../../plugins/redis.plugin';
 import { addIdToRequestPlugin } from '../../plugins/request-id.plugin';
 import { socketIOPlugin } from '../../plugins/socket.io.plugin';
 import { urlEncodedPlugin } from '../../plugins/urlEncoded.plugin';
+import { wsPlugin } from '../../plugins/ws.plugin';
 
 export async function buildApp() {
   const app = express() as unknown as Application;
@@ -41,6 +42,7 @@ export async function buildApp() {
     postgresPlugin, // <--- dependencies: config-service plugin
     redisPlugin, // <--- dependencies: config-service plugin
     socketIOPlugin,
+    wsPlugin,
     corsPlugin,
     helmetPlugin,
     bodyLimitPlugin,

@@ -1,5 +1,3 @@
-import type { Server as HttpServer } from 'http';
-import type { Server as SocketIOServer } from 'socket.io';
 import type { CallContextService } from '../lib/call-context';
 import type { ConfigService } from '../lib/config-service';
 import type { LoggerService } from '../lib/logger-service';
@@ -10,8 +8,11 @@ import type { FileUploadModule } from '../modules/file-upload';
 import type { HealthCheckModule } from '../modules/health-check';
 import type { SwaggerModule } from '../modules/swagger';
 import type { UsersModule } from '../modules/users';
+import type { Server as HttpServer } from 'http';
 import type { Client as PgClient } from 'pg';
 import type { RedisClientType } from 'redis';
+import type { Server as SocketIOServer } from 'socket.io';
+import type { WebSocketServer } from 'ws';
 
 export interface OptimizedApp {
   modules: {
@@ -33,4 +34,5 @@ export interface OptimizedApp {
   logger: LoggerService;
   httpServer: HttpServer;
   io: SocketIOServer;
+  wss: WebSocketServer;
 }
