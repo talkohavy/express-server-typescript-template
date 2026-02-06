@@ -1,3 +1,4 @@
+import { extractIpFromWebsocket } from '../logic/utils/extractIpFromWebsocket';
 import type { LoggerService } from '../../../lib/logger-service';
 import type { WebsocketClient } from '../../../lib/ws-client';
 
@@ -8,8 +9,10 @@ export class TopicsRegistererEventHandler {
   ) {}
 
   registerEventHandlers(): void {
-    this.wsClient.wss.on('connection', (ws) => {
-      this.logger.log('new ws connection');
+    this.wsClient.wss.on('connection', (ws, req) => {
+      const ip = extractIpFromWebsocket(req);
+
+      this.logger.log('new ws connection', { ip });
 
       ws.on('error', console.error);
 
