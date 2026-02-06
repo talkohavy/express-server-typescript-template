@@ -82,7 +82,7 @@ export class WebsocketClient {
     this.wss.clients.forEach((ws) => {
       const isAlive = !!this.isAliveBySocket.get(ws);
 
-      if (!isAlive) return void ws.terminate();
+      if (!isAlive) return void ws.terminate(); // <--- Use `terminate()`, which immediately destroys the connection, instead of `close()`, which waits for the close timer.
 
       this.isAliveBySocket.set(ws, false);
 
