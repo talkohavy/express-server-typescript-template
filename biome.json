@@ -22,7 +22,8 @@
         "noDebugger": "off",
         "noDoubleEquals": "off",
         "noFocusedTests": "off",
-        "noThenProperty": "off"
+        "noThenProperty": "off",
+        "useIterableCallbackReturn": "off"
       },
       "correctness": {
         "useExhaustiveDependencies": "off",

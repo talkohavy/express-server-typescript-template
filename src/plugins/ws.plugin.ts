@@ -5,7 +5,10 @@ import type { Application } from 'express';
 export function wsPlugin(app: Application) {
   app.httpServer ??= createServer(app);
 
-  const wsClient = new WebsocketClient({ server: app.httpServer });
+  const wsClient = new WebsocketClient(
+    { server: app.httpServer },
+    // { heartbeat: { intervalMs: 10_000 } },
+  );
 
   app.wsClient = wsClient;
 }
