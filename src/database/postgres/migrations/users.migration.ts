@@ -19,4 +19,3 @@ export const usersTableSchema = `
 export async function createUsersTable(pgClient: Client): Promise<void> {
   await pgClient.query(usersTableSchema);
 }
-
