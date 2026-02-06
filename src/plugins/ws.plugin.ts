@@ -1,11 +1,11 @@
 import { createServer } from 'node:http';
-import { WebSocketServer } from 'ws';
+import { WebsocketClient } from '../lib/ws-client';
 import type { Application } from 'express';
 
 export function wsPlugin(app: Application) {
   app.httpServer ??= createServer(app);
 
-  const wss = new WebSocketServer({ server: app.httpServer });
+  const wsClient = new WebsocketClient({ server: app.httpServer });
 
-  app.wss = wss;
+  app.wsClient = wsClient;
 }

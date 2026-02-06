@@ -9,9 +9,9 @@ export class WsModule {
   }
 
   private initializeModule(): void {
-    const { wss, logger } = this.app;
+    const { wsClient, logger } = this.app;
 
-    this.topicsRegistererEventHandler = new TopicsRegistererEventHandler(wss, logger);
+    this.topicsRegistererEventHandler = new TopicsRegistererEventHandler(wsClient, logger);
 
     this.registerEventHandlers();
   }
