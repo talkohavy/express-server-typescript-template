@@ -38,6 +38,9 @@ export class TopicsRegistererEventHandler {
 
     if (!messageHandler) {
       this.logger.debug('Received unknown message type', { ip, topic });
+
+      this.sendResponse({ ws, type: ResponseTypes.ServerError, message: 'Unknown topic' });
+
       return;
     }
 

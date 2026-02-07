@@ -7,8 +7,8 @@ export const BUILT_IN_WEBSOCKET_EVENTS = {
 
 export const STATIC_TOPICS = {
   Actions: {
-    Register: 'register',
-    Unregister: 'unregister',
+    Register: 'actions:register',
+    Unregister: 'actions:unregister',
   },
   Data: 'data',
 };
