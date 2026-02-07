@@ -4,3 +4,11 @@ export const BUILT_IN_WEBSOCKET_EVENTS = {
   Ping: 'ping',
   Pong: 'pong',
 } as const;
+
+export const STATIC_TOPICS = {
+  Actions: {
+    Register: 'register',
+    Unregister: 'unregister',
+  },
+  Data: 'data',
+};

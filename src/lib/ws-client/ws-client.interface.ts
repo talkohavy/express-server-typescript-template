@@ -29,3 +29,9 @@ export type BroadcastToAllButSelfProps = {
   data: string | Buffer | ArrayBufferView;
   options?: BroadcastOptions;
 };
+
+export type PublishToTopicProps = {
+  topic: string;
+  payload: unknown;
+  options?: BroadcastOptions;
+};

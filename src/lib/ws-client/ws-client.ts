@@ -1,8 +1,11 @@
 import { WebSocket, WebSocketServer } from 'ws';
 import { BUILT_IN_WEBSOCKET_EVENTS } from './logic/constants';
+import { TopicManager } from './logic/topic-manager';
+import type { TopicMessage } from './types';
 import type {
   BroadcastToAllButSelfProps,
   BroadcastToAllProps,
+  PublishToTopicProps,
   WebsocketClientConfig,
   WebSocketServerOptions,
 } from './ws-client.interface';
@@ -14,6 +17,7 @@ export class WebsocketClient {
   private readonly heartbeatIntervalMs: number;
   private readonly isAliveBySocket = new WeakMap<WebSocket, boolean>();
   private pingIntervalId: ReturnType<typeof setInterval> | null = null;
+  private readonly topicManager = new TopicManager();
 
   constructor(options: WebSocketServerOptions, customConfig?: WebsocketClientConfig) {
     this.wss = new WebSocketServer(options);
@@ -28,9 +32,6 @@ export class WebsocketClient {
     if (isHeartbeatEnabled) this.addHeartbeatMechanism();
   }
 
-  /**
-   * Broadcast a message to all connected clients that are open.
-   */
   broadcastToAll(props: BroadcastToAllProps): void {
     const { data, options } = props;
     const { binary: isBinary = false } = options ?? {};
@@ -42,9 +43,6 @@ export class WebsocketClient {
     });
   }
 
-  /**
-   * Broadcast a message to all connected clients that are open.
-   */
   broadcastToAllButSelf(props: BroadcastToAllButSelfProps): void {
     const { self, data, options } = props;
     const { binary: isBinary = false } = options ?? {};
@@ -54,6 +52,61 @@ export class WebsocketClient {
 
       client.send(data, { binary: isBinary });
     });
+  }
+
+  subscribeToTopic(client: WebSocket, topic: string): boolean {
+    return this.topicManager.subscribe(client, topic);
+  }
+
+  unsubscribeFromTopic(client: WebSocket, topic: string): boolean {
+    return this.topicManager.unsubscribe(client, topic);
+  }
+
+  /**
+   * Unsubscribe a client from all topics (should be called on disconnect).
+   */
+  unsubscribeFromAllTopics(client: WebSocket): void {
+    this.topicManager.unsubscribeAll(client);
+  }
+
+  publishToTopic(props: PublishToTopicProps): number {
+    const { topic, payload, options } = props;
+    const { binary: isBinary = false } = options ?? {};
+
+    const topicSubscribers = this.topicManager.getSubscribers(topic);
+
+    if (topicSubscribers.size === 0) return 0;
+
+    const messageRaw: TopicMessage = { topic, payload, timestamp: Date.now() };
+    const messageStringified = JSON.stringify(messageRaw);
+
+    let sentCount = 0;
+
+    topicSubscribers.forEach((client) => {
+      if (client.readyState !== WebSocket.OPEN) return;
+
+      try {
+        client.send(messageStringified, { binary: isBinary });
+        sentCount++;
+      } catch (error) {
+        // Log error but continue sending to other clients. The client will be cleaned up on next disconnect check.
+        console.error(`Failed to send message to client in topic "${topic}":`, error);
+      }
+    });
+
+    return sentCount;
+  }
+
+  getClientTopics(client: WebSocket): Set<string> {
+    return this.topicManager.getClientTopics(client);
+  }
+
+  isClientSubscribed(client: WebSocket, topic: string): boolean {
+    return this.topicManager.isSubscribed(client, topic);
+  }
+
+  getTopicSubscriberCount(topic: string): number {
+    return this.topicManager.getSubscriberCount(topic);
   }
 
   private addHeartbeatMechanism(): void {
