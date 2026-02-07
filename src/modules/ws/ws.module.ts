@@ -1,9 +1,12 @@
-import { STATIC_TOPICS, type TopicMessage } from '../../lib/ws-client';
-import { TopicsRegistererEventHandler } from './services/topics-registerer.event-handler';
+import { ActionsEventHandler } from './event-handlers/actions/actions.event-handler';
+import { ConnectionEventHandler } from './event-handlers/connection/connection.event-handler';
+import { StaticTopics } from './logic/constants';
+import type { TopicMessage } from '../../lib/ws-client';
 import type { Application } from 'express';
 
 export class WsModule {
-  private topicsRegistererEventHandler!: TopicsRegistererEventHandler;
+  private connectionEventHandler!: ConnectionEventHandler;
+  private actionsEventHandler!: ActionsEventHandler;
 
   constructor(private readonly app: Application) {
     this.initializeModule();
@@ -12,17 +15,19 @@ export class WsModule {
   private initializeModule(): void {
     const { wsClient, logger } = this.app;
 
-    this.topicsRegistererEventHandler = new TopicsRegistererEventHandler(wsClient, logger);
+    this.connectionEventHandler = new ConnectionEventHandler(wsClient, logger);
+    this.actionsEventHandler = new ActionsEventHandler(wsClient, logger);
 
     this.registerEventHandlers();
   }
 
   private registerEventHandlers(): void {
-    this.topicsRegistererEventHandler.registerEventHandlers();
+    this.connectionEventHandler.registerEventHandlers();
+    this.actionsEventHandler.registerEventHandlers();
 
     setInterval(() => {
       const eventData: TopicMessage = {
-        topic: STATIC_TOPICS.Data,
+        topic: StaticTopics.Data,
         payload: { message: 'Hello, world!' },
         timestamp: Date.now(),
       };
