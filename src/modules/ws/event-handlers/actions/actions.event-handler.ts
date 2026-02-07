@@ -36,12 +36,11 @@ export class ActionsEventHandler {
     }
 
     const { payload } = message;
-    const { action } = payload;
 
-    const actionHandler = this.incomingMessageHandlersByAction[action];
+    const actionHandler = this.incomingMessageHandlersByAction[payload.action];
 
     if (!actionHandler) {
-      this.logger.debug('Received unknown action', { action });
+      this.logger.debug('Received unknown action', { payload });
 
       this.sendResponse({ ws, type: ResponseTypes.ServerError, message: 'Unknown action' });
 
@@ -59,6 +58,14 @@ export class ActionsEventHandler {
 
   private handleTopicRegistration(ws: WebSocket, payload: TopicRegistrationPayload): void {
     const { topic } = payload;
+
+    if (!topic) {
+      this.logger.debug('Topic is required', { payload });
+
+      this.sendResponse({ ws, type: ResponseTypes.ValidationError, message: 'Topic is required' });
+
+      return;
+    }
 
     const isSuccess = this.wsClient.subscribeToTopic(ws, topic);
 
@@ -79,6 +86,14 @@ export class ActionsEventHandler {
 
   private handleTopicUnregister(ws: WebSocket, payload: TopicUnregisterPayload): void {
     const { topic } = payload;
+
+    if (!topic) {
+      this.logger.debug('Topic is required', { payload });
+
+      this.sendResponse({ ws, type: ResponseTypes.ValidationError, message: 'Topic is required' });
+
+      return;
+    }
 
     const isSuccess = this.wsClient.unsubscribeFromTopic(ws, topic);
 
