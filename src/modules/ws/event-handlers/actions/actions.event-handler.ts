@@ -8,7 +8,7 @@ import type {
   SendResponseProps,
   TopicRegistrationPayload,
   TopicUnregisterPayload,
-} from '../interfaces/actions.event-handler.interface';
+} from './interfaces/actions.event-handler.interface';
 import type { WebSocket } from 'ws';
 
 export class ActionsEventHandler {
