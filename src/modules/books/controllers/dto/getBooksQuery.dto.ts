@@ -5,5 +5,6 @@ export const getBooksQuerySchema = Joi.object({
   limit: Joi.number().integer().min(1).max(100).default(20),
   // sortBy: Joi.string().optional(),
   // sortDirection: Joi.string().optional(),
-  category: Joi.string().optional(), // <---currently not being used
+  q: Joi.string().optional(), // <--- currently not being used
+  category: Joi.string().optional(), // <--- currently not being used
 });

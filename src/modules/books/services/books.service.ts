@@ -1,4 +1,5 @@
 import { getBoundedLimit, getBoundedPage } from '../../../common/utils/pagination';
+import { InternalServerError } from '../../../lib/Errors';
 import { DEFAULT_MOCK_BOOKS_COUNT, generateMockBooks } from './mock-books.generator';
 import type { Book, GetBooksParsedQuery, PaginatedBooksResponse } from '../types';
 import type { CreateBookDto, UpdateBookDto } from './interfaces/books.service.interface';
@@ -26,6 +27,8 @@ export class BooksService {
     const data = database.slice(offset, offset + boundedLimit);
 
     const page = boundedPage + 1; // <--- 1-based for response
+
+    if (Math.random() < 0.01) throw new InternalServerError('Mock error');
 
     return { data, totalItemsCount, page, limit: boundedLimit, totalPagesCount, hasMore: page < totalPagesCount };
   }
