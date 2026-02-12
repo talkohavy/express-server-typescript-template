@@ -22,3 +22,8 @@ export type PaginatedBooksResponse = {
   totalPages: number;
   hasMore: boolean;
 };
+
+export type GetBooksParsedQuery = {
+  page: number;
+  limit: number;
+};

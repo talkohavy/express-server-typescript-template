@@ -1,9 +1,12 @@
 import { API_URLS, StatusCodes } from '../../../common/constants';
 import { joiBodyMiddleware } from '../../../middlewares/joi-body.middleware';
+import { joiQueryMiddleware } from '../../../middlewares/joi-query.middleware';
 import { createBookSchema } from './dto/createBook.dto';
+import { getBooksQuerySchema } from './dto/getBooksQuery.dto';
 import { updateBookSchema } from './dto/updatedBook.dto';
 import type { ControllerFactory } from '../../../lib/lucky-server';
 import type { BooksService } from '../services/books.service';
+import type { GetBooksParsedQuery } from '../types';
 import type { Application, Request, Response } from 'express';
 
 export class BooksController implements ControllerFactory {
@@ -25,15 +28,16 @@ export class BooksController implements ControllerFactory {
   }
 
   private getBooks() {
-    this.app.get(API_URLS.books, async (req: Request, res: Response) => {
-      const page = req.query.page ? Number(req.query.page) : 1;
-      const limit = req.query.limit ? Number(req.query.limit) : 20;
+    this.app.get(API_URLS.books, joiQueryMiddleware(getBooksQuerySchema), async (req: Request, res: Response) => {
+      const queryParsed = req.queryParsed as GetBooksParsedQuery;
 
-      this.app.logger.info(`GET ${API_URLS.books} - fetching books (page=${page}, limit=${limit})`);
+      this.app.logger.info(
+        `GET ${API_URLS.books} - fetching books (page=${queryParsed.page}, limit=${queryParsed.limit})`,
+      );
 
-      const result = await this.booksService.getBooks({ page, limit });
+      const result = await this.booksService.getBooks(queryParsed);
 
-      res.json(result);
+      res.json({ result });
     });
   }
 
