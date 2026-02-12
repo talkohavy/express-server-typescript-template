@@ -1,32 +1,26 @@
 import { DEFAULT_MOCK_BOOKS_COUNT, generateMockBooks } from './mock-books.generator';
-import type { Book, PaginatedBooksResponse } from '../types';
+import type { Book, GetBooksParsedQuery, PaginatedBooksResponse } from '../types';
 import type { CreateBookDto, UpdateBookDto } from './interfaces/books.service.interface';
 
 const database: Array<Book> = generateMockBooks(DEFAULT_MOCK_BOOKS_COUNT);
 
-const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 100;
 
 export class BooksService {
   constructor() {}
 
-  async getBooks(options?: { page?: number; limit?: number }): Promise<PaginatedBooksResponse> {
-    const page = Math.max(1, options?.page ?? 1);
-    const limit = Math.min(MAX_LIMIT, Math.max(1, options?.limit ?? DEFAULT_LIMIT));
+  async getBooks(query: GetBooksParsedQuery): Promise<PaginatedBooksResponse> {
+    const { page: pageInput, limit: limitInput } = query;
+
+    const page = Math.max(1, pageInput);
+    const limit = Math.min(MAX_LIMIT, Math.max(1, limitInput));
     const offset = (page - 1) * limit;
     const total = database.length;
     const totalPages = Math.ceil(total / limit);
     const data = database.slice(offset, offset + limit);
     const hasMore = page < totalPages;
 
-    return {
-      data,
-      total,
-      page,
-      limit,
-      totalPages,
-      hasMore,
-    };
+    return { data, total, page, limit, totalPages, hasMore };
   }
 
   async getBookById(userId: string): Promise<Book | null> {
