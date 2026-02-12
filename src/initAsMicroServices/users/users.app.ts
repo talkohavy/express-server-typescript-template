@@ -13,7 +13,7 @@ import { helmetPlugin } from '../../plugins/helmet.plugin';
 import { loggerPlugin } from '../../plugins/logger.plugin';
 import { pathNotFoundPlugin } from '../../plugins/pathNotFound.plugin';
 import { postgresPlugin } from '../../plugins/postgres.plugin';
-import { addIdToRequestPlugin } from '../../plugins/request-id.plugin';
+import { addRequestIdHeaderPlugin } from '../../plugins/request-id.plugin';
 import { urlEncodedPlugin } from '../../plugins/urlEncoded.plugin';
 import { configServicePluggable } from '../shared/plugins/configService.plugin';
 
@@ -42,7 +42,7 @@ export async function buildApp() {
   await appModule.registerPlugins([
     configServicePluggable(configSettings),
     callContextPlugin,
-    addIdToRequestPlugin,
+    addRequestIdHeaderPlugin,
     loggerPlugin, // <--- dependencies: config-service plugin, call-context plugin
     postgresPlugin, // <--- dependencies: config-service plugin
     corsPlugin,

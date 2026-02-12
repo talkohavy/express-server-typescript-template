@@ -23,7 +23,7 @@ import { loggerPlugin } from './plugins/logger.plugin';
 import { pathNotFoundPlugin } from './plugins/pathNotFound.plugin';
 import { postgresPlugin } from './plugins/postgres.plugin';
 import { redisPlugin } from './plugins/redis.plugin';
-import { addIdToRequestPlugin } from './plugins/request-id.plugin';
+import { addRequestIdHeaderPlugin } from './plugins/request-id.plugin';
 import { socketIOPlugin } from './plugins/socket.io.plugin';
 import { urlEncodedPlugin } from './plugins/urlEncoded.plugin';
 import { wsPlugin } from './plugins/ws.plugin';
@@ -38,7 +38,7 @@ export async function buildApp() {
   await appModule.registerPlugins([
     configServicePlugin,
     callContextPlugin,
-    addIdToRequestPlugin,
+    addRequestIdHeaderPlugin,
     loggerPlugin, // <--- dependencies: config-service plugin, call-context plugin
     postgresPlugin, // <--- dependencies: config-service plugin
     redisPlugin, // <--- dependencies: config-service plugin
