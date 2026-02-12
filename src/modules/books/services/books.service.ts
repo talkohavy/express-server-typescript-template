@@ -1,4 +1,4 @@
-import { getBoundedPage } from '../../../common/utils/pagination';
+import { getBoundedLimit, getBoundedPage } from '../../../common/utils/pagination';
 import { DEFAULT_MOCK_BOOKS_COUNT, generateMockBooks } from './mock-books.generator';
 import type { Book, GetBooksParsedQuery, PaginatedBooksResponse } from '../types';
 import type { CreateBookDto, UpdateBookDto } from './interfaces/books.service.interface';
@@ -13,15 +13,21 @@ export class BooksService {
   async getBooks(query: GetBooksParsedQuery): Promise<PaginatedBooksResponse> {
     const { page: pageInput, limit: limitInput } = query;
 
-    const limit = Math.min(MAX_LIMIT, Math.max(1, limitInput));
+    // Get total items count:
     const totalItemsCount = database.length;
-    const boundedPage = getBoundedPage({ page: pageInput, limit, totalItemsCount: totalItemsCount });
-    const offset = limit * boundedPage;
-    const totalPagesCount = totalItemsCount === 0 ? 0 : Math.ceil(totalItemsCount / limit);
-    const data = database.slice(offset, offset + limit);
-    const page = boundedPage + 1; // 1-based for response
 
-    return { data, totalItemsCount, page, limit, totalPagesCount, hasMore: page < totalPagesCount };
+    // Update pagination query parameters:
+    const boundedLimit = getBoundedLimit({ limit: limitInput, maxLimit: MAX_LIMIT });
+    const boundedPage = getBoundedPage({ page: pageInput, limit: boundedLimit, totalItemsCount: totalItemsCount });
+
+    // Mock DB pagination query:
+    const offset = boundedLimit * boundedPage;
+    const totalPagesCount = totalItemsCount === 0 ? 0 : Math.ceil(totalItemsCount / boundedLimit);
+    const data = database.slice(offset, offset + boundedLimit);
+
+    const page = boundedPage + 1; // <--- 1-based for response
+
+    return { data, totalItemsCount, page, limit: boundedLimit, totalPagesCount, hasMore: page < totalPagesCount };
   }
 
   async getBookById(userId: string): Promise<Book | null> {
