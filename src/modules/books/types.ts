@@ -16,10 +16,10 @@ export type Book = {
 
 export type PaginatedBooksResponse = {
   data: Book[];
-  total: number;
+  totalItemsCount: number;
   page: number;
   limit: number;
-  totalPages: number;
+  totalPagesCount: number;
   hasMore: boolean;
 };
 
