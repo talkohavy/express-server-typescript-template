@@ -3,21 +3,17 @@ import { ServiceNames } from '../../../../configurations';
 import type { CreateBookDto, UpdateBookDto } from '../../../books/services/interfaces/books.service.interface';
 import type { Book, PaginatedBooksResponse } from '../../../books/types';
 import type { HttpClient } from '../../logic/http-client';
+import type { GetBooksParsedQuery } from '../types';
 import type { IBooksAdapter } from './books.adapter.interface';
 
 export class BooksHttpAdapter implements IBooksAdapter {
   constructor(private readonly httpClient: HttpClient) {}
 
-  async getBooks(options?: { page?: number; limit?: number }): Promise<PaginatedBooksResponse> {
-    const queryParams: Record<string, string> = {};
-
-    if (options?.page) queryParams.page = String(options.page);
-    if (options?.limit) queryParams.limit = String(options.limit);
-
+  async getBooks(queryParams: GetBooksParsedQuery): Promise<PaginatedBooksResponse> {
     return this.httpClient.get<PaginatedBooksResponse>({
       serviceName: ServiceNames.Books,
       route: API_URLS.books,
-      ...(Object.keys(queryParams).length > 0 && { options: { queryParams } }),
+      options: { queryParams },
     });
   }
 
