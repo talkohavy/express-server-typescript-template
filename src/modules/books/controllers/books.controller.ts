@@ -37,7 +37,7 @@ export class BooksController implements ControllerFactory {
 
       const result = await this.booksService.getBooks(queryParsed);
 
-      res.json({ result });
+      res.json(result);
     });
   }
 
