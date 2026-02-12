@@ -25,14 +25,16 @@ export class WsModule {
     this.connectionEventHandler.registerEventHandlers();
     this.actionsEventHandler.registerEventHandlers();
 
-    setInterval(() => {
-      const eventData: TopicMessage = {
-        topic: StaticTopics.Data,
-        payload: { message: 'Hello, world!' },
-        timestamp: Date.now(),
-      };
+    if (process.env.PUB_SUB_ENABLED) {
+      setInterval(() => {
+        const eventData: TopicMessage = {
+          topic: StaticTopics.Data,
+          payload: { message: 'Hello, world!' },
+          timestamp: Date.now(),
+        };
 
-      this.app.wsClient.publishToTopic(eventData);
-    }, 4000);
+        this.app.wsClient.publishToTopic(eventData);
+      }, 4000);
+    }
   }
 }
