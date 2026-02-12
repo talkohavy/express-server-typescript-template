@@ -30,6 +30,8 @@ export class BooksService {
 
     if (Math.random() < 0.01) throw new InternalServerError('Mock error');
 
+    await new Promise((resolve) => setTimeout(resolve, 30));
+
     return { data, totalItemsCount, page, limit: boundedLimit, totalPagesCount, hasMore: page < totalPagesCount };
   }
 
