@@ -1,20 +1,11 @@
 import express, { type Application } from 'express';
-import { optimizedApp } from '../../common/constants';
+import { Environment, optimizedApp } from '../../common/constants';
+import { LogLevel, type LogLevelValues } from '../../lib/logger';
 import { AppFactory } from '../../lib/lucky-server/app-factory';
-import { AuthenticationModule } from '../../modules/authentication';
-import { BackendModule } from '../../modules/backend';
-import { BooksModule } from '../../modules/books';
-import { DragonsModule } from '../../modules/dragons';
-import { FileUploadModule } from '../../modules/file-upload';
 import { HealthCheckModule } from '../../modules/health-check';
-// import { ServerSentEventModule } from '../../modules/serverSentEvents';
-// import { SocketIOModule } from '../../modules/socketio';
-import { SwaggerModule } from '../../modules/swagger';
 import { UsersModule } from '../../modules/users';
-import { WsModule } from '../../modules/ws';
 import { bodyLimitPlugin } from '../../plugins/bodyLimit.plugin';
 import { callContextPlugin } from '../../plugins/call-context.plugin';
-import { configServicePlugin } from '../../plugins/config-service.plugin';
 import { cookieParserPlugin } from '../../plugins/cookieParser.plugin';
 import { corsPlugin } from '../../plugins/cors/cors.plugin';
 import { errorHandlerPlugin } from '../../plugins/errorHandler.plugin';
@@ -22,11 +13,24 @@ import { helmetPlugin } from '../../plugins/helmet.plugin';
 import { loggerPlugin } from '../../plugins/logger.plugin';
 import { pathNotFoundPlugin } from '../../plugins/pathNotFound.plugin';
 import { postgresPlugin } from '../../plugins/postgres.plugin';
-import { redisPlugin } from '../../plugins/redis.plugin';
 import { addIdToRequestPlugin } from '../../plugins/request-id.plugin';
-import { socketIOPlugin } from '../../plugins/socket.io.plugin';
 import { urlEncodedPlugin } from '../../plugins/urlEncoded.plugin';
-import { wsPlugin } from '../../plugins/ws.plugin';
+import { configServicePluggable } from '../shared/plugins/configService.plugin';
+
+const configSettings = {
+  port: 8005,
+  isDev: !!process.env.IS_DEV,
+  isCI: !!process.env.IS_CI,
+  logSettings: {
+    serviceName: 'users-service',
+    logLevel: (process.env.LOG_LEVEL || LogLevel.Debug) as LogLevelValues,
+    logEnvironment: Environment.Dev,
+    useColoredOutput: process.env.NODE_ENV !== 'production',
+  },
+  postgres: {
+    connectionString: process.env.POSTGRES_CONNECTION_STRING || 'postgres://user:password@localhost:5432/mydb',
+  },
+};
 
 export async function buildApp() {
   const app = express() as unknown as Application;
@@ -36,14 +40,11 @@ export async function buildApp() {
   const appModule = new AppFactory(app, optimizedApp);
 
   await appModule.registerPlugins([
-    configServicePlugin,
+    configServicePluggable(configSettings),
     callContextPlugin,
     addIdToRequestPlugin,
     loggerPlugin, // <--- dependencies: config-service plugin, call-context plugin
     postgresPlugin, // <--- dependencies: config-service plugin
-    redisPlugin, // <--- dependencies: config-service plugin
-    socketIOPlugin,
-    wsPlugin,
     corsPlugin,
     helmetPlugin,
     bodyLimitPlugin,
@@ -54,18 +55,7 @@ export async function buildApp() {
   appModule.registerModules([
     // - Main modules (service providers)
     HealthCheckModule,
-    AuthenticationModule,
     UsersModule,
-    BooksModule,
-    DragonsModule,
-    FileUploadModule,
-    // SocketIOModule,
-    WsModule,
-    // - BFF module (route provider) - requires Main modules to be ready
-    BackendModule,
-    // - Utility modules
-    // ServerSentEventModule,
-    SwaggerModule,
   ]);
 
   appModule.registerErrorHandler(errorHandlerPlugin);

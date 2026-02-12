@@ -1,5 +1,5 @@
-import type { EnvironmentValues } from '../../../common/constants';
-import type { LoggerSettings } from '../../../lib/logger';
+import type { EnvironmentValues } from '../../common/constants';
+import type { LoggerSettings } from '../../lib/logger';
 
 export const ConfigKeys = {
   Port: 'port',

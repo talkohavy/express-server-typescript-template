@@ -1,7 +1,7 @@
 import { hostname } from 'os';
 import { COLORS } from 'color-my-json';
-import { ConfigKeys } from '../../configurations';
 import { buildApp } from './app';
+import { ConfigKeys } from './configurations';
 
 startServer();
 

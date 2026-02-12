@@ -1,4 +1,4 @@
-import { ConfigService } from '../../../../lib/config-service';
+import { ConfigService } from '../../../lib/config-service';
 import type { Application } from 'express';
 
 export function configServicePluggable(configSettings: Record<string, any>) {

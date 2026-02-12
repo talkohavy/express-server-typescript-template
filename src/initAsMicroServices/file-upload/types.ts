@@ -1,6 +1,5 @@
-import type { EnvironmentValues } from '../../../common/constants';
-import type { RedisConfig } from '../../../lib/database/redis';
-import type { LoggerSettings } from '../../../lib/logger';
+import type { EnvironmentValues } from '../../common/constants';
+import type { LoggerSettings } from '../../lib/logger';
 
 export const ConfigKeys = {
   Port: 'port',
@@ -24,7 +23,6 @@ export type AuthenticationConfig = {
   [ConfigKeys.Cookies]: CookiesConfig;
   [ConfigKeys.Jwt]: JwtConfig;
   [ConfigKeys.LogSettings]: LoggerServiceSettings;
-  [ConfigKeys.Redis]: Partial<RedisConfig>;
 };
 
 export type AuthCookieConfig = {

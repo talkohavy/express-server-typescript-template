@@ -1,20 +1,20 @@
 import express, { type Application } from 'express';
-import { Environment, optimizedApp } from '../../../common/constants';
-import { ServiceNames } from '../../../configurations';
-import { LogLevel, type LogLevelValues } from '../../../lib/logger';
-import { AppFactory } from '../../../lib/lucky-server/app-factory';
-import { BackendModule } from '../../../modules/backend';
-import { HealthCheckModule } from '../../../modules/health-check';
-import { bodyLimitPlugin } from '../../../plugins/bodyLimit.plugin';
-import { callContextPlugin } from '../../../plugins/call-context.plugin';
-import { cookieParserPlugin } from '../../../plugins/cookieParser.plugin';
-import { corsPlugin } from '../../../plugins/cors/cors.plugin';
-import { errorHandlerPlugin } from '../../../plugins/errorHandler.plugin';
-import { helmetPlugin } from '../../../plugins/helmet.plugin';
-import { loggerPlugin } from '../../../plugins/logger.plugin';
-import { pathNotFoundPlugin } from '../../../plugins/pathNotFound.plugin';
-import { addIdToRequestPlugin } from '../../../plugins/request-id.plugin';
-import { urlEncodedPlugin } from '../../../plugins/urlEncoded.plugin';
+import { Environment, optimizedApp } from '../../common/constants';
+import { ServiceNames } from '../../configurations';
+import { LogLevel, type LogLevelValues } from '../../lib/logger';
+import { AppFactory } from '../../lib/lucky-server/app-factory';
+import { BackendModule } from '../../modules/backend';
+import { HealthCheckModule } from '../../modules/health-check';
+import { bodyLimitPlugin } from '../../plugins/bodyLimit.plugin';
+import { callContextPlugin } from '../../plugins/call-context.plugin';
+import { cookieParserPlugin } from '../../plugins/cookieParser.plugin';
+import { corsPlugin } from '../../plugins/cors/cors.plugin';
+import { errorHandlerPlugin } from '../../plugins/errorHandler.plugin';
+import { helmetPlugin } from '../../plugins/helmet.plugin';
+import { loggerPlugin } from '../../plugins/logger.plugin';
+import { pathNotFoundPlugin } from '../../plugins/pathNotFound.plugin';
+import { addIdToRequestPlugin } from '../../plugins/request-id.plugin';
+import { urlEncodedPlugin } from '../../plugins/urlEncoded.plugin';
 import { configServicePluggable } from '../shared/plugins/configService.plugin';
 
 const configSettings = {

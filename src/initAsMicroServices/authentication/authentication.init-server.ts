@@ -1,5 +1,5 @@
 import { COLORS } from 'color-my-json';
-import { ConfigKeys } from '../../../configurations';
+import { ConfigKeys } from '../../configurations';
 import { buildApp } from './authentication.app';
 
 export async function startServer() {
