@@ -105,5 +105,5 @@ export const optimizedApp: OptimizedApp = {
   callContextService: null as any,
   httpServer: null as any,
   io: null as any,
-  wss: null as any,
+  wsClient: null as any,
 };
