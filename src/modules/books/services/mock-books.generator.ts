@@ -13,10 +13,18 @@ export function generateMockBooks(count: number): Book[] {
     description: faker.lorem.paragraph({ min: 1, max: 3 }),
     pageCount: faker.number.int({ min: 100, max: 800 }),
     rating: faker.number.float({ min: 2, max: 5, fractionDigits: 1 }),
-    language: faker.helpers.arrayElement(['English', 'Spanish', 'French', 'German', 'Italian', 'Portuguese', 'Japanese']),
+    language: faker.helpers.arrayElement([
+      'English',
+      'Spanish',
+      'French',
+      'German',
+      'Italian',
+      'Portuguese',
+      'Japanese',
+    ]),
     publisher: faker.book.publisher(),
     createdAt: faker.date.past({ years: 10 }).toISOString(),
   }));
 }
 
-export const DEFAULT_MOCK_BOOKS_COUNT = 500;
+export const DEFAULT_MOCK_BOOKS_COUNT = 100;
