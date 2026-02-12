@@ -25,12 +25,15 @@ export class BooksController implements ControllerFactory {
   }
 
   private getBooks() {
-    this.app.get(API_URLS.books, async (_req, res) => {
-      this.app.logger.info(`GET ${API_URLS.books} - fetching books`);
+    this.app.get(API_URLS.books, async (req: Request, res: Response) => {
+      const page = req.query.page ? Number(req.query.page) : 1;
+      const limit = req.query.limit ? Number(req.query.limit) : 20;
 
-      const books = await this.booksAdapter.getBooks();
+      this.app.logger.info(`GET ${API_URLS.books} - fetching books (page=${page}, limit=${limit})`);
 
-      res.json(books);
+      const result = await this.booksAdapter.getBooks({ page, limit });
+
+      res.json(result);
     });
   }
 

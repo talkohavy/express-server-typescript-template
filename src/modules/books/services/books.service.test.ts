@@ -8,15 +8,47 @@ describe('BooksService', () => {
   });
 
   describe('getBooks', () => {
-    it('should return all books', async () => {
-      await service.createBook({ name: 'Book 1', author: 'Author 1', publishedYear: 2020 });
-      await service.createBook({ name: 'Book 2', author: 'Author 2', publishedYear: 2021 });
+    it('should return paginated books with default page and limit', async () => {
+      const result = await service.getBooks();
 
-      const books = await service.getBooks();
+      expect(result.data).toBeInstanceOf(Array);
+      expect(result.data.length).toBeLessThanOrEqual(20);
+      expect(result.total).toBeGreaterThanOrEqual(500);
+      expect(result.page).toBe(1);
+      expect(result.limit).toBe(20);
+      expect(result.totalPages).toBeGreaterThanOrEqual(25);
+      expect(result.hasMore).toBe(true);
+      expect(result.data[0]).toMatchObject({
+        id: expect.any(Number),
+        name: expect.any(String),
+        author: expect.any(String),
+        publishedYear: expect.any(Number),
+        genre: expect.any(String),
+        isbn: expect.any(String),
+        coverImageUrl: expect.any(String),
+        description: expect.any(String),
+        pageCount: expect.any(Number),
+        rating: expect.any(Number),
+        language: expect.any(String),
+        publisher: expect.any(String),
+        createdAt: expect.any(String),
+      });
+    });
 
-      expect(books.length).toBeGreaterThanOrEqual(2);
-      expect(books[books.length - 2]).toMatchObject({ name: 'Book 1', author: 'Author 1' });
-      expect(books[books.length - 1]).toMatchObject({ name: 'Book 2', author: 'Author 2' });
+    it('should return correct page and limit when specified', async () => {
+      const result = await service.getBooks({ page: 2, limit: 10 });
+
+      expect(result.data.length).toBeLessThanOrEqual(10);
+      expect(result.page).toBe(2);
+      expect(result.limit).toBe(10);
+      expect(result.hasMore).toBe(true);
+    });
+
+    it('should return empty data on page beyond total', async () => {
+      const result = await service.getBooks({ page: 9999, limit: 20 });
+
+      expect(result.data).toEqual([]);
+      expect(result.hasMore).toBe(false);
     });
   });
 
@@ -27,6 +59,16 @@ describe('BooksService', () => {
       const book = await service.getBookById(String(created.id));
 
       expect(book).toMatchObject({ name: 'Test Book', author: 'Test Author', publishedYear: 2022 });
+      expect(book).toHaveProperty('genre');
+      expect(book).toHaveProperty('isbn');
+      expect(book).toHaveProperty('createdAt');
+    });
+
+    it('should return an existing mock book by id', async () => {
+      const book = await service.getBookById('1');
+
+      expect(book).not.toBeNull();
+      expect(book?.id).toBe(1);
     });
 
     it('should return null when book not found', async () => {
@@ -37,13 +79,32 @@ describe('BooksService', () => {
   });
 
   describe('createBook', () => {
-    it('should create a new book', async () => {
+    it('should create a new book with required fields', async () => {
       const bookData = { name: 'New Book', author: 'New Author', publishedYear: 2023 };
 
       const result = await service.createBook(bookData);
 
       expect(result).toMatchObject(bookData);
       expect(result.id).toBeDefined();
+      expect(result.genre).toBe('Fiction');
+      expect(result.language).toBe('English');
+      expect(result.createdAt).toBeDefined();
+    });
+
+    it('should create a new book with optional fields', async () => {
+      const bookData = {
+        name: 'Full Book',
+        author: 'Full Author',
+        publishedYear: 2022,
+        genre: 'Science Fiction',
+        description: 'A great read',
+        pageCount: 400,
+        rating: 4.5,
+      };
+
+      const result = await service.createBook(bookData);
+
+      expect(result).toMatchObject(bookData);
     });
   });
 

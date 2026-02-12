@@ -1,13 +1,13 @@
 import type { BooksService } from '../../../books/services/books.service';
 import type { CreateBookDto, UpdateBookDto } from '../../../books/services/interfaces/books.service.interface';
-import type { Book } from '../../../books/types';
+import type { Book, PaginatedBooksResponse } from '../../../books/types';
 import type { IBooksAdapter } from './books.adapter.interface';
 
 export class BooksDirectAdapter implements IBooksAdapter {
   constructor(private readonly booksService: BooksService) {}
 
-  async getBooks(): Promise<Array<Book>> {
-    return this.booksService.getBooks();
+  async getBooks(options?: { page?: number; limit?: number }): Promise<PaginatedBooksResponse> {
+    return this.booksService.getBooks(options);
   }
 
   async getBookById(bookId: string): Promise<Book | null> {

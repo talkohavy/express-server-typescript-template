@@ -1,6 +1,6 @@
 import {
-  addPageParamToQuery,
   addIdParamToPath,
+  addPaginationParams,
   addRequestBody,
   createApiRoute,
   createSwaggerApiDocs,
@@ -24,15 +24,18 @@ export class BooksSwaggerConfig extends AbstractSwaggerConfig {
         createApiRoute({
           method: 'get',
           route: API_URLS.books,
-          summary: 'Find books by query params',
-          parameters: [addPageParamToQuery()],
+          summary: 'Find books with pagination (supports infinite scroll)',
+          parameters: addPaginationParams({
+            style: 'page-limit',
+            limitConfig: { defaultValue: 20, minimum: 1, maximum: 100 },
+          }),
           responses: {
             '200': {
-              description: 'Books fetched successfully',
+              description: 'Paginated books fetched successfully',
               content: {
                 'application/json': {
-                  schema: { $ref: BOOK_REFS.book },
-                }, //
+                  schema: { $ref: BOOK_REFS.paginatedBooks },
+                },
                 'application/x-www-form-urlencoded': {},
               },
             },

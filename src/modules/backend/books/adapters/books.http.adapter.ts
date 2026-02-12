@@ -1,17 +1,23 @@
 import { API_URLS } from '../../../../common/constants';
 import { ServiceNames } from '../../../../configurations';
 import type { CreateBookDto, UpdateBookDto } from '../../../books/services/interfaces/books.service.interface';
-import type { Book } from '../../../books/types';
+import type { Book, PaginatedBooksResponse } from '../../../books/types';
 import type { HttpClient } from '../../logic/http-client';
 import type { IBooksAdapter } from './books.adapter.interface';
 
 export class BooksHttpAdapter implements IBooksAdapter {
   constructor(private readonly httpClient: HttpClient) {}
 
-  async getBooks(): Promise<Array<Book>> {
-    return this.httpClient.get<Array<Book>>({
+  async getBooks(options?: { page?: number; limit?: number }): Promise<PaginatedBooksResponse> {
+    const queryParams: Record<string, string> = {};
+
+    if (options?.page) queryParams.page = String(options.page);
+    if (options?.limit) queryParams.limit = String(options.limit);
+
+    return this.httpClient.get<PaginatedBooksResponse>({
       serviceName: ServiceNames.Books,
       route: API_URLS.books,
+      ...(Object.keys(queryParams).length > 0 && { options: { queryParams } }),
     });
   }
 

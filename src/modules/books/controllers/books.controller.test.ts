@@ -34,26 +34,48 @@ describe('BooksController', () => {
   });
 
   describe('GET /api/books', () => {
-    it('should return all books', async () => {
-      const mockBooks = [
-        { id: 1, name: 'Book 1', author: 'Author 1', publishedYear: 2020 },
-        { id: 2, name: 'Book 2', author: 'Author 2', publishedYear: 2021 },
-      ];
+    it('should return paginated books', async () => {
+      const mockPaginatedResponse = {
+        data: [
+          { id: 1, name: 'Book 1', author: 'Author 1', publishedYear: 2020, genre: 'Fiction', isbn: '978-000000001-0', coverImageUrl: '', description: '', pageCount: 200, rating: 4, language: 'English', publisher: 'Test', createdAt: '2020-01-01T00:00:00.000Z' },
+          { id: 2, name: 'Book 2', author: 'Author 2', publishedYear: 2021, genre: 'Fiction', isbn: '978-000000002-0', coverImageUrl: '', description: '', pageCount: 200, rating: 4, language: 'English', publisher: 'Test', createdAt: '2021-01-01T00:00:00.000Z' },
+        ],
+        total: 2,
+        page: 1,
+        limit: 20,
+        totalPages: 1,
+        hasMore: false,
+      };
 
-      mockBooksService.getBooks.mockResolvedValue(mockBooks);
+      mockBooksService.getBooks.mockResolvedValue(mockPaginatedResponse);
 
       const response = await request(app).get(API_URLS.books);
 
       expect(response.status).toBe(StatusCodes.OK);
-      expect(response.body).toEqual(mockBooks);
-      expect(mockBooksService.getBooks).toHaveBeenCalled();
-      expect(app.logger.info).toHaveBeenCalledWith(`GET ${API_URLS.books} - fetching books`);
+      expect(response.body).toEqual(mockPaginatedResponse);
+      expect(mockBooksService.getBooks).toHaveBeenCalledWith({ page: 1, limit: 20 });
+      expect(app.logger.info).toHaveBeenCalledWith(`GET ${API_URLS.books} - fetching books (page=1, limit=20)`);
+    });
+
+    it('should pass page and limit query params to service', async () => {
+      mockBooksService.getBooks.mockResolvedValue({
+        data: [],
+        total: 0,
+        page: 2,
+        limit: 10,
+        totalPages: 0,
+        hasMore: false,
+      });
+
+      await request(app).get(`${API_URLS.books}?page=2&limit=10`);
+
+      expect(mockBooksService.getBooks).toHaveBeenCalledWith({ page: 2, limit: 10 });
     });
   });
 
   describe('GET /api/books/:bookId', () => {
     it('should return a book when found', async () => {
-      const mockBook = { id: 1, name: 'Test Book', author: 'Test Author', publishedYear: 2022 };
+      const mockBook = { id: 1, name: 'Test Book', author: 'Test Author', publishedYear: 2022, genre: 'Fiction', isbn: '', coverImageUrl: '', description: '', pageCount: 100, rating: 4, language: 'English', publisher: 'Test', createdAt: '2022-01-01T00:00:00.000Z' };
 
       mockBooksService.getBookById.mockResolvedValue(mockBook);
 
@@ -78,7 +100,7 @@ describe('BooksController', () => {
   describe('POST /api/books', () => {
     it('should create a new book', async () => {
       const bookData = { name: 'New Book', author: 'New Author', publishedYear: 2023 };
-      const mockCreatedBook = { id: 1, ...bookData };
+      const mockCreatedBook = { id: 501, ...bookData } as any;
 
       mockBooksService.createBook.mockResolvedValue(mockCreatedBook);
 
