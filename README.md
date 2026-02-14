@@ -82,3 +82,25 @@ pnpm run  k6:load             # Dear AI, please fill this part... replace this t
 pnpm run  k6:stress           # Dear AI, please fill this part... replace this text with an explanation of what its doing
 pnpm run  k6:health           # Dear AI, please fill this part... replace this text with an explanation of what its doing
 ```
+
+## 5. What each module demonstrates?
+
+### A. Books Module
+
+Books demonstrates how to create a simpler CRUD module. It has no DB connection, and uses a js array for simplicity. The `getBooks` method uses mock data such that a UI could implement pagination or infinite scrolling. It accepts `page` & `limit` as query params.
+
+### B. Dragons Module
+
+Dragons demonstrates a module that uses `redis`. It uses redis as database, which is not ideal, but again - it was just to show how a module might receive redis as an instance.
+
+### C. Users Module
+
+Dragons demonstrates a complex module, that already starts to look like a production-grade environment.
+It includes:
+
+- A repository level (database connection)
+- Multiple services (i.e. `users-crud.service.ts`, `user-utilities.service.ts`, etc.)
+- A permissions level
+- A field-screening service
+
+The database/repository layer used here is either `postgres` or `mongodb`. In such a module we create an extra folder called `repositories` where we declare a repository class (`UsersRepository` for example), and define db operations there.
