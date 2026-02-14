@@ -37,8 +37,36 @@ describe('BooksController', () => {
     it('should return paginated books', async () => {
       const mockPaginatedResponse = {
         data: [
-          { id: 1, name: 'Book 1', author: 'Author 1', publishedYear: 2020, genre: 'Fiction', isbn: '978-000000001-0', coverImageUrl: '', description: '', pageCount: 200, rating: 4, language: 'English', publisher: 'Test', createdAt: '2020-01-01T00:00:00.000Z' },
-          { id: 2, name: 'Book 2', author: 'Author 2', publishedYear: 2021, genre: 'Fiction', isbn: '978-000000002-0', coverImageUrl: '', description: '', pageCount: 200, rating: 4, language: 'English', publisher: 'Test', createdAt: '2021-01-01T00:00:00.000Z' },
+          {
+            id: 1,
+            name: 'Book 1',
+            author: 'Author 1',
+            publishedYear: 2020,
+            genre: 'Fiction',
+            isbn: '978-000000001-0',
+            coverImageUrl: '',
+            description: '',
+            pageCount: 200,
+            rating: 4,
+            language: 'English',
+            publisher: 'Test',
+            createdAt: '2020-01-01T00:00:00.000Z',
+          },
+          {
+            id: 2,
+            name: 'Book 2',
+            author: 'Author 2',
+            publishedYear: 2021,
+            genre: 'Fiction',
+            isbn: '978-000000002-0',
+            coverImageUrl: '',
+            description: '',
+            pageCount: 200,
+            rating: 4,
+            language: 'English',
+            publisher: 'Test',
+            createdAt: '2021-01-01T00:00:00.000Z',
+          },
         ],
         total: 2,
         page: 1,
@@ -75,7 +103,21 @@ describe('BooksController', () => {
 
   describe('GET /api/books/:bookId', () => {
     it('should return a book when found', async () => {
-      const mockBook = { id: 1, name: 'Test Book', author: 'Test Author', publishedYear: 2022, genre: 'Fiction', isbn: '', coverImageUrl: '', description: '', pageCount: 100, rating: 4, language: 'English', publisher: 'Test', createdAt: '2022-01-01T00:00:00.000Z' };
+      const mockBook = {
+        id: 1,
+        name: 'Test Book',
+        author: 'Test Author',
+        publishedYear: 2022,
+        genre: 'Fiction',
+        isbn: '',
+        coverImageUrl: '',
+        description: '',
+        pageCount: 100,
+        rating: 4,
+        language: 'English',
+        publisher: 'Test',
+        createdAt: '2022-01-01T00:00:00.000Z',
+      };
 
       mockBooksService.getBookById.mockResolvedValue(mockBook);
 

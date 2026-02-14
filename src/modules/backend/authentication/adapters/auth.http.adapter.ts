@@ -26,11 +26,11 @@ export class AuthHttpAdapter implements IAuthAdapter {
     return response;
   }
 
-  async createTokens(userId: string): Promise<Tokens> {
+  async createTokens(userId: string, role: string): Promise<Tokens> {
     const response = await this.httpClient.post<Tokens>({
       serviceName: ServiceNames.Auth,
       route: API_URLS.createTokens,
-      body: { userId },
+      body: { userId, role },
     });
 
     return response;

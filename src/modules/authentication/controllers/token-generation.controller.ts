@@ -17,9 +17,9 @@ export class TokenGenerationController implements ControllerFactory {
 
       this.app.logger.info(`POST ${API_URLS.createTokens} - create tokens`);
 
-      const { userId } = body;
+      const { userId, role } = body;
 
-      const tokens = await this.tokenGenerationService.createTokens(userId);
+      const tokens = await this.tokenGenerationService.createTokens({ userId, role });
 
       res.json(tokens);
     });

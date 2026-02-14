@@ -1,4 +1,5 @@
 import type { DatabaseUser } from '../../types';
+import type { RoleTypeValues } from '@src/lib/permissions';
 import type { QueryOptions } from 'mongoose';
 
 export type GetUserByEmailOptions = {
@@ -27,4 +28,5 @@ export type UpdateUserDto = {
   name?: string;
   age?: number;
   email?: string;
+  role?: RoleTypeValues;
 };

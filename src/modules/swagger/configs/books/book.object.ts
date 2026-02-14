@@ -1,6 +1,20 @@
 export const BookObject = {
   type: 'object',
-  required: ['id', 'name', 'author', 'publishedYear', 'genre', 'isbn', 'coverImageUrl', 'description', 'pageCount', 'rating', 'language', 'publisher', 'createdAt'],
+  required: [
+    'id',
+    'name',
+    'author',
+    'publishedYear',
+    'genre',
+    'isbn',
+    'coverImageUrl',
+    'description',
+    'pageCount',
+    'rating',
+    'language',
+    'publisher',
+    'createdAt',
+  ],
   properties: {
     id: { type: 'integer', format: 'int64', example: 1 },
     name: { type: 'string', example: 'The Great Gatsby' },

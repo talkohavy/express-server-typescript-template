@@ -1,3 +1,4 @@
+import { RoleTypes } from '@src/lib/permissions';
 import type { CreateUserDto } from '../../services/interfaces/users.service.interface';
 import type { DatabaseUser } from '../../types';
 
@@ -7,6 +8,7 @@ export function createNewUserPayload(body: CreateUserDto) {
     nickname: body.nickname,
     date_of_birth: Number(body.dateOfBirth),
     hashed_password: body.password,
+    role: body.role ?? RoleTypes.User,
   };
 
   return createdUserValues;

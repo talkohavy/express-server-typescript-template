@@ -5,6 +5,7 @@ export type Tokens = {
 
 export type DecodedToken = {
   id: string;
+  role: string;
   iat: number;
   exp: number;
   iss: string;
@@ -24,8 +25,10 @@ export interface IAuthAdapter {
 
   /**
    * Creates access and refresh tokens for the given user ID
+   * @param userId - User ID
+   * @param role - role for RBAC (included in JWT payload)
    */
-  createTokens(userId: string): Promise<Tokens>;
+  createTokens(userId: string, role: string): Promise<Tokens>;
 
   /**
    * Verifies an access token and returns the decoded payload

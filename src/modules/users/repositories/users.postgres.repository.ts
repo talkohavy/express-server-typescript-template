@@ -1,3 +1,4 @@
+import { RoleTypes } from '@src/lib/permissions';
 import type { DatabaseUser } from '../types';
 import type { IUsersRepository } from './interfaces/users.repository.base';
 import type {
@@ -27,7 +28,9 @@ export class UsersPostgresRepository implements IUsersRepository {
         nickname: 'dummy',
         email: 'dummy@gmail.com',
         hashed_password:
-          'salt:94177b3f3685418853031cda2a9845bc5f7098b0a92b0acdd637694541160da8e2b2607f3331f30bff62746785a63549c05ddf09bf15384077a5f0129bbab2d0',
+          'salt:703453cc3a2dba8d0bed63a5757cc905ee6a6ab357caed7cdf8acdb16d9ea0706647a06259ebc0379bc413b4f0f9dcd51fff8d971f70a99872845a1c908e7462',
+        date_of_birth: 0,
+        role: RoleTypes.User,
       } as DatabaseUser);
     }
 
@@ -36,11 +39,12 @@ export class UsersPostgresRepository implements IUsersRepository {
 
   async createUser(body: CreateUserDto): Promise<DatabaseUser> {
     const query = `
-      INSERT INTO users (email, hashed_password, nickname, date_of_birth, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, NOW(), NOW())
+      INSERT INTO users (email, hashed_password, nickname, date_of_birth, role, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
       RETURNING *
     `;
-    const values = [body.email, body.hashed_password, body.nickname, body.date_of_birth];
+
+    const values = [body.email, body.hashed_password, body.nickname, body.date_of_birth, body.role];
 
     const result = await this.pgClient.query(query, values);
     return result.rows[0] as DatabaseUser;

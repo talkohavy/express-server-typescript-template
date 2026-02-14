@@ -5,8 +5,9 @@ import type { CreateAccessTokenProps, CreateRefreshTokenProps } from './interfac
 export class TokenGenerationService {
   constructor(private readonly jwtConfig: JwtConfig) {}
 
-  async createTokens(userId: string): Promise<{ accessToken: string; refreshToken: string }> {
-    const payload = { id: userId };
+  async createTokens(props: { userId: string; role: string }): Promise<{ accessToken: string; refreshToken: string }> {
+    const { userId, role } = props;
+    const payload = { id: userId, role };
     const accessToken = await this.createAccessToken(payload);
     const refreshToken = await this.createRefreshToken(payload);
 

@@ -18,8 +18,8 @@ export class AuthDirectAdapter implements IAuthAdapter {
     return this.passwordManagementService.getIsPasswordValid(saltAndHashedPassword, rawPassword);
   }
 
-  async createTokens(userId: string): Promise<Tokens> {
-    return this.tokenGenerationService.createTokens(userId);
+  async createTokens(userId: string, role: string): Promise<Tokens> {
+    return this.tokenGenerationService.createTokens({ userId, role });
   }
 
   async verifyToken(token: string): Promise<DecodedToken> {
