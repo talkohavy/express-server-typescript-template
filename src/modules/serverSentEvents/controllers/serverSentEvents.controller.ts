@@ -27,8 +27,6 @@ export class ServerSentEventsController implements ControllerFactory {
         res.end();
       });
     });
-
-    this.serverSentEventsService.runSimulation();
   }
 
   registerRoutes() {

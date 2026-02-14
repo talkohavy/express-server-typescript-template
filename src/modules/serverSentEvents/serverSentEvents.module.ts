@@ -28,5 +28,7 @@ export class ServerSentEventModule {
     const controller = new ServerSentEventsController(app, this.serverSentEventsService);
 
     controller.registerRoutes();
+
+    this.serverSentEventsService.runSimulation();
   }
 }
