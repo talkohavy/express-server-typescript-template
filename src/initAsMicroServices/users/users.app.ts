@@ -2,16 +2,16 @@ import express, { type Application } from 'express';
 import { Environment, optimizedApp } from '../../common/constants';
 import { LogLevel, type LogLevelValues } from '../../lib/logger';
 import { AppFactory } from '../../lib/lucky-server/app-factory';
+import { errorHandler } from '../../middlewares/errorHandler.middleware';
+import { pathNotFoundHandler } from '../../middlewares/pathNotFoundHandler.middleware';
 import { HealthCheckModule } from '../../modules/health-check';
 import { UsersModule } from '../../modules/users';
 import { bodyLimitPlugin } from '../../plugins/bodyLimit.plugin';
 import { callContextPlugin } from '../../plugins/call-context.plugin';
 import { cookieParserPlugin } from '../../plugins/cookieParser.plugin';
 import { corsPlugin } from '../../plugins/cors/cors.plugin';
-import { errorHandlerPlugin } from '../../plugins/errorHandler.plugin';
 import { helmetPlugin } from '../../plugins/helmet.plugin';
 import { loggerPlugin } from '../../plugins/logger.plugin';
-import { pathNotFoundPlugin } from '../../plugins/pathNotFound.plugin';
 import { postgresPlugin } from '../../plugins/postgres.plugin';
 import { addRequestIdHeaderPlugin } from '../../plugins/request-id.plugin';
 import { urlEncodedPlugin } from '../../plugins/urlEncoded.plugin';
@@ -58,8 +58,8 @@ export async function buildApp() {
     UsersModule,
   ]);
 
-  appModule.registerErrorHandler(errorHandlerPlugin);
-  appModule.registerPathNotFoundHandler(pathNotFoundPlugin);
+  appModule.registerErrorHandler(errorHandler);
+  appModule.registerPathNotFoundHandler(pathNotFoundHandler);
 
   return app;
 }

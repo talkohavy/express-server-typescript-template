@@ -1,6 +1,6 @@
 import type { Application, Request, Response } from 'express';
 
-export function pathNotFoundPlugin(app: Application) {
+export function pathNotFoundHandler(app: Application) {
   app.use(pathNotFoundMiddleware);
 }
 

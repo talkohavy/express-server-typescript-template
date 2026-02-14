@@ -2,7 +2,11 @@
 alwaysApply: true
 ---
 
-# GitHub Copilot AI Rules
+# Cursor AI Rules
+
+This file provides guidance to Cursor AI when working with code in this repository.
+
+## 📋 Shared AI Coding Rules
 
 **All coding rules, guidelines, and project information are maintained in a single shared file:**
 

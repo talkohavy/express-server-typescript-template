@@ -1,6 +1,8 @@
 import express, { type Application } from 'express';
 import { optimizedApp } from './common/constants';
 import { AppFactory } from './lib/lucky-server/app-factory';
+import { errorHandler } from './middlewares/errorHandler.middleware';
+import { pathNotFoundHandler } from './middlewares/pathNotFoundHandler.middleware';
 import { AuthenticationModule } from './modules/authentication';
 import { BackendModule } from './modules/backend';
 import { BooksModule } from './modules/books';
@@ -17,10 +19,8 @@ import { callContextPlugin } from './plugins/call-context.plugin';
 import { configServicePlugin } from './plugins/config-service.plugin';
 import { cookieParserPlugin } from './plugins/cookieParser.plugin';
 import { corsPlugin } from './plugins/cors/cors.plugin';
-import { errorHandlerPlugin } from './plugins/errorHandler.plugin';
 import { helmetPlugin } from './plugins/helmet.plugin';
 import { loggerPlugin } from './plugins/logger.plugin';
-import { pathNotFoundPlugin } from './plugins/pathNotFound.plugin';
 import { postgresPlugin } from './plugins/postgres.plugin';
 import { redisPlugin } from './plugins/redis.plugin';
 import { addRequestIdHeaderPlugin } from './plugins/request-id.plugin';
@@ -68,8 +68,8 @@ export async function buildApp() {
     SwaggerModule,
   ]);
 
-  appModule.registerErrorHandler(errorHandlerPlugin);
-  appModule.registerPathNotFoundHandler(pathNotFoundPlugin);
+  appModule.registerErrorHandler(errorHandler);
+  appModule.registerPathNotFoundHandler(pathNotFoundHandler);
 
   return app;
 }
