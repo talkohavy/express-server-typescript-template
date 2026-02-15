@@ -19,6 +19,7 @@ import { callContextPlugin } from './plugins/call-context.plugin';
 import { configServicePlugin } from './plugins/config-service.plugin';
 import { cookieParserPlugin } from './plugins/cookieParser.plugin';
 import { corsPlugin } from './plugins/cors/cors.plugin';
+import { fetchPermissionsPlugin } from './plugins/fetch-permissions.plugin';
 import { helmetPlugin } from './plugins/helmet.plugin';
 import { loggerPlugin } from './plugins/logger.plugin';
 import { postgresPlugin } from './plugins/postgres.plugin';
@@ -36,19 +37,22 @@ export async function buildApp() {
   const appModule = new AppFactory(app, optimizedApp);
 
   await appModule.registerPlugins([
+    // infrastructure plugins:
     configServicePlugin,
     callContextPlugin,
-    addRequestIdHeaderPlugin,
     loggerPlugin, // <--- dependencies: config-service plugin, call-context plugin
     postgresPlugin, // <--- dependencies: config-service plugin
     redisPlugin, // <--- dependencies: config-service plugin
     socketIOPlugin,
     wsPlugin,
+    // middleware plugins:
+    addRequestIdHeaderPlugin,
     corsPlugin,
     helmetPlugin,
     bodyLimitPlugin,
     urlEncodedPlugin,
     cookieParserPlugin,
+    fetchPermissionsPlugin,
   ]);
 
   appModule.registerModules([
