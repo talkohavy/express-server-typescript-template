@@ -2,7 +2,7 @@ import cookieParser from 'cookie-parser';
 import express, { type Application } from 'express';
 import request from 'supertest';
 import { API_URLS, StatusCodes } from '../../../common/constants';
-import { errorHandlerPlugin } from '../../../middlewares/errorHandler.middleware';
+import { errorHandler } from '../../../middlewares/errorHandler.middleware';
 import { TokenVerificationController } from './token-verification.controller';
 import type { TokenVerificationService } from '../services/token-verification.service';
 
@@ -36,7 +36,7 @@ describe('TokenVerificationController', () => {
 
     const controller = new TokenVerificationController(app, mockTokenVerificationService);
     controller.registerRoutes();
-    errorHandlerPlugin(app);
+    errorHandler(app);
   });
 
   afterEach(() => {

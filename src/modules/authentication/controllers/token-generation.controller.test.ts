@@ -32,7 +32,7 @@ describe('TokenGenerationController', () => {
 
   describe('POST /api/auth/tokens', () => {
     it('should create and return access and refresh tokens', async () => {
-      const requestBody = { userId: 'user-123' };
+      const requestBody = { userId: 'user-123', role: 'user' };
       const mockTokens = {
         accessToken: 'mock-access-token',
         refreshToken: 'mock-refresh-token',
@@ -44,7 +44,7 @@ describe('TokenGenerationController', () => {
 
       expect(response.status).toBe(StatusCodes.OK);
       expect(response.body).toEqual(mockTokens);
-      expect(mockTokenGenerationService.createTokens).toHaveBeenCalledWith('user-123');
+      expect(mockTokenGenerationService.createTokens).toHaveBeenCalledWith({ userId: 'user-123', role: 'user' });
       expect(app.logger.info).toHaveBeenCalledWith(`POST ${API_URLS.createTokens} - create tokens`);
     });
   });

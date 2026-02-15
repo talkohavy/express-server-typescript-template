@@ -1,7 +1,7 @@
 import express, { type Application } from 'express';
 import request from 'supertest';
-import { API_URLS, StatusCodes } from '../../../common/constants';
-import { errorHandlerPlugin } from '../../../middlewares/errorHandler.middleware';
+import { API_URLS, StatusCodes } from '@src/common/constants';
+import { errorHandler } from '@src/middlewares/errorHandler.middleware';
 import { PasswordManagementController } from './password-management.controller';
 import type { PasswordManagementService } from '../services/password-management.service';
 
@@ -29,7 +29,7 @@ describe('PasswordManagementController', () => {
 
     const controller = new PasswordManagementController(app, mockPasswordManagementService);
     controller.registerRoutes();
-    errorHandlerPlugin(app);
+    errorHandler(app);
   });
 
   describe('POST /api/auth/is-password-valid', () => {

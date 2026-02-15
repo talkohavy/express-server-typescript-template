@@ -1,7 +1,8 @@
 import express, { type Application } from 'express';
 import request from 'supertest';
-import { API_URLS, StatusCodes } from '../../../common/constants';
-import { errorHandlerPlugin } from '../../../middlewares/errorHandler.middleware';
+import { API_URLS, StatusCodes } from '@src/common/constants';
+import { errorHandler } from '../../../middlewares/errorHandler.middleware';
+import { giveAllPermissionsToUser } from '../../../tests/mocks/mockUserPermissions';
 import { UsersCrudController } from './users-crud.controller';
 import type { UsersCrudService } from '../services/users-crud.service';
 
@@ -31,8 +32,9 @@ describe('UsersCrudController', () => {
     } as any;
 
     const controller = new UsersCrudController(app, mockUsersService);
+    giveAllPermissionsToUser(app);
     controller.registerRoutes();
-    errorHandlerPlugin(app);
+    errorHandler(app);
   });
 
   describe('POST /api/users', () => {

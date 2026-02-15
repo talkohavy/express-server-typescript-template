@@ -24,7 +24,7 @@ describe('TokenGenerationService', () => {
     it('should create access and refresh tokens', async () => {
       const userId = 'test-user-123';
 
-      const result = await service.createTokens(userId);
+      const result = await service.createTokens({ userId, role: 'user' });
 
       expect(result).toHaveProperty('accessToken');
       expect(result).toHaveProperty('refreshToken');
