@@ -8,6 +8,7 @@ declare module 'express' {
      * Only exists after applying the `joiQueryMiddleware`.
      */
     queryParsed?: any;
+    userPermissions?: string[];
   }
 
   export interface Application extends OptimizedApp {

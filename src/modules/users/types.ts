@@ -1,4 +1,4 @@
-import type { RoleTypeValues } from '../../lib/permissions/logic/constants';
+import type { RoleTypeValues } from '@src/common/constants';
 
 export type DatabaseUser = {
   id: number;

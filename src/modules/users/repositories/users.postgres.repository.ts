@@ -1,4 +1,4 @@
-import { RoleTypes } from '@src/lib/permissions';
+import { RoleTypes } from '@src/common/constants';
 import type { DatabaseUser } from '../types';
 import type { IUsersRepository } from './interfaces/users.repository.base';
 import type {

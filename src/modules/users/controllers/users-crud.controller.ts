@@ -1,27 +1,23 @@
-import { createRequirePermissionGuard, type PermissionCheckerService } from '@src/lib/permissions';
-import { API_URLS, StatusCodes } from '../../../common/constants';
-import { joiBodyMiddleware } from '../../../middlewares/joi-body.middleware';
+import { API_URLS, StatusCodes } from '@src/common/constants';
+import { Permissions } from '@src/common/constants/permissions';
+import { joiBodyMiddleware } from '@src/middlewares/joi-body.middleware';
+import { requirePermissionMiddleware } from '@src/middlewares/require-permission.middleware';
 import { createUserSchema } from './dto/createUserSchema.dto';
 import { updateUserSchema } from './dto/updateUserSchema.dto';
-import type { ControllerFactory } from '../../../lib/lucky-server';
 import type { UsersCrudService } from '../services/users-crud.service';
-import type { Application, NextFunction, Request, Response } from 'express';
+import type { ControllerFactory } from '@src/lib/lucky-server';
+import type { Application, Request, Response } from 'express';
 
 export class UsersCrudController implements ControllerFactory {
-  private requireUserPermission: (req: Request, res: Response, next: NextFunction) => Promise<void>;
-
   constructor(
     private readonly app: Application,
     private readonly usersService: UsersCrudService,
-    private readonly permissionCheckerService: PermissionCheckerService,
-  ) {
-    this.requireUserPermission = createRequirePermissionGuard(this.permissionCheckerService);
-  }
+  ) {}
 
   private createUser() {
     this.app.post(
       API_URLS.users,
-      this.requireUserPermission,
+      requirePermissionMiddleware([Permissions.users.create]),
       joiBodyMiddleware(createUserSchema),
       async (req: Request, res: Response) => {
         const { body } = req;
@@ -36,35 +32,43 @@ export class UsersCrudController implements ControllerFactory {
   }
 
   private getUsers() {
-    this.app.get(API_URLS.users, this.requireUserPermission, async (req: Request, res: Response) => {
-      const { query } = req;
+    this.app.get(
+      API_URLS.users,
+      requirePermissionMiddleware([Permissions.users.read]),
+      async (req: Request, res: Response) => {
+        const { query } = req;
 
-      this.app.logger.info(`GET ${API_URLS.users} - get all users`);
+        this.app.logger.info(`GET ${API_URLS.users} - get all users`);
 
-      const users = await this.usersService.getUsers(query);
+        const users = await this.usersService.getUsers(query);
 
-      res.json(users);
-    });
+        res.json(users);
+      },
+    );
   }
 
   private getUserById() {
-    this.app.get(API_URLS.userById, this.requireUserPermission, async (req: Request, res: Response) => {
-      const { params } = req;
+    this.app.get(
+      API_URLS.userById,
+      requirePermissionMiddleware([Permissions.users.read]),
+      async (req: Request, res: Response) => {
+        const { params } = req;
 
-      const id = params.userId! as string;
+        const id = params.userId! as string;
 
-      this.app.logger.info(`GET ${API_URLS.userById} - get user by id`);
+        this.app.logger.info(`GET ${API_URLS.userById} - get user by id`);
 
-      const fetchedUser = await this.usersService.getUserById(id);
+        const fetchedUser = await this.usersService.getUserById(id);
 
-      res.json(fetchedUser);
-    });
+        res.json(fetchedUser);
+      },
+    );
   }
 
   private updateUserById() {
     this.app.patch(
       API_URLS.userById,
-      this.requireUserPermission,
+      requirePermissionMiddleware([Permissions.users.update]),
       joiBodyMiddleware(updateUserSchema),
       async (req: Request, res: Response) => {
         const { body, params } = req;
@@ -81,17 +85,21 @@ export class UsersCrudController implements ControllerFactory {
   }
 
   private deleteUserById() {
-    this.app.delete(API_URLS.userById, this.requireUserPermission, async (req: Request, res: Response) => {
-      const { params } = req;
+    this.app.delete(
+      API_URLS.userById,
+      requirePermissionMiddleware([Permissions.users.delete]),
+      async (req: Request, res: Response) => {
+        const { params } = req;
 
-      const userId = params.userId!;
+        const userId = params.userId!;
 
-      this.app.logger.info(`DELETE ${API_URLS.userById} - delete user`);
+        this.app.logger.info(`DELETE ${API_URLS.userById} - delete user`);
 
-      const result = await this.usersService.deleteUserById(userId);
+        const result = await this.usersService.deleteUserById(userId);
 
-      res.json(result);
-    });
+        res.json(result);
+      },
+    );
   }
 
   registerRoutes() {

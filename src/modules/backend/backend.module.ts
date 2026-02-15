@@ -1,6 +1,4 @@
-import { PermissionCheckerService } from '@src/lib/permissions';
 import { HealthCheckController } from '../health-check/health-check.controller';
-import { buildUsersPermissionRules } from '../users/permissions/users.permissions';
 import { AuthDirectAdapter, AuthHttpAdapter, AuthenticationController, type IAuthAdapter } from './authentication';
 import { BooksDirectAdapter, BooksHttpAdapter, BooksController, type IBooksAdapter } from './books';
 import { DragonsController } from './dragons';
@@ -35,7 +33,6 @@ export class BackendModule {
   private booksAdapter!: IBooksAdapter;
   private dragonsAdapter!: IDragonsAdapter;
   private fileUploadAdapter!: IFileUploadAdapter;
-  private permissionCheckerService!: PermissionCheckerService;
 
   constructor(private readonly app: Application) {
     this.initializeAdapters();
@@ -43,8 +40,6 @@ export class BackendModule {
   }
 
   private initializeAdapters(): void {
-    const config = { rules: buildUsersPermissionRules() };
-
     if (process.env.IS_STANDALONE_MICRO_SERVICES) {
       // HTTP adapters for micro-services communication
       const httpClient = new HttpClient(this.app.configService);
@@ -55,8 +50,6 @@ export class BackendModule {
       this.fileUploadAdapter = new FileUploadHttpAdapter(httpClient);
     } else {
       // Direct adapters wrapping module services (monolith mode)
-      this.permissionCheckerService = new PermissionCheckerService(config);
-
       const { usersCrudService, userUtilitiesService } = this.app.modules.UsersModule.services;
       const { passwordManagementService, tokenGenerationService, tokenVerificationService } =
         this.app.modules.AuthenticationModule.services;
@@ -80,7 +73,7 @@ export class BackendModule {
     // BackendModule ALWAYS attaches public routes (it's the BFF)
     const healthCheckController = new HealthCheckController(this.app);
     const authController = new AuthenticationController(this.app, this.authAdapter, this.usersAdapter);
-    const usersCrudController = new UsersCrudController(this.app, this.usersAdapter, this.permissionCheckerService);
+    const usersCrudController = new UsersCrudController(this.app, this.usersAdapter);
     const userUtilitiesController = new UserUtilitiesController(this.app, this.usersAdapter, this.authAdapter);
     const booksController = new BooksController(this.app, this.booksAdapter);
     const dragonsController = new DragonsController(this.app, this.dragonsAdapter);

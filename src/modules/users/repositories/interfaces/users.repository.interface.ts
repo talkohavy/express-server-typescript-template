@@ -1,5 +1,5 @@
 import type { DatabaseUser } from '../../types';
-import type { RoleTypeValues } from '@src/lib/permissions';
+import type { RoleTypeValues } from '@src/common/constants';
 import type { QueryOptions } from 'mongoose';
 
 export type GetUserByEmailOptions = {

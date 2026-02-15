@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { RoleTypes } from '@src/lib/permissions';
+import { RoleTypes } from '@src/common/constants';
 
 export const updateUserSchema = Joi.object({
   email: Joi.string().email().optional(),

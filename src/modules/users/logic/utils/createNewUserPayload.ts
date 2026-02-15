@@ -1,4 +1,4 @@
-import { RoleTypes } from '@src/lib/permissions';
+import { RoleTypes } from '@src/common/constants';
 import type { CreateUserDto } from '../../services/interfaces/users.service.interface';
 import type { DatabaseUser } from '../../types';
 
