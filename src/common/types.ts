@@ -36,3 +36,8 @@ export interface OptimizedApp {
   io: SocketIOServer;
   wsClient: WebsocketClient;
 }
+
+export type UserToken = {
+  id: string;
+  role: string;
+};

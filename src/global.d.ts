@@ -1,8 +1,8 @@
-import type { OptimizedApp } from './common/types';
+import type { OptimizedApp, UserToken } from './common/types';
 
 declare module 'express' {
   export interface Request {
-    user?: { id: string; role?: string; [key: string]: unknown };
+    user?: UserToken;
     query: any;
     /**
      * Only exists after applying the `joiQueryMiddleware`.

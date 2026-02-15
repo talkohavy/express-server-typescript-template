@@ -1,4 +1,3 @@
-import { API_URLS } from '@src/common/constants';
 import { PermissionCheckerService } from '@src/lib/permissions';
 import { HealthCheckController } from '../health-check/health-check.controller';
 import { buildUsersPermissionRules } from '../users/permissions/users.permissions';
@@ -13,7 +12,7 @@ import {
   type IFileUploadAdapter,
 } from './file-upload';
 import { HttpClient } from './logic/http-client';
-import { createAttachUserFromTokenMiddleware } from './middlewares/attach-user-from-token.middleware';
+import { BackendMiddleware } from './middlewares/backend.middleware';
 import {
   UsersDirectAdapter,
   UsersHttpAdapter,
@@ -87,6 +86,9 @@ export class BackendModule {
     const dragonsController = new DragonsController(this.app, this.dragonsAdapter);
     const fileUploadController = new FileUploadController(this.app, this.fileUploadAdapter);
 
+    const backendMiddleware = new BackendMiddleware(this.app, this.authAdapter);
+
+    backendMiddleware.useAuthenticationMiddleware(); // <--- Attach auth middleware before protected routes (for RBAC)
     healthCheckController.registerRoutes();
     authController.registerRoutes();
     usersCrudController.registerRoutes();

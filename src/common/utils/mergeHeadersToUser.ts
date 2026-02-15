@@ -1,3 +1,4 @@
+import { isEmpty } from '@talkohavy/lodash';
 import { USER_PROP_TO_USER_HEADER } from '../constants';
 import { decodeBase64 } from './decodeBase64';
 import type { IncomingHttpHeaders } from 'http';
@@ -11,7 +12,7 @@ import type { IncomingHttpHeaders } from 'http';
  * 1. Microservices to reconstruct user data from headers.
  * 2. Middleware to extract user information from incoming requests.
  */
-export function mergeHeadersToUser(headers: IncomingHttpHeaders): Record<any, any> {
+export function mergeHeadersToUser<T extends Record<string, any>>(headers: IncomingHttpHeaders): T | undefined {
   const user = {} as Record<any, any>;
 
   const userHeaderEntries = Object.entries(USER_PROP_TO_USER_HEADER);
@@ -31,5 +32,7 @@ export function mergeHeadersToUser(headers: IncomingHttpHeaders): Record<any, an
     }
   });
 
-  return user;
+  if (isEmpty(user)) return undefined;
+
+  return user as T;
 }

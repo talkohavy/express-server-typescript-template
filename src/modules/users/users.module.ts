@@ -50,7 +50,6 @@ export class UsersModule {
     const usersMiddleware = new UsersMiddleware(this.app);
 
     usersMiddleware.use();
-
     usersController.registerRoutes();
   }
 

@@ -1,14 +1,11 @@
-import { API_URLS } from '../../../common/constants';
-import type { Application, NextFunction, Request, Response } from 'express';
+import { API_URLS } from '@src/common/constants';
+import { attachUserFromHeadersMiddleware } from '../../../middlewares/attach-user-from-headers.middleware';
+import type { Application } from 'express';
 
 export class UsersMiddleware {
   public constructor(private readonly app: Application) {}
 
   public use() {
-    this.app.use(API_URLS.users, (_req: Request, _res: Response, next: NextFunction) => {
-      console.log('Users middleware');
-
-      next();
-    });
+    this.app.use(API_URLS.users, attachUserFromHeadersMiddleware);
   }
 }

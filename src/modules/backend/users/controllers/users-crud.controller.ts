@@ -1,35 +1,43 @@
+import { createRequirePermissionGuard, type PermissionCheckerService } from '@src/lib/permissions';
 import { API_URLS, StatusCodes } from '../../../../common/constants';
-import { ConfigKeys, type CookiesConfig } from '../../../../configurations';
-import { ForbiddenError, UnauthorizedError } from '../../../../lib/Errors';
 import { joiBodyMiddleware } from '../../../../middlewares/joi-body.middleware';
+import { requireUserAuthMiddleware } from '../../../../middlewares/require-user-auth.middleware';
 import { createUserSchema } from './dto/createUserSchema.dto';
 import { updateUserSchema } from './dto/updateUserSchema.dto';
 import type { ControllerFactory } from '../../../../lib/lucky-server';
-import type { IAuthAdapter } from '../../authentication/adapters/auth.adapter.interface';
 import type { IUsersAdapter } from '../adapters/users.adapter.interface';
-import type { Application, Request, Response } from 'express';
+import type { Application, NextFunction, Request, Response } from 'express';
 
 export class UsersCrudController implements ControllerFactory {
+  private requireUserPermission: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+
   constructor(
     private readonly app: Application,
     private readonly usersAdapter: IUsersAdapter,
-    private readonly authAdapter: IAuthAdapter,
-  ) {}
+    private readonly permissionCheckerService: PermissionCheckerService,
+  ) {
+    this.requireUserPermission = createRequirePermissionGuard(this.permissionCheckerService);
+  }
 
   private createUser() {
-    this.app.post(API_URLS.users, joiBodyMiddleware(createUserSchema), async (req: Request, res: Response) => {
-      const { body } = req;
+    this.app.post(
+      API_URLS.users,
+      this.requireUserPermission,
+      joiBodyMiddleware(createUserSchema),
+      async (req: Request, res: Response) => {
+        const { body } = req;
 
-      this.app.logger.info(`POST ${API_URLS.users} - create new user`);
+        this.app.logger.info(`POST ${API_URLS.users} - create new user`);
 
-      const user = await this.usersAdapter.createUser(body);
+        const user = await this.usersAdapter.createUser(body);
 
-      res.status(StatusCodes.CREATED).json(user);
-    });
+        res.status(StatusCodes.CREATED).json(user);
+      },
+    );
   }
 
   private getUsers() {
-    this.app.get(API_URLS.users, async (req: Request, res: Response) => {
+    this.app.get(API_URLS.users, this.requireUserPermission, async (req: Request, res: Response) => {
       const { query } = req;
 
       this.app.logger.info(`GET ${API_URLS.users} - get all users`);
@@ -41,7 +49,7 @@ export class UsersCrudController implements ControllerFactory {
   }
 
   private getUserById() {
-    this.app.get(API_URLS.userById, async (req: Request, res: Response) => {
+    this.app.get(API_URLS.userById, this.requireUserPermission, async (req: Request, res: Response) => {
       const { params } = req;
 
       const userId = params.userId! as string;
@@ -55,54 +63,41 @@ export class UsersCrudController implements ControllerFactory {
   }
 
   private updateUser() {
-    this.app.patch(API_URLS.userById, joiBodyMiddleware(updateUserSchema), async (req: Request, res: Response) => {
-      const { body, params } = req;
+    this.app.patch(
+      API_URLS.userById,
+      requireUserAuthMiddleware,
+      this.requireUserPermission,
+      joiBodyMiddleware(updateUserSchema),
+      async (req: Request, res: Response) => {
+        const { body, params } = req;
 
-      this.app.logger.info(`PATCH ${API_URLS.userById} - updating user by ID`);
+        this.app.logger.info(`PATCH ${API_URLS.userById} - updating user by ID`);
 
-      const token = this.extractAccessTokenFromCookies(req.cookies);
+        const userId = params.userId!;
+        const updatedUser = await this.usersAdapter.updateUserById(userId, body);
 
-      const decodedToken = await this.authAdapter.verifyToken(token);
-
-      if (!decodedToken) throw new UnauthorizedError();
-
-      const userId = params.userId!;
-
-      if (decodedToken.id !== userId) throw new ForbiddenError();
-
-      const updatedUser = await this.usersAdapter.updateUserById(userId, body);
-
-      res.json(updatedUser);
-    });
+        res.json(updatedUser);
+      },
+    );
   }
 
   private deleteUser() {
-    this.app.delete(API_URLS.userById, async (req: Request, res: Response) => {
-      const { params, cookies } = req;
+    this.app.delete(
+      API_URLS.userById,
+      requireUserAuthMiddleware,
+      this.requireUserPermission,
+      async (req: Request, res: Response) => {
+        const { params } = req;
 
-      const id = params.userId!;
+        const id = params.userId!;
 
-      this.app.logger.info(`DELETE ${API_URLS.userById} - delete user`);
+        this.app.logger.info(`DELETE ${API_URLS.userById} - delete user`);
 
-      const token = this.extractAccessTokenFromCookies(cookies);
+        const result = await this.usersAdapter.deleteUserById(id);
 
-      const decodedToken = await this.authAdapter.verifyToken(token);
-
-      if (!decodedToken) throw new UnauthorizedError();
-
-      if (decodedToken.id !== id) throw new ForbiddenError();
-
-      const result = await this.usersAdapter.deleteUserById(id);
-
-      res.json(result);
-    });
-  }
-
-  private extractAccessTokenFromCookies(cookies: any): string {
-    const { accessCookie } = this.app.configService.get<CookiesConfig>(ConfigKeys.Cookies);
-    const token = cookies[accessCookie.name] as string;
-
-    return token;
+        res.json(result);
+      },
+    );
   }
 
   registerRoutes() {
