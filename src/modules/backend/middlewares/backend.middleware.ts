@@ -11,7 +11,7 @@ export class BackendMiddleware {
   ) {}
 
   public useAuthenticationMiddleware() {
-    this.app.use(API_URLS.users, this.attachUserFromTokenMiddleware);
+    this.app.use(API_URLS.users, this.attachUserFromTokenMiddleware.bind(this));
   }
 
   private async attachUserFromTokenMiddleware(req: Request, _res: Response, next: NextFunction): Promise<void> {
