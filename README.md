@@ -25,6 +25,7 @@ express-server-typescript-template/
 │   │   ├── APP_FACTORY.md
 │   │   ├── INIT_SERVER_AND_APP.md
 │   │   ├── MODULES.md
+│   │   ├── PERMISSIONS_RBAC.md
 │   │   └── PLUGINS.md
 │   └── AI_CODING_RULES.md
 ├── src/                      # Main source folder
@@ -95,12 +96,12 @@ Dragons demonstrates a module that uses `redis`. It uses redis as database, whic
 
 ### C. Users Module
 
-Dragons demonstrates a complex module, that already starts to look like a production-grade environment.
+The Users module demonstrates a complex module, that already starts to look like a production-grade environment.
 It includes:
 
 - A repository level (database connection)
 - Multiple services (i.e. `users-crud.service.ts`, `user-utilities.service.ts`, etc.)
-- A permissions level
+- **RBAC permissions** – Routes are protected with `requirePermissionMiddleware` using permission constants (`Permissions.users.create`, `Permissions.users.read`, etc.). The `fetchPermissionsPlugin` populates `req.userPermissions` per request, and `attachUserFromHeadersMiddleware` populates `req.user` from `X-User-Id` / `X-User-Role` headers. See `ai-agent-helpers/guides/PERMISSIONS_RBAC.md` for details.
 - A field-screening service
 
 The database/repository layer used here is either `postgres` or `mongodb`. In such a module we create an extra folder called `repositories` where we declare a repository class (`UsersRepository` for example), and define db operations there.

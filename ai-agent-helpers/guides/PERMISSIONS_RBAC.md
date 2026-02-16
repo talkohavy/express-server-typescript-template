@@ -1,173 +1,129 @@
 # Permissions & RBAC
 
-This guide describes the production-grade RBAC (Role-Based Access Control) system used for authorization checks across the application.
+This guide describes the RBAC (Role-Based Access Control) system used for authorization checks across the application.
 
 ---
 
 ## Overview
 
-The permissions system supports multiple authorization models:
+The permissions system is **permission-based** (action-based per resource):
 
-- **Route-based** – Permission per HTTP method + path pattern
-- **Resource-based** – Permission per resource type (e.g. `users`, `books`)
-- **Action-based** – Permission per action (e.g. `create`, `read`, `update`, from body or derived)
-- **Role-based** – Users have roles; roles map to permissions
+- **Action-based** – Each permission is a string identifier (e.g. `users:create`, `users:read`, `users:update`, `users:delete`)
+- **Resource-scoped** – Permissions are namespaced by resource (e.g. `users.*`, `books.*` for future modules)
+- Users have a `userPermissions` array; routes require at least one of the specified permissions to proceed (OR logic)
 
 ---
 
 ## Architecture
 
 ```
-src/lib/permissions/
-├── types.ts                    # Core types (Role, Action, Resource, PermissionContext)
-├── config/
-│   └── default-permission-config.ts   # Default rules (extend per module)
-├── services/
-│   └── permission-checker.service.ts  # Core evaluation logic
-├── guards/                     # Express middleware factories
-│   ├── require-permission.guard.ts      # Route + context based
-│   ├── require-role.guard.ts            # Role-based
-│   ├── require-resource-action.guard.ts # Resource + action
-│   └── require-action-from-body.guard.ts # Body.action based
+src/
+├── common/constants/permissions.ts   # Permission string constants (extend per module)
 ├── middlewares/
-│   └── attach-user-from-headers.middleware.ts  # X-User-Id, X-User-Role
-└── utils/
-    ├── context-extractor.ts    # Build PermissionContext from req
-    └── path-matcher.ts        # Match path patterns with params
+│   ├── require-permission.middleware.ts   # Checks req.userPermissions vs required permissions
+│   ├── require-user-auth.middleware.ts    # Optional: ensures req.user exists (throws UnauthorizedError)
+│   └── attach-user-from-headers.middleware.ts  # Populates req.user from X-User-Id, X-User-Role
+├── plugins/
+│   └── fetch-permissions.plugin.ts  # Populates req.userPermissions (runs on every request)
+└── global.d.ts                       # Express Request extends: user?, userPermissions?
 ```
 
 ---
 
-## Configuration
+## Permission Constants
 
-### Permission Config
-
-Located in `src/lib/permissions/config/default-permission-config.ts`:
+Located in `src/common/constants/permissions.ts`:
 
 ```typescript
-export const defaultPermissionConfig: PermissionConfig = {
-  rules: [
-    { id: 'users-create', role: 'guest', descriptor: { type: 'route', method: 'POST', path: '/api/users' } },
-    { id: 'users-list', role: 'admin', descriptor: { type: 'route', method: 'GET', path: '/api/users' } },
-    { id: 'users-read-own', role: 'user', descriptor: { type: 'route', method: 'GET', path: '/api/users/:userId' } },
-    // ...
-  ],
+export const Permissions = {
+  users: {
+    create: 'users:create',
+    read: 'users:read',
+    update: 'users:update',
+    delete: 'users:delete',
+  },
 };
 ```
 
-### Custom Config
-
-Pass custom config when registering the plugin:
+Add new resource permissions when creating modules:
 
 ```typescript
-permissionsPlugin({
-  config: {
-    rules: [...defaultPermissionConfig.rules, ...myCustomRules],
-    customEvaluators: {
-      'isPremium': async ({ context }) => context.user?.isPremium === true,
-    },
+export const Permissions = {
+  users: { ... },
+  books: {
+    create: 'books:create',
+    read: 'books:read',
+    update: 'books:update',
+    delete: 'books:delete',
   },
-})
+};
 ```
 
 ---
 
-## Guards
+## Middlewares
 
-### 1. `createRequirePermissionGuard`
+### 1. `requirePermissionMiddleware(requiredPermissions: string[])`
 
-Route + context-based. Uses config rules to allow/deny.
-
-```typescript
-// Require auth (default)
-const guard = createRequirePermissionGuard();
-app.get('/api/users/:userId', guard, handler);
-
-// Public route (e.g. registration)
-const guard = createRequirePermissionGuard({ requireAuth: false });
-app.post('/api/users', guard, handler);
-```
-
-### 2. `createRequireRoleGuard`
-
-User must have one of the given roles.
+Checks that `req.userPermissions` contains at least one of the required permissions. Throws `ForbiddenError` otherwise.
 
 ```typescript
-const guard = createRequireRoleGuard(['admin', 'moderator']);
-app.delete('/api/users/:userId', guard, handler);
+import { requirePermissionMiddleware } from '@src/middlewares/require-permission.middleware';
+import { Permissions } from '@src/common/constants/permissions';
+
+app.post(API_URLS.users, requirePermissionMiddleware([Permissions.users.create]), handler);
+app.get(API_URLS.users, requirePermissionMiddleware([Permissions.users.read]), handler);
+app.patch(API_URLS.userById, requirePermissionMiddleware([Permissions.users.update]), handler);
+app.delete(API_URLS.userById, requirePermissionMiddleware([Permissions.users.delete]), handler);
 ```
 
-### 3. `createRequireResourceActionGuard`
+### 2. `requireUserAuthMiddleware`
 
-Explicit resource + action check.
+Ensures `req.user` exists. Throws `UnauthorizedError` if not set. Use when a route must be authenticated in addition to having permissions.
 
 ```typescript
-const guard = createRequireResourceActionGuard({ resource: 'users', action: 'delete' });
-app.delete('/api/users/:userId', guard, handler);
+import { requireUserAuthMiddleware } from '@src/middlewares/require-user-auth.middleware';
+
+app.patch('/api/users/:userId', requireUserAuthMiddleware, requirePermissionMiddleware([Permissions.users.update]), handler);
 ```
 
-### 4. `createRequireActionFromBodyGuard`
+### 3. `attachUserFromHeadersMiddleware`
 
-Action comes from `req.body.action` (or custom key).
+Populates `req.user` from request headers. Used by modules (e.g. `UsersMiddleware`) to reconstruct user data when requests are forwarded from a BFF or another service.
 
-```typescript
-const guard = createRequireActionFromBodyGuard({ actionKey: 'action', resource: 'orders' });
-app.post('/api/orders', guard, handler);
-// Body: { action: 'approve', orderId: '123' }
-```
-
----
-
-## Populating `req.user`
-
-For permission checks to work, `req.user` must be set with at least `{ id, role }`.
-
-### JWT (BFF / monolith)
-
-Use `createAttachUserFromTokenMiddleware` (backend module):
-
-```typescript
-const attachUser = createAttachUserFromTokenMiddleware({ app, authAdapter });
-app.use('/api/users', attachUser);
-```
-
-The JWT payload must include `id` and `role` (added during login).
-
-### Forwarded headers (microservices)
-
-When the BFF forwards requests, set headers:
+Headers used (from `src/common/constants/headers.ts`):
 
 - `X-User-Id`
 - `X-User-Role`
 
-Use `attachUserFromHeaders` middleware on the receiving service.
+---
+
+## Populating `req.user` and `req.userPermissions`
+
+### `req.userPermissions`
+
+Populated by the **fetchPermissionsPlugin** (registered in `app.ts`). The plugin runs on every request and sets `req.userPermissions`. Currently mocks all permissions; implement database or cache lookup per user/role as needed.
+
+### `req.user`
+
+Populated by module-level middleware (e.g. `UsersMiddleware` uses `attachUserFromHeadersMiddleware` on the users routes). For forwarded requests, ensure the BFF or gateway sets `X-User-Id` and `X-User-Role`.
 
 ---
 
 ## Users Module Example
 
-The Users module demonstrates production-grade RBAC:
+The Users module demonstrates RBAC:
 
-1. **Roles** – `DatabaseUser` has `role: UserRole` (`admin` | `user` | `guest`)
-2. **Migration** – `role` column added to `users` table
-3. **JWT** – `role` included in token payload at login
-4. **Guards** – `createRequirePermissionGuard` on all user routes
-5. **Config** – Rules in `default-permission-config.ts` for users routes
+1. **Permission constants** – `Permissions.users.*` in `permissions.ts`
+2. **Fetch plugin** – `fetchPermissionsPlugin` populates `req.userPermissions`
+3. **User from headers** – `UsersMiddleware` applies `attachUserFromHeadersMiddleware` on `API_URLS.users`
+4. **Route protection** – Each CRUD route uses `requirePermissionMiddleware([Permissions.users.<action>])`
 
 ---
 
 ## Extending for New Modules
 
-1. Add rules to `default-permission-config.ts` (or pass custom config to plugin)
-2. Add `createRequirePermissionGuard()` (or other guard) to route handlers
-3. Ensure `req.user` is set before guards run (auth middleware or headers)
-
----
-
-## Roles Reference
-
-| Role  | Description                        |
-| ----- | ---------------------------------- |
-| guest | Unauthenticated (default)          |
-| user  | Authenticated user (own resources) |
-| admin | Full access                        |
+1. Add permission constants in `src/common/constants/permissions.ts`
+2. Add `requirePermissionMiddleware([Permissions.<resource>.<action>])` to route handlers
+3. Ensure `fetchPermissionsPlugin` is registered (already in `app.ts`)
+4. If the route needs `req.user`, ensure `attachUserFromHeadersMiddleware` (or equivalent) runs on the relevant path
