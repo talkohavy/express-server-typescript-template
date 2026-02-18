@@ -28,41 +28,53 @@ export async function startServer() {
     process.exit(1);
   });
 
-  const shutdown = gracefulShutdown(app);
+  const gracefulShutdown = createGracefulShutdownHandler(app);
+  const gracefulRejectionOrException = createGracefulRejectionOrExceptionHandler(app);
 
-  process.on('SIGINT', shutdown);
-  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', gracefulShutdown);
+  process.on('SIGTERM', gracefulShutdown);
+  process.on('unhandledRejection', gracefulRejectionOrException);
+  process.on('uncaughtException', gracefulRejectionOrException);
 }
 
-function gracefulShutdown(app: Application) {
+function createGracefulShutdownHandler(app: Application) {
   let isShuttingDown = false;
 
-  return async function shutdown() {
+  return async function gracefulShutdown() {
     if (isShuttingDown) return;
+
+    const { wsClient, logger } = app;
 
     isShuttingDown = true;
 
-    app.logger.log('Shutting down gracefully...');
+    logger.log('Shutting down gracefully...');
 
-    await new Promise<void>((resolve) => {
-      app.httpServer.close(() => {
-        app.logger.log('HTTP server closed');
-        resolve();
-      });
-    });
+    try {
+      await wsClient.cleanup();
+    } catch (error) {
+      logger.error('Redis WS cleanup failed during graceful shutdown', { error });
+    }
 
-    // Add more cleanup here (e.g. close DB/Redis connections)
-    app.logger.log('Cleanup finished');
+    logger.log('Cleanup finished');
     process.exit(0);
   };
 }
 
-process.on('unhandledRejection', (err) => {
-  console.error('unhandledRejection', { err });
-  console.error('Should not get here!  You are missing a try/catch somewhere.');
-});
+function createGracefulRejectionOrExceptionHandler(app: Application) {
+  return async function gracefulRejectionOrException(error: Error) {
+    console.error('unhandledRejection', { error });
+    console.error('Should not get here!  You are missing a try/catch somewhere.');
 
-process.on('uncaughtException', (err) => {
-  console.error('uncaughtException', { err });
-  console.error('Should not get here! You are missing a try/catch somewhere.');
-});
+    const runRedisCleanup = async () => {
+      try {
+        await app.wsClient.cleanup();
+      } catch (error) {
+        console.error('Redis WS cleanup failed during unexpected shutdown', { error });
+      }
+    };
+
+    runRedisCleanup().finally(() => {
+      process.exit(1);
+    });
+  };
+}

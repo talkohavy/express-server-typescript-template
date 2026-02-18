@@ -1,4 +1,5 @@
 import {
+  CLEANUP_CONNECTIONS_SCRIPT,
   getConnectionKey,
   getTopicsSetKey,
   SUBSCRIBE_SCRIPT,
@@ -170,6 +171,29 @@ export class TopicManager {
     const count = await this.redis.sCard(topicKeyStr);
 
     return count;
+  }
+
+  /**
+   * Remove all Redis keys for the given connection IDs (this node's connections).
+   * Use on shutdown so this process's keys are removed from Redis.
+   */
+  async removeConnectionsFromRedis(connectionIds: string[]): Promise<void> {
+    if (connectionIds.length === 0) return;
+
+    const topicsSet = getTopicsSetKey();
+    const keys = [topicsSet, ...connectionIds.map(getConnectionKey)];
+
+    await this.eval(CLEANUP_CONNECTIONS_SCRIPT, keys.length, keys, connectionIds);
+  }
+
+  /**
+   * Remove from Redis all keys for connections that belong to this node (local connections).
+   * Call on server shutdown so this process does not leave stale keys in Redis.
+   */
+  async removeAllLocalConnectionsFromRedis(): Promise<void> {
+    const connectionIds = Array.from(this.connectionIdToSocket.keys());
+
+    await this.removeConnectionsFromRedis(connectionIds);
   }
 
   /**

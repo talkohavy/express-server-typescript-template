@@ -123,6 +123,19 @@ export class WebsocketClient {
     return this.topicManager.getTopicNames();
   }
 
+  /**
+   * Remove from Redis all keys created by this server's WebSocket connections.
+   * Should be called on shutdown (graceful or unexpected) so this process does not leave stale keys.
+   */
+  async cleanup(): Promise<void> {
+    try {
+      await this.topicManager.removeAllLocalConnectionsFromRedis();
+    } catch (error) {
+      console.log('Redis WS cleanup failed during graceful shutdown');
+      console.error(error);
+    }
+  }
+
   private addHeartbeatMechanism(): void {
     this.wss.on(BUILT_IN_WEBSOCKET_EVENTS.Connection, this.listenForHeartbeat.bind(this));
 

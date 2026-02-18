@@ -59,6 +59,31 @@ export const UNSUBSCRIBE_ALL_SCRIPT = `
   return #topics
 `;
 
+/**
+ * Script 4: Remove multiple connections from Redis in one round-trip.
+ * KEYS[1] = topicsSet (ws:topics), KEYS[2..n] = ws:conn:{connectionId} for each connection.
+ * ARGV[1..n] = connectionId for each connection (same order as KEYS[2..n]).
+ */
+export const CLEANUP_CONNECTIONS_SCRIPT = `
+  local topicsSet = KEYS[1]
+  for i = 2, #KEYS do
+    local connectionKey = KEYS[i]
+    local connectionId = ARGV[i - 1]
+    local topics = redis.call('SMEMBERS', connectionKey)
+    for j, topic in ipairs(topics) do
+      local topicKey = 'ws:topic:' .. topic
+      redis.call('SREM', topicKey, connectionId)
+      
+      if redis.call('SCARD', topicKey) == 0 then
+        redis.call('DEL', topicKey)
+        redis.call('SREM', topicsSet, topic)
+      end
+    end
+    redis.call('DEL', connectionKey)
+  end
+  return 1
+`;
+
 export function getTopicKey(topic: string): string {
   return `ws:topic:${topic}`;
 }
