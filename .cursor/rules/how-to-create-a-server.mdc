@@ -1,0 +1,18 @@
+---
+description: how to create a server
+alwaysApply: false
+---
+
+- to create a server we use 2 files: `initServer.ts` and `app.ts`.
+- `initServer.ts` is responsible for:
+  - calling `buildApp()` to get the composed app.
+  - read the port from config.
+  - start the HTTP server listening.
+  - register global handlers for `unhandledRejection` and `uncaughtException`.
+- `app.ts`'s job is to expose an async function called `buildApp`.
+- `buildApp` should:
+  - create the raw Express app.
+  - instantiate `AppFactory` with the `app` and `optimizedApp`.
+  - register plugins, modules, error handler, and path-not-found handler.
+  - modules are attached **after** plugins, so they can use plugin-attached services.
+  - return the composed app.

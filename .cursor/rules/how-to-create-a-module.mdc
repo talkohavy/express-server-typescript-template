@@ -1,0 +1,21 @@
+---
+description: how to create a new module
+alwaysApply: false
+---
+
+- a module file must be named: `[name].module.ts`
+- never create a module as a function. always as a class.
+- a module class always accepts `private readonly app: Application` as its first and only argument.
+- a module file should sit under the `src/modules/[name]` directory.
+- a modules should encapsulate domain logic and route providers.
+- a module always calls `this.initializeModule();` in its constructor.
+- within `initializeModule`, instantiate all the services of that module's domain. Those instantiated services should be stored a private readonly field of that Module's class.
+- a module should expose its services via a `services` getter, for others to consume.
+- within `initializeModule`, you can destruct parts from `this.app`, which you attached using plugins, and send them as arguments to service classes, as per demand.
+- a module directory can include the following sub-folders (all or some): `controllers`, `services`, `repositories`, `middlewares`, and `logic`.
+- Use plugin-attached resources: `this.app.pg`, `this.app.redis`, `this.app.configService`, etc.
+- the root of a module named "banana" (for example) should include the following files:
+  - `banana.module.ts`
+  - `types.ts` (optional)
+  - `index.ts` (export the Module class from `banana.module.ts`, and the types from `types.ts`)
+- the `controllers`, `services` and `repositories` sub-folder should also include an `index.ts` that exposes.

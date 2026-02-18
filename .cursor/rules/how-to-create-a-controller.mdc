@@ -1,0 +1,11 @@
+---
+description: how to create a controller
+alwaysApply: false
+---
+
+- a controller should always live as part of a module, and be located at: `./src/modules/[name]/controllers/`
+- a controller file must be named: `[name].controller.ts`
+- never create a controller as a function. always as a class.
+- a controller class should implement the `ControllerFactory` interface.
+- a controller class always accepts `private readonly app: Application` as its first argument.
+- a controller can only be instantiated by its domain module main class, under which it lives.

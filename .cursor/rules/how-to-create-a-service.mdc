@@ -1,0 +1,10 @@
+---
+description: how to create a service
+alwaysApply: false
+---
+
+- a service should always live as part of a module, and be located at: `./src/modules/[name]/services/`
+- a service file must be named: `[name].service.ts`
+- never create a service as a function. always as a class.
+- a service class always accepts `private readonly app: Application` as its first argument.
+- a service can only be instantiated by its domain module main class, under which it lives.
