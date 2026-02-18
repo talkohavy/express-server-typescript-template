@@ -7,7 +7,7 @@ const INTERNAL_DEBUG_API_KEY = process.env.INTERNAL_DEBUG_API_KEY;
 export function internalApiKeyMiddleware(req: Request, _res: Response, next: NextFunction): void {
   const providedKey = req.headers[Headers.InternalApiKey];
 
-  if (providedKey === INTERNAL_DEBUG_API_KEY) return next();
+  if (INTERNAL_DEBUG_API_KEY && providedKey === INTERNAL_DEBUG_API_KEY) return next();
 
   throw new UnauthorizedError('Invalid or missing internal API key');
 }
