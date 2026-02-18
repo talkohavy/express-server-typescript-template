@@ -15,3 +15,9 @@ declare module 'express' {
     no_keys: never;
   }
 }
+
+declare module 'ws' {
+  export interface WebSocket {
+    id: string;
+  }
+}
