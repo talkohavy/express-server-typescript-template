@@ -9,6 +9,7 @@ import type {
   WebsocketClientConfig,
   WebSocketServerOptions,
 } from './ws-client.interface';
+import type { RedisClientType } from 'redis';
 
 const DEFAULT_HEARTBEAT_INTERVAL_MS = 30_000;
 
@@ -17,10 +18,15 @@ export class WebsocketClient {
   private readonly heartbeatIntervalMs: number;
   private readonly isAliveBySocket = new WeakMap<WebSocket, boolean>();
   private pingIntervalId: ReturnType<typeof setInterval> | null = null;
-  private readonly topicManager = new TopicManager();
+  private readonly topicManager: TopicManager;
 
-  constructor(options: WebSocketServerOptions, customConfig?: WebsocketClientConfig) {
+  constructor(
+    options: WebSocketServerOptions,
+    customConfig: WebsocketClientConfig,
+    private readonly redis: RedisClientType,
+  ) {
     this.wss = new WebSocketServer(options);
+    this.topicManager = new TopicManager(this.redis);
 
     const { heartbeat: heartbeatConfig } = customConfig ?? {};
     const { intervalMs = DEFAULT_HEARTBEAT_INTERVAL_MS } = heartbeatConfig ?? {};
@@ -54,26 +60,26 @@ export class WebsocketClient {
     });
   }
 
-  subscribeToTopic(client: WebSocket, topic: string): boolean {
+  async subscribeToTopic(client: WebSocket, topic: string): Promise<boolean> {
     return this.topicManager.subscribe(client, topic);
   }
 
-  unsubscribeFromTopic(client: WebSocket, topic: string): boolean {
+  async unsubscribeFromTopic(client: WebSocket, topic: string): Promise<boolean> {
     return this.topicManager.unsubscribe(client, topic);
   }
 
   /**
    * Unsubscribe a client from all topics (should be called on disconnect).
    */
-  unsubscribeFromAllTopics(client: WebSocket): void {
-    this.topicManager.unsubscribeAll(client);
+  async unsubscribeFromAllTopics(client: WebSocket): Promise<void> {
+    return this.topicManager.unsubscribeAll(client);
   }
 
-  publishToTopic(props: PublishToTopicProps): number {
+  async publishToTopic(props: PublishToTopicProps): Promise<number> {
     const { topic, payload, options } = props;
     const { binary: isBinary = false } = options ?? {};
 
-    const topicSubscribers = this.topicManager.getSubscribers(topic);
+    const topicSubscribers = await this.topicManager.getSubscribers(topic);
 
     if (topicSubscribers.size === 0) return 0;
 
@@ -97,15 +103,15 @@ export class WebsocketClient {
     return sentCount;
   }
 
-  getClientTopics(client: WebSocket): Set<string> {
+  async getClientTopics(client: WebSocket): Promise<Set<string>> {
     return this.topicManager.getClientTopics(client);
   }
 
-  isClientSubscribed(client: WebSocket, topic: string): boolean {
+  async isClientSubscribed(client: WebSocket, topic: string): Promise<boolean> {
     return this.topicManager.isSubscribed(client, topic);
   }
 
-  getTopicSubscriberCount(topic: string): number {
+  async getTopicSubscriberCount(topic: string): Promise<number> {
     return this.topicManager.getSubscriberCount(topic);
   }
 

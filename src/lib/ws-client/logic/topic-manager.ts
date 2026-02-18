@@ -1,123 +1,178 @@
+import {
+  getConnectionKey,
+  getTopicsSetKey,
+  SUBSCRIBE_SCRIPT,
+  getTopicKey,
+  UNSUBSCRIBE_ALL_SCRIPT,
+  UNSUBSCRIBE_SCRIPT,
+} from './redis-topic-scripts.lua';
+import type { RedisClientType } from 'redis';
 import type { WebSocket } from 'ws';
 
 /**
- * Efficiently manages topic subscriptions for WebSocket clients.
+ * Manages topic subscriptions for WebSocket clients with Redis as the source of truth.
+ * Horizontally scalable: each node only holds its local client connections in memory;
+ * subscription state lives in Redis and all mutations are atomic via Lua scripts.
  *
- * Uses:
- * - Map<string, Set<WebSocket>> for O(1) topic lookups and client management
- * - WeakMap<WebSocket, Set<string>> for automatic cleanup when clients disconnect
- *
- * Performance optimizations:
- * - Set operations are O(1) for add/delete/has
- * - WeakMap allows garbage collection of disconnected clients
- * - Single-pass iteration when publishing to topics
+ * In-memory only:
+ * - connectionId -> WebSocket (so this node can send to its local clients)
+ * - WebSocket -> connectionId (for unsubscribe / unsubscribeAll by client)
  */
 export class TopicManager {
   /**
-   * Maps topic names to sets of subscribed WebSocket clients.
-   * Using Set ensures O(1) add/delete operations and prevents duplicates.
+   * Local connections only: connectionId -> WebSocket for this node.
    */
-  private readonly topicToClients = new Map<string, Set<WebSocket>>();
+  private readonly connectionIdToSocket = new Map<string, WebSocket>();
+
+  constructor(private readonly redis: RedisClientType) {}
 
   /**
-   * Maps WebSocket clients to their subscribed topics.
-   * Using WeakMap allows automatic cleanup when clients are garbage collected.
+   * Subscribe a client to a topic. Registers the socket locally on first subscribe so getSubscribers can resolve it.
+   * @returns true if newly subscribed, false if already subscribed.
    */
-  private readonly clientToTopics = new WeakMap<WebSocket, Set<string>>();
+  async subscribe(socket: WebSocket, topic: string): Promise<boolean> {
+    const connectionId = socket.id;
 
-  subscribe(client: WebSocket, topic: string): boolean {
-    // Get or create the set of clients for this topic
-    let clientsSubscribedToTopic = this.topicToClients.get(topic);
+    if (!connectionId) return false;
 
-    if (!clientsSubscribedToTopic) {
-      clientsSubscribedToTopic = new Set<WebSocket>();
-      this.topicToClients.set(topic, clientsSubscribedToTopic);
-    }
+    this.connectionIdToSocket.set(connectionId, socket);
 
-    if (clientsSubscribedToTopic.has(client)) return false;
+    const topicKeyStr = getTopicKey(topic);
+    const connectionKeyStr = getConnectionKey(connectionId);
+    const topicsSet = getTopicsSetKey();
 
-    clientsSubscribedToTopic.add(client);
+    const result = await this.eval(
+      SUBSCRIBE_SCRIPT,
+      3,
+      [topicKeyStr, connectionKeyStr, topicsSet],
+      [connectionId, topic],
+    );
 
-    // Track topic for this client (for cleanup on disconnect)
-    let clientTopics = this.clientToTopics.get(client);
-
-    if (!clientTopics) {
-      clientTopics = new Set<string>();
-      this.clientToTopics.set(client, clientTopics);
-    }
-
-    clientTopics.add(topic);
-
-    return true;
+    return result === 1;
   }
 
   /**
    * Unsubscribe a client from a topic.
-   * @returns true if unsubscribe operation was successful, false if not.
+   * @returns true if was subscribed and removed, false otherwise.
    */
-  unsubscribe(client: WebSocket, topic: string): boolean {
-    const clientsSubscribedToTopic = this.topicToClients.get(topic);
+  async unsubscribe(socket: WebSocket, topic: string): Promise<boolean> {
+    const connectionId = socket.id;
 
-    if (!clientsSubscribedToTopic?.has(client)) return false;
+    if (!connectionId) return false;
 
-    clientsSubscribedToTopic.delete(client); // <--- Remove client from topic
+    const topicKeyStr = getTopicKey(topic);
+    const connectionKeyStr = getConnectionKey(connectionId);
+    const topicsSet = getTopicsSetKey();
 
-    // Clean up empty topic sets to prevent memory leaks
-    if (clientsSubscribedToTopic.size === 0) {
-      this.topicToClients.delete(topic);
-    }
+    const result = await this.eval(
+      UNSUBSCRIBE_SCRIPT,
+      3,
+      [topicKeyStr, connectionKeyStr, topicsSet],
+      [connectionId, topic],
+    );
 
-    // Remove topic from client's subscription list
-    const topicsOfClient = this.clientToTopics.get(client);
-    if (topicsOfClient) topicsOfClient.delete(topic);
-
-    return true;
+    return result === 1;
   }
 
   /**
-   * Unsubscribe a client from all topics (used on disconnect).
-   * @param client - The WebSocket client to unsubscribe from all topics
+   * Unsubscribe a client from all topics (e.g. on disconnect).
+   * Removes the client from local maps after clearing Redis.
    */
-  unsubscribeAll(client: WebSocket): void {
-    const topicsOfClient = this.clientToTopics.get(client);
+  async unsubscribeAll(socket: WebSocket): Promise<void> {
+    const connectionId = socket.id;
 
-    if (!topicsOfClient) return;
+    if (!connectionId) return;
 
-    // Remove client from all topics it's subscribed to
-    topicsOfClient.forEach((topic) => {
-      const clientsSubscribedToTopic = this.topicToClients.get(topic);
+    const connectionKeyStr = getConnectionKey(connectionId);
+    const topicsSet = getTopicsSetKey();
 
-      if (!clientsSubscribedToTopic) return;
+    await this.eval(UNSUBSCRIBE_ALL_SCRIPT, 2, [connectionKeyStr, topicsSet], [connectionId]);
 
-      clientsSubscribedToTopic.delete(client);
+    this.connectionIdToSocket.delete(connectionId);
+  }
 
-      // Clean up empty topic sets
-      if (clientsSubscribedToTopic.size === 0) {
-        this.topicToClients.delete(topic);
-      }
+  /**
+   * Returns only the local WebSocket clients that are subscribed to the topic.
+   * Other nodes have their own local subscribers; each node sends only to its own.
+   */
+  async getSubscribers(topic: string): Promise<Set<WebSocket>> {
+    const topicKeyStr = getTopicKey(topic);
+
+    const connectionIds = await this.redis.sMembers(topicKeyStr);
+
+    const subscribedClients = new Set<WebSocket>();
+
+    connectionIds.forEach((id) => {
+      const ws = this.connectionIdToSocket.get(id);
+
+      if (ws == null) return;
+
+      subscribedClients.add(ws);
     });
 
-    // WeakMap will automatically clean up the client entry when client is garbage collected
+    return subscribedClients;
   }
 
-  getSubscribers(topic: string): Set<WebSocket> {
-    return this.topicToClients.get(topic) ?? new Set<WebSocket>();
+  /**
+   * Topics this client is subscribed to (from Redis).
+   */
+  async getClientTopics(socket: WebSocket): Promise<Set<string>> {
+    const connectionId = socket.id;
+
+    if (!connectionId) return new Set<string>();
+
+    const connKeyStr = getConnectionKey(connectionId);
+    const topics = await this.redis.sMembers(connKeyStr);
+
+    return new Set(topics);
   }
 
-  getClientTopics(client: WebSocket): Set<string> {
-    return this.clientToTopics.get(client) ?? new Set<string>();
+  async isSubscribed(socket: WebSocket, topic: string): Promise<boolean> {
+    const connectionId = socket.id;
+
+    if (!connectionId) return false;
+
+    const topicKeyStr = getTopicKey(topic);
+
+    const isMember = await this.redis.sIsMember(topicKeyStr, connectionId);
+
+    return Boolean(isMember);
   }
 
-  isSubscribed(client: WebSocket, topic: string): boolean {
-    const clientsSubscribedToTopic = this.topicToClients.get(topic);
-    return clientsSubscribedToTopic?.has(client) ?? false;
+  /**
+   * Total number of topics (across all nodes).
+   */
+  async getTopicCount(): Promise<number> {
+    const topicsSet = getTopicsSetKey();
+
+    const count = await this.redis.sCard(topicsSet);
+
+    return count;
   }
 
-  getTopicCount(): number {
-    return this.topicToClients.size;
+  /**
+   * Total subscriber count for a topic (across all nodes).
+   */
+  async getSubscriberCount(topic: string): Promise<number> {
+    const topicKeyStr = getTopicKey(topic);
+
+    const count = await this.redis.sCard(topicKeyStr);
+
+    return count;
   }
 
-  getSubscriberCount(topic: string): number {
-    return this.topicToClients.get(topic)?.size ?? 0;
+  /**
+   * Run a Lua script via EVAL. Uses sendCommand for EVAL so we don't depend on scriptLoad.
+   */
+  private async eval(script: string, numKeys: number, keys: string[], args: string[]): Promise<number> {
+    const cmd = ['EVAL', script, String(numKeys), ...keys, ...args];
+
+    const result = await this.redis.sendCommand(cmd);
+
+    if (typeof result === 'number') return result;
+
+    if (typeof result === 'string') return Number(result);
+
+    return 0;
   }
 }

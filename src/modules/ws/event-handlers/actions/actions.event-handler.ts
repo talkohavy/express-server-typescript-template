@@ -12,7 +12,7 @@ import type {
 import type { WebSocket } from 'ws';
 
 export class ActionsEventHandler {
-  private incomingMessageHandlersByAction: Record<any, (ws: WebSocket, payload: any) => void>;
+  private incomingMessageHandlersByAction: Record<any, (ws: WebSocket, payload: any) => Promise<void>>;
 
   constructor(
     private readonly wsClient: WebsocketClient,
@@ -24,7 +24,7 @@ export class ActionsEventHandler {
   /**
    * Handle incoming WebSocket messages for topic registration/unregister.
    */
-  private handleIncomingActionMessage(ws: WebSocket, data: Buffer): void {
+  private async handleIncomingActionMessage(ws: WebSocket, data: Buffer): Promise<void> {
     const message = parseJson<ActionMessageData>(data);
 
     if (!this.isValidActionMessage(message)) {
@@ -48,7 +48,7 @@ export class ActionsEventHandler {
     }
 
     try {
-      actionHandler(ws, payload);
+      await actionHandler(ws, payload);
     } catch (error) {
       this.logger.error('Error handling topic message', { payload, error });
 
@@ -56,7 +56,7 @@ export class ActionsEventHandler {
     }
   }
 
-  private handleTopicRegistration(ws: WebSocket, payload: TopicRegistrationPayload): void {
+  private async handleTopicRegistration(ws: WebSocket, payload: TopicRegistrationPayload): Promise<void> {
     const { topic } = payload;
 
     if (!topic) {
@@ -67,7 +67,7 @@ export class ActionsEventHandler {
       return;
     }
 
-    const isSuccess = this.wsClient.subscribeToTopic(ws, topic);
+    const isSuccess = await this.wsClient.subscribeToTopic(ws, topic);
 
     if (!isSuccess) {
       this.logger.debug('Client is already subscribed to topic', { topic });
@@ -84,7 +84,7 @@ export class ActionsEventHandler {
     this.sendResponse({ ws, type: ResponseTypes.Actions.RegisterSuccess });
   }
 
-  private handleTopicUnregister(ws: WebSocket, payload: TopicUnregisterPayload): void {
+  private async handleTopicUnregister(ws: WebSocket, payload: TopicUnregisterPayload): Promise<void> {
     const { topic } = payload;
 
     if (!topic) {
@@ -95,7 +95,7 @@ export class ActionsEventHandler {
       return;
     }
 
-    const isSuccess = this.wsClient.unsubscribeFromTopic(ws, topic);
+    const isSuccess = await this.wsClient.unsubscribeFromTopic(ws, topic);
 
     if (!isSuccess) {
       this.logger.debug('Client not subscribed to topic', { topic });

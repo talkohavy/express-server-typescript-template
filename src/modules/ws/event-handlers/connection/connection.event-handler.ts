@@ -23,7 +23,7 @@ export class ConnectionEventHandler {
       });
 
       ws.on(BUILT_IN_WEBSOCKET_EVENTS.Close, () => {
-        // Clean up all topic subscriptions for this client
+        // Clean up all topic subscriptions for this client (fire-and-forget)
         this.wsClient.unsubscribeFromAllTopics(ws);
         this.logger.log('ws connection closed', { ip });
       });
