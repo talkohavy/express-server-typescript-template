@@ -10,6 +10,7 @@ import type { HealthCheckModule } from '../modules/health-check';
 import type { RedisDebugModule } from '../modules/redis-debug';
 import type { SwaggerModule } from '../modules/swagger';
 import type { UsersModule } from '../modules/users';
+import type { WsModule } from '../modules/ws';
 import type { Server as HttpServer } from 'http';
 import type { Client as PgClient } from 'pg';
 import type { RedisClientType } from 'redis';
@@ -24,6 +25,7 @@ export interface OptimizedApp {
     DragonsModule: DragonsModule;
     FileUploadModule: FileUploadModule;
     RedisDebugModule: RedisDebugModule;
+    WsModule: WsModule;
     SwaggerModule: SwaggerModule;
   };
   configService: ConfigService;
