@@ -2,6 +2,7 @@ import { hostname } from 'os';
 import { COLORS } from 'color-my-json';
 import { buildApp } from './app';
 import { ConfigKeys } from './configurations';
+import type { Application } from 'express';
 
 startServer();
 
@@ -23,8 +24,37 @@ export async function startServer() {
 
   app.httpServer.on('error', (error: Error) => {
     app.logger.error(error.message, { error });
-    process.exit();
+
+    process.exit(1);
   });
+
+  const shutdown = gracefulShutdown(app);
+
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
+}
+
+function gracefulShutdown(app: Application) {
+  let isShuttingDown = false;
+
+  return async function shutdown() {
+    if (isShuttingDown) return;
+
+    isShuttingDown = true;
+
+    app.logger.log('Shutting down gracefully...');
+
+    await new Promise<void>((resolve) => {
+      app.httpServer.close(() => {
+        app.logger.log('HTTP server closed');
+        resolve();
+      });
+    });
+
+    // Add more cleanup here (e.g. close DB/Redis connections)
+    app.logger.log('Cleanup finished');
+    process.exit(0);
+  };
 }
 
 process.on('unhandledRejection', (err) => {
