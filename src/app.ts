@@ -9,6 +9,7 @@ import { BooksModule } from './modules/books';
 import { DragonsModule } from './modules/dragons';
 import { FileUploadModule } from './modules/file-upload';
 import { HealthCheckModule } from './modules/health-check';
+import { RedisDebugModule } from './modules/redis-debug';
 // import { ServerSentEventModule } from './modules/serverSentEvents';
 // import { SocketIOModule } from './modules/socketio';
 import { SwaggerModule } from './modules/swagger';
@@ -65,6 +66,7 @@ export async function buildApp() {
     FileUploadModule,
     // SocketIOModule,
     WsModule,
+    RedisDebugModule,
     // - BFF module (route provider) - requires Main modules to be ready
     BackendModule,
     // - Utility modules

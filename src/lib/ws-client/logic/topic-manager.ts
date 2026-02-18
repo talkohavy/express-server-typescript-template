@@ -151,6 +151,17 @@ export class TopicManager {
   }
 
   /**
+   * All topic names (across all nodes).
+   */
+  async getTopicNames(): Promise<string[]> {
+    const topicsSet = getTopicsSetKey();
+
+    const names = await this.redis.sMembers(topicsSet);
+
+    return names;
+  }
+
+  /**
    * Total subscriber count for a topic (across all nodes).
    */
   async getSubscriberCount(topic: string): Promise<number> {

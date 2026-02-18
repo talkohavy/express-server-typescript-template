@@ -115,6 +115,14 @@ export class WebsocketClient {
     return this.topicManager.getSubscriberCount(topic);
   }
 
+  async getTopicCount(): Promise<number> {
+    return this.topicManager.getTopicCount();
+  }
+
+  async getTopicNames(): Promise<string[]> {
+    return this.topicManager.getTopicNames();
+  }
+
   private addHeartbeatMechanism(): void {
     this.wss.on(BUILT_IN_WEBSOCKET_EVENTS.Connection, this.listenForHeartbeat.bind(this));
 

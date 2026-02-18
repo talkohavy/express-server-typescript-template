@@ -11,6 +11,7 @@ export const optimizedApp: OptimizedApp = {
     BooksModule: null as any,
     DragonsModule: null as any,
     FileUploadModule: null as any,
+    RedisDebugModule: null as any,
     SwaggerModule: null as any,
   },
   configService: null as any,

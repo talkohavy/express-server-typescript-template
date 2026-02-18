@@ -17,6 +17,7 @@ export const StatusCodes = {
   NOT_FOUND: 404,
   CONFLICT: 409,
   INTERNAL_ERROR: 500,
+  SERVICE_UNAVAILABLE: 503,
 } as const;
 
 type TypeOfStatusCodes = typeof StatusCodes;

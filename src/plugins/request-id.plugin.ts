@@ -1,4 +1,4 @@
-import { HEADERS } from '../common/constants';
+import { Headers } from '../common/constants';
 import type { Application, NextFunction, Request, Response } from 'express';
 
 export function addRequestIdHeaderPlugin(app: Application): void {
@@ -6,7 +6,7 @@ export function addRequestIdHeaderPlugin(app: Application): void {
 }
 
 function addRequestIdHeaderMiddleware(req: Request, _res: Response, next: NextFunction): void {
-  req.headers[HEADERS.RequestId] ??= crypto.randomUUID();
+  req.headers[Headers.RequestId] ??= crypto.randomUUID();
 
   next();
 }

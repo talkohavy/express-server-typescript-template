@@ -24,6 +24,7 @@ export const API_URLS = {
   uploadFileBinary: '/api/upload-file/binary',
   // backend
   backendMiddleware: '/api/backend',
+  internalWsState: '/api/internal/ws-state',
 } satisfies Record<string, `/${string}`>;
 
 /**
