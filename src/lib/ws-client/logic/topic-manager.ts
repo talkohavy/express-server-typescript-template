@@ -1,13 +1,11 @@
 import { DEFAULT_TOPIC_KEY_TTL_SECONDS } from './constants';
 import {
   CLEANUP_CONNECTIONS_SCRIPT,
-  getTopicsUnderSocketKey,
-  getTopicsGroupKey,
   SUBSCRIBE_SCRIPT,
-  getSocketsUnderTopicKey,
   UNSUBSCRIBE_ALL_SCRIPT,
   UNSUBSCRIBE_SCRIPT,
 } from './redis-topic-scripts.lua';
+import { getSocketsUnderTopicKey, getTopicsGroupKey, getTopicsUnderSocketKey } from './utils';
 import type { RedisClientType } from 'redis';
 import type { WebSocket } from 'ws';
 

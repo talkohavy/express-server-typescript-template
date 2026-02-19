@@ -8,8 +8,6 @@
  * - ws:topics            -> SET of topic names (for getTopicCount)
  */
 
-const TOPICS_GROUP_KEY = 'ws:topics';
-
 /**
  * Script 1: Subscribe socketId to topic. Returns 1 if newly subscribed, 0 if already member.
  *
@@ -211,15 +209,3 @@ export const CLEANUP_CONNECTIONS_SCRIPT = `
   -- Step 7: Return success.
   return 1
 `;
-
-export function getSocketsUnderTopicKey(topic: string): string {
-  return `ws:topic:${topic}:sockets`;
-}
-
-export function getTopicsUnderSocketKey(socketId: string): string {
-  return `ws:socket:${socketId}:topics`;
-}
-
-export function getTopicsGroupKey(): string {
-  return TOPICS_GROUP_KEY;
-}
