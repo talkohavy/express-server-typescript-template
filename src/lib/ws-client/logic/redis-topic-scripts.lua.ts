@@ -16,6 +16,8 @@ const TOPICS_GROUP_KEY = 'ws:topics';
  * socketsUnderTopicKey: `ws:topic:${topic}:sockets`
  * topicsUnderSocketKey: `ws:socket:${socketId}:topics`
  * topicsGroupKey: 'ws:topics'
+ *
+ * Optional, ttl_seconds. Defaults to 3600 seconds (1 hour).
  */
 export const SUBSCRIBE_SCRIPT = `
   local socketsUnderTopicKey = KEYS[1]
@@ -24,11 +26,15 @@ export const SUBSCRIBE_SCRIPT = `
   
   local socketId = ARGV[1]
   local topic = ARGV[2]
+  local ttl = tonumber(ARGV[3]) or 3600
   
   local addedSocketId = redis.call('SADD', socketsUnderTopicKey, socketId)
-
   redis.call('SADD', topicsUnderSocketKey, topic)
   redis.call('SADD', topicsGroupKey, topic)
+  
+  redis.call('EXPIRE', socketsUnderTopicKey, ttl)
+  redis.call('EXPIRE', topicsUnderSocketKey, ttl)
+  redis.call('EXPIRE', topicsGroupKey, ttl)
   
   return addedSocketId
 `;
@@ -41,6 +47,8 @@ export const SUBSCRIBE_SCRIPT = `
  * topicsUnderSocketKey: `ws:socket:${socketId}:topics`
  * socketsUnderTopicKey: `ws:topic:${topic}:sockets`
  * topicsGroupKey: 'ws:topics'
+ *
+ * Optional, ttl_seconds. Defaults to 3600 seconds (1 hour).
  */
 export const UNSUBSCRIBE_SCRIPT = `
   local socketsUnderTopicKey = KEYS[1]
@@ -49,6 +57,7 @@ export const UNSUBSCRIBE_SCRIPT = `
 
   local socketId = ARGV[1]
   local topic = ARGV[2]
+  local ttl = tonumber(ARGV[3]) or 3600
 
   local removedSocketId = redis.call('SREM', socketsUnderTopicKey, socketId)
   
@@ -58,7 +67,13 @@ export const UNSUBSCRIBE_SCRIPT = `
     if redis.call('SCARD', socketsUnderTopicKey) == 0 then
       redis.call('DEL', socketsUnderTopicKey)
       redis.call('SREM', topicsGroupKey, topic)
+    else
+      -- if the socket is still subscribed to other topics, extend the TTL
+      redis.call('EXPIRE', socketsUnderTopicKey, ttl)
     end
+
+    redis.call('EXPIRE', topicsUnderSocketKey, ttl)
+    redis.call('EXPIRE', topicsGroupKey, ttl)
   end
 
   return removedSocketId
@@ -70,12 +85,15 @@ export const UNSUBSCRIBE_SCRIPT = `
  * topicsUnderSocketKey: `ws:socket:${socketId}:topics`
  * socketsUnderTopicKey: `ws:topic:{topic}:sockets`
  * topicsGroupKey: 'ws:topics'
+ *
+ * Optional, ttl_seconds. Defaults to 3600 seconds (1 hour).
  */
 export const UNSUBSCRIBE_ALL_SCRIPT = `
   local topicsUnderSocketKey = KEYS[1]
   local topicsGroupKey = KEYS[2]
   
   local socketId = ARGV[1]
+  local ttl = tonumber(ARGV[2]) or 3600
   
   local topicsOfSocket = redis.call('SMEMBERS', topicsUnderSocketKey)
   
@@ -87,9 +105,12 @@ export const UNSUBSCRIBE_ALL_SCRIPT = `
     if redis.call('SCARD', socketsUnderTopicKey) == 0 then
       redis.call('DEL', socketsUnderTopicKey)
       redis.call('SREM', topicsGroupKey, topic)
+    else
+      redis.call('EXPIRE', socketsUnderTopicKey, ttl)
     end
   end
 
+  redis.call('EXPIRE', topicsGroupKey, ttl)
   redis.call('DEL', topicsUnderSocketKey)
   
   return #topicsOfSocket -- <--- in lua, # is the length operator
@@ -98,7 +119,7 @@ export const UNSUBSCRIBE_ALL_SCRIPT = `
 /**
  * Script 4: Remove multiple connections from Redis in one round-trip.
  * KEYS[1] = topicsGroupKey (ws:topics), KEYS[2..n] = ws:socket:{socketId}:topics for each socket.
- * ARGV[1..n] = socketId for each socket (same order as KEYS[2..n]).
+ * ARGV[1] = ttl_seconds (optional), ARGV[2..n] = socketId for each socket (same order as KEYS[2..n]).
  *
  * topicsGroupKey: 'ws:topics'
  * topicsUnderSocketKey: `ws:socket:${socketId}:topics`
@@ -106,10 +127,11 @@ export const UNSUBSCRIBE_ALL_SCRIPT = `
  */
 export const CLEANUP_CONNECTIONS_SCRIPT = `
   local topicsGroupKey = KEYS[1]
+  local ttl = tonumber(ARGV[1]) or 3600
 
   -- loop through all sockets connected to this node
   for i = 2, #KEYS do
-    local socketId = ARGV[i - 1]
+    local socketId = ARGV[i]
     local topicsUnderSocketKey = KEYS[i]
     local topicsOfSocket = redis.call('SMEMBERS', topicsUnderSocketKey)
 
@@ -124,6 +146,8 @@ export const CLEANUP_CONNECTIONS_SCRIPT = `
       if redis.call('SCARD', socketsUnderTopicKey) == 0 then
         redis.call('DEL', socketsUnderTopicKey)
         redis.call('SREM', topicsGroupKey, topic)
+      else
+        redis.call('EXPIRE', socketsUnderTopicKey, ttl)
       end
     end
 
@@ -131,6 +155,7 @@ export const CLEANUP_CONNECTIONS_SCRIPT = `
     redis.call('DEL', topicsUnderSocketKey)
   end
 
+  redis.call('EXPIRE', topicsGroupKey, ttl)
   return 1
 `;
 

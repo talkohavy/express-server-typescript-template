@@ -1,3 +1,4 @@
+import { DEFAULT_TOPIC_KEY_TTL_SECONDS } from './constants';
 import {
   CLEANUP_CONNECTIONS_SCRIPT,
   getTopicsUnderSocketKey,
@@ -40,12 +41,13 @@ export class TopicManager {
     const socketsUnderTopicKey = getSocketsUnderTopicKey(topic);
     const topicsUnderSocketKey = getTopicsUnderSocketKey(socketId);
     const topicsGroupKey = getTopicsGroupKey();
+    const ttl = String(DEFAULT_TOPIC_KEY_TTL_SECONDS);
 
     const result = await this.eval(
       SUBSCRIBE_SCRIPT,
       3,
       [socketsUnderTopicKey, topicsUnderSocketKey, topicsGroupKey],
-      [socketId, topic],
+      [socketId, topic, ttl],
     );
 
     return result === 1;
@@ -63,12 +65,13 @@ export class TopicManager {
     const socketsUnderTopicKey = getSocketsUnderTopicKey(topic);
     const topicsUnderSocketKey = getTopicsUnderSocketKey(socketId);
     const topicsGroupKey = getTopicsGroupKey();
+    const ttl = String(DEFAULT_TOPIC_KEY_TTL_SECONDS);
 
     const result = await this.eval(
       UNSUBSCRIBE_SCRIPT,
       3,
       [socketsUnderTopicKey, topicsUnderSocketKey, topicsGroupKey],
-      [socketId, topic],
+      [socketId, topic, ttl],
     );
 
     return result === 1;
@@ -85,8 +88,9 @@ export class TopicManager {
 
     const topicsUnderSocketKey = getTopicsUnderSocketKey(socketId);
     const topicsGroupKey = getTopicsGroupKey();
+    const ttl = String(DEFAULT_TOPIC_KEY_TTL_SECONDS);
 
-    await this.eval(UNSUBSCRIBE_ALL_SCRIPT, 2, [topicsUnderSocketKey, topicsGroupKey], [socketId]);
+    await this.eval(UNSUBSCRIBE_ALL_SCRIPT, 2, [topicsUnderSocketKey, topicsGroupKey], [socketId, ttl]);
 
     this.socketIdToSocket.delete(socketId);
   }
@@ -181,8 +185,9 @@ export class TopicManager {
 
     const topicsGroupKey = getTopicsGroupKey();
     const keys = [topicsGroupKey, ...socketIds.map(getTopicsUnderSocketKey)];
+    const ttl = String(DEFAULT_TOPIC_KEY_TTL_SECONDS);
 
-    await this.eval(CLEANUP_CONNECTIONS_SCRIPT, keys.length, keys, socketIds);
+    await this.eval(CLEANUP_CONNECTIONS_SCRIPT, keys.length, keys, [ttl, ...socketIds]);
   }
 
   /**
