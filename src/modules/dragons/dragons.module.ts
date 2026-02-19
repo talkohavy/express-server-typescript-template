@@ -24,10 +24,6 @@ export class DragonsModule {
     dragonsController.registerRoutes();
   }
 
-  getDragonsService(): DragonsService {
-    return this.dragonsService;
-  }
-
   get services() {
     return {
       dragonsService: this.dragonsService,
