@@ -7,6 +7,7 @@
   "scripts": {
     "clean": "rm -rf node_modules",
     "dev": "node --import tsx --watch --env-file-if-exists=.env src/initServer.ts",
+    "dev:no-watch": "node --import tsx --env-file-if-exists=.env src/initServer.ts",
     "dev:auth": "node --import tsx --watch --env-file=.env.micro-services src/initAsMicroServices/authentication/authentication.init-server.ts",
     "dev:backend": "node --import tsx --watch --env-file=.env.micro-services src/initAsMicroServices/backend/backend.init-server.ts",
     "dev:books": "node --import tsx --watch --env-file=.env.micro-services src/initAsMicroServices/books/books.init-server.ts",
