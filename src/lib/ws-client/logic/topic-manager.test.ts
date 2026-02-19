@@ -1,4 +1,9 @@
-import { SUBSCRIBE_SCRIPT, UNSUBSCRIBE_SCRIPT, UNSUBSCRIBE_ALL_SCRIPT } from './redis-topic-scripts.lua';
+import {
+  CLEANUP_CONNECTIONS_SCRIPT,
+  SUBSCRIBE_SCRIPT,
+  UNSUBSCRIBE_SCRIPT,
+  UNSUBSCRIBE_ALL_SCRIPT,
+} from './redis-topic-scripts.lua';
 import { TopicManager } from './topic-manager';
 import type { RedisClientType } from 'redis';
 import type { WebSocket } from 'ws';
@@ -23,7 +28,7 @@ function createMockRedis(): RedisClientType & { sendCommand(args: unknown[]): Pr
 
     if (script === SUBSCRIBE_SCRIPT) {
       const [topicKey, connKey, _topicsSetKey] = keys as [string, string, string];
-      const [connectionId, topic] = argv as [string, string];
+      const [connectionId, topic] = argv as [string, string, string?];
       let topicSet = topicSets.get(topicKey);
       if (!topicSet) {
         topicSet = new Set();
@@ -44,7 +49,7 @@ function createMockRedis(): RedisClientType & { sendCommand(args: unknown[]): Pr
 
     if (script === UNSUBSCRIBE_SCRIPT) {
       const [topicKey, connKey, _topicsSetKey] = keys as [string, string, string];
-      const [connectionId, topic] = argv as [string, string];
+      const [connectionId, topic] = argv as [string, string, string?];
       const topicSet = topicSets.get(topicKey);
       const removed = topicSet?.has(connectionId) ? 1 : 0;
       if (topicSet) {
@@ -61,7 +66,7 @@ function createMockRedis(): RedisClientType & { sendCommand(args: unknown[]): Pr
 
     if (script === UNSUBSCRIBE_ALL_SCRIPT) {
       const [connKey, _topicsSetKey] = keys as [string, string];
-      const [connectionId] = argv as [string];
+      const [connectionId] = argv as [string, string?];
       const connSet = connSets.get(connKey);
       const topics = connSet ? Array.from(connSet) : [];
       topics.forEach((topic) => {
@@ -77,6 +82,30 @@ function createMockRedis(): RedisClientType & { sendCommand(args: unknown[]): Pr
       });
       connSets.delete(connKey);
       return Promise.resolve(topics.length);
+    }
+
+    if (script === CLEANUP_CONNECTIONS_SCRIPT) {
+      const [_topicsSetKey, ...socketKeys] = keys as [string, ...string[]];
+      const [_ttl, ...socketIds] = argv as [string, ...string[]];
+      socketKeys.forEach((connKey, idx) => {
+        const socketId = socketIds[idx];
+        if (socketId == null) return;
+        const connSet = connSets.get(connKey);
+        const topics = connSet ? Array.from(connSet) : [];
+        topics.forEach((topic) => {
+          const topicKey = `ws:topic:${topic}:sockets`;
+          const set = topicSets.get(topicKey);
+          if (set) {
+            set.delete(socketId);
+            if (set.size === 0) {
+              topicSets.delete(topicKey);
+              topicsSet.delete(topic);
+            }
+          }
+        });
+        connSets.delete(connKey);
+      });
+      return Promise.resolve(1);
     }
 
     return Promise.resolve(0);
