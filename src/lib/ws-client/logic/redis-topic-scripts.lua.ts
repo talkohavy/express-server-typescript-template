@@ -3,95 +3,145 @@
  * Used by TopicManager; all mutations go through these scripts so Redis stays the source of truth.
  *
  * Key layout:
- * - ws:topic:{topic}     -> SET of connectionIds
- * - ws:conn:{connectionId} -> SET of topics
+ * - ws:topic:{topic}:sockets     -> SET of socketIds subscribed to the topic
+ * - ws:socket:{socketId}:topics -> SET of topics the socketId is listed to
  * - ws:topics            -> SET of topic names (for getTopicCount)
  */
 
-const TOPICS_SET_KEY = 'ws:topics';
+const TOPICS_GROUP_KEY = 'ws:topics';
 
-/** Script 1: Subscribe connectionId to topic. Returns 1 if newly subscribed, 0 if already member. */
+/**
+ * Script 1: Subscribe socketId to topic. Returns 1 if newly subscribed, 0 if already member.
+ *
+ * socketsUnderTopicKey: `ws:topic:${topic}:sockets`
+ * topicsUnderSocketKey: `ws:socket:${socketId}:topics`
+ * topicsGroupKey: 'ws:topics'
+ */
 export const SUBSCRIBE_SCRIPT = `
-  local topicKey = KEYS[1]
-  local connectionKey = KEYS[2]
-  local topicsSet = KEYS[3]
-  local connectionId = ARGV[1]
+  local socketsUnderTopicKey = KEYS[1]
+  local topicsUnderSocketKey = KEYS[2]
+  local topicsGroupKey = KEYS[3]
+  
+  local socketId = ARGV[1]
   local topic = ARGV[2]
-  local added = redis.call('SADD', topicKey, connectionId)
-  redis.call('SADD', connectionKey, topic)
-  redis.call('SADD', topicsSet, topic)
-  return added
+  
+  local addedSocketId = redis.call('SADD', socketsUnderTopicKey, socketId)
+
+  redis.call('SADD', topicsUnderSocketKey, topic)
+  redis.call('SADD', topicsGroupKey, topic)
+  
+  return addedSocketId
 `;
 
-/** Script 2: Unsubscribe connectionId from topic. Returns 1 if was member, 0 otherwise. */
+/**
+ * Script 2: Unsubscribe socketId from topic. Returns 1 if was member, 0 otherwise.
+ *
+ * keys: [topicKeyStr, socketKeyStr, topicsSet]
+ *
+ * topicsUnderSocketKey: `ws:socket:${socketId}:topics`
+ * socketsUnderTopicKey: `ws:topic:${topic}:sockets`
+ * topicsGroupKey: 'ws:topics'
+ */
 export const UNSUBSCRIBE_SCRIPT = `
-  local topicKey = KEYS[1]
-  local connectionKey = KEYS[2]
-  local topicsSet = KEYS[3]
-  local connectionId = ARGV[1]
+  local socketsUnderTopicKey = KEYS[1]
+  local topicsUnderSocketKey = KEYS[2]
+  local topicsGroupKey = KEYS[3]
+
+  local socketId = ARGV[1]
   local topic = ARGV[2]
-  local removed = redis.call('SREM', topicKey, connectionId)
-  if removed == 1 then
-    redis.call('SREM', connectionKey, topic)
-    if redis.call('SCARD', topicKey) == 0 then
-      redis.call('DEL', topicKey)
-      redis.call('SREM', topicsSet, topic)
+
+  local removedSocketId = redis.call('SREM', socketsUnderTopicKey, socketId)
+  
+  if removedSocketId == 1 then
+    redis.call('SREM', topicsUnderSocketKey, topic)
+    
+    if redis.call('SCARD', socketsUnderTopicKey) == 0 then
+      redis.call('DEL', socketsUnderTopicKey)
+      redis.call('SREM', topicsGroupKey, topic)
     end
   end
-  return removed
+
+  return removedSocketId
 `;
 
-/** Script 3: Unsubscribe connectionId from all topics and delete conn key. Returns number of topics removed. */
+/**
+ * Script 3: Unsubscribe socketId from all topics and delete socket key. Returns number of topics removed.
+ *
+ * topicsUnderSocketKey: `ws:socket:${socketId}:topics`
+ * socketsUnderTopicKey: `ws:topic:{topic}:sockets`
+ * topicsGroupKey: 'ws:topics'
+ */
 export const UNSUBSCRIBE_ALL_SCRIPT = `
-  local connectionKey = KEYS[1]
-  local topicsSet = KEYS[2]
-  local connectionId = ARGV[1]
-  local topics = redis.call('SMEMBERS', connectionKey)
-  for i, topic in ipairs(topics) do
-    local topicKey = 'ws:topic:' .. topic
-    redis.call('SREM', topicKey, connectionId)
-    if redis.call('SCARD', topicKey) == 0 then
-      redis.call('DEL', topicKey)
-      redis.call('SREM', topicsSet, topic)
+  local topicsUnderSocketKey = KEYS[1]
+  local topicsGroupKey = KEYS[2]
+  
+  local socketId = ARGV[1]
+  
+  local topicsOfSocket = redis.call('SMEMBERS', topicsUnderSocketKey)
+  
+  for i, topic in ipairs(topicsOfSocket) do
+    local socketsUnderTopicKey = 'ws:topic:' .. topic .. ':sockets' -- <--- concatenate to create 'ws:topic:{topic}:sockets'
+    
+    redis.call('SREM', socketsUnderTopicKey, socketId)
+    
+    if redis.call('SCARD', socketsUnderTopicKey) == 0 then
+      redis.call('DEL', socketsUnderTopicKey)
+      redis.call('SREM', topicsGroupKey, topic)
     end
   end
-  redis.call('DEL', connectionKey)
-  return #topics
+
+  redis.call('DEL', topicsUnderSocketKey)
+  
+  return #topicsOfSocket -- <--- in lua, # is the length operator
 `;
 
 /**
  * Script 4: Remove multiple connections from Redis in one round-trip.
- * KEYS[1] = topicsSet (ws:topics), KEYS[2..n] = ws:conn:{connectionId} for each connection.
- * ARGV[1..n] = connectionId for each connection (same order as KEYS[2..n]).
+ * KEYS[1] = topicsGroupKey (ws:topics), KEYS[2..n] = ws:socket:{socketId}:topics for each socket.
+ * ARGV[1..n] = socketId for each socket (same order as KEYS[2..n]).
+ *
+ * topicsGroupKey: 'ws:topics'
+ * topicsUnderSocketKey: `ws:socket:${socketId}:topics`
+ * socketsUnderTopicKey: `ws:topic:{topic}:sockets`
  */
 export const CLEANUP_CONNECTIONS_SCRIPT = `
-  local topicsSet = KEYS[1]
+  local topicsGroupKey = KEYS[1]
+
+  -- loop through all sockets connected to this node
   for i = 2, #KEYS do
-    local connectionKey = KEYS[i]
-    local connectionId = ARGV[i - 1]
-    local topics = redis.call('SMEMBERS', connectionKey)
-    for j, topic in ipairs(topics) do
-      local topicKey = 'ws:topic:' .. topic
-      redis.call('SREM', topicKey, connectionId)
+    local socketId = ARGV[i - 1]
+    local topicsUnderSocketKey = KEYS[i]
+    local topicsOfSocket = redis.call('SMEMBERS', topicsUnderSocketKey)
+
+    -- loop through all topics this socket is subscribed to
+    for j, topic in ipairs(topicsOfSocket) do
+      local socketsUnderTopicKey = 'ws:topic:' .. topic .. ':sockets' -- <--- concatenate to create 'ws:topic:{topic}:sockets'
       
-      if redis.call('SCARD', topicKey) == 0 then
-        redis.call('DEL', topicKey)
-        redis.call('SREM', topicsSet, topic)
+      -- remove the socket from the topic
+      redis.call('SREM', socketsUnderTopicKey, socketId)
+      
+      -- if no more sockets are subscribed to the topic, delete the topic
+      if redis.call('SCARD', socketsUnderTopicKey) == 0 then
+        redis.call('DEL', socketsUnderTopicKey)
+        redis.call('SREM', topicsGroupKey, topic)
       end
     end
-    redis.call('DEL', connectionKey)
+
+    -- delete the socket's topics group key
+    redis.call('DEL', topicsUnderSocketKey)
   end
+
   return 1
 `;
 
-export function getTopicKey(topic: string): string {
-  return `ws:topic:${topic}`;
+export function getSocketsUnderTopicKey(topic: string): string {
+  return `ws:topic:${topic}:sockets`;
 }
 
-export function getConnectionKey(connectionId: string): string {
-  return `ws:conn:${connectionId}`;
+export function getTopicsUnderSocketKey(socketId: string): string {
+  return `ws:socket:${socketId}:topics`;
 }
 
-export function getTopicsSetKey(): string {
-  return TOPICS_SET_KEY;
+export function getTopicsGroupKey(): string {
+  return TOPICS_GROUP_KEY;
 }

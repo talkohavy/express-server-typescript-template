@@ -1,9 +1,9 @@
 import {
   CLEANUP_CONNECTIONS_SCRIPT,
-  getConnectionKey,
-  getTopicsSetKey,
+  getTopicsUnderSocketKey,
+  getTopicsGroupKey,
   SUBSCRIBE_SCRIPT,
-  getTopicKey,
+  getSocketsUnderTopicKey,
   UNSUBSCRIBE_ALL_SCRIPT,
   UNSUBSCRIBE_SCRIPT,
 } from './redis-topic-scripts.lua';
@@ -16,14 +16,13 @@ import type { WebSocket } from 'ws';
  * subscription state lives in Redis and all mutations are atomic via Lua scripts.
  *
  * In-memory only:
- * - connectionId -> WebSocket (so this node can send to its local clients)
- * - WebSocket -> connectionId (for unsubscribe / unsubscribeAll by client)
+ * - socketId -> WebSocket (so this node can send to its local clients)
  */
 export class TopicManager {
   /**
-   * Local connections only: connectionId -> WebSocket for this node.
+   * Local connections only: socketId -> WebSocket for this node.
    */
-  private readonly connectionIdToSocket = new Map<string, WebSocket>();
+  private readonly socketIdToSocket = new Map<string, WebSocket>();
 
   constructor(private readonly redis: RedisClientType) {}
 
@@ -32,21 +31,21 @@ export class TopicManager {
    * @returns true if newly subscribed, false if already subscribed.
    */
   async subscribe(socket: WebSocket, topic: string): Promise<boolean> {
-    const connectionId = socket.id;
+    const socketId = socket.id;
 
-    if (!connectionId) return false;
+    if (!socketId) return false;
 
-    this.connectionIdToSocket.set(connectionId, socket);
+    this.socketIdToSocket.set(socketId, socket);
 
-    const topicKeyStr = getTopicKey(topic);
-    const connectionKeyStr = getConnectionKey(connectionId);
-    const topicsSet = getTopicsSetKey();
+    const socketsUnderTopicKey = getSocketsUnderTopicKey(topic);
+    const topicsUnderSocketKey = getTopicsUnderSocketKey(socketId);
+    const topicsGroupKey = getTopicsGroupKey();
 
     const result = await this.eval(
       SUBSCRIBE_SCRIPT,
       3,
-      [topicKeyStr, connectionKeyStr, topicsSet],
-      [connectionId, topic],
+      [socketsUnderTopicKey, topicsUnderSocketKey, topicsGroupKey],
+      [socketId, topic],
     );
 
     return result === 1;
@@ -57,19 +56,19 @@ export class TopicManager {
    * @returns true if was subscribed and removed, false otherwise.
    */
   async unsubscribe(socket: WebSocket, topic: string): Promise<boolean> {
-    const connectionId = socket.id;
+    const socketId = socket.id;
 
-    if (!connectionId) return false;
+    if (!socketId) return false;
 
-    const topicKeyStr = getTopicKey(topic);
-    const connectionKeyStr = getConnectionKey(connectionId);
-    const topicsSet = getTopicsSetKey();
+    const socketsUnderTopicKey = getSocketsUnderTopicKey(topic);
+    const topicsUnderSocketKey = getTopicsUnderSocketKey(socketId);
+    const topicsGroupKey = getTopicsGroupKey();
 
     const result = await this.eval(
       UNSUBSCRIBE_SCRIPT,
       3,
-      [topicKeyStr, connectionKeyStr, topicsSet],
-      [connectionId, topic],
+      [socketsUnderTopicKey, topicsUnderSocketKey, topicsGroupKey],
+      [socketId, topic],
     );
 
     return result === 1;
@@ -80,16 +79,16 @@ export class TopicManager {
    * Removes the client from local maps after clearing Redis.
    */
   async unsubscribeAll(socket: WebSocket): Promise<void> {
-    const connectionId = socket.id;
+    const socketId = socket.id;
 
-    if (!connectionId) return;
+    if (!socketId) return;
 
-    const connectionKeyStr = getConnectionKey(connectionId);
-    const topicsSet = getTopicsSetKey();
+    const topicsUnderSocketKey = getTopicsUnderSocketKey(socketId);
+    const topicsGroupKey = getTopicsGroupKey();
 
-    await this.eval(UNSUBSCRIBE_ALL_SCRIPT, 2, [connectionKeyStr, topicsSet], [connectionId]);
+    await this.eval(UNSUBSCRIBE_ALL_SCRIPT, 2, [topicsUnderSocketKey, topicsGroupKey], [socketId]);
 
-    this.connectionIdToSocket.delete(connectionId);
+    this.socketIdToSocket.delete(socketId);
   }
 
   /**
@@ -97,93 +96,93 @@ export class TopicManager {
    * Other nodes have their own local subscribers; each node sends only to its own.
    */
   async getSubscribers(topic: string): Promise<Set<WebSocket>> {
-    const topicKeyStr = getTopicKey(topic);
+    const socketsUnderTopicKey = getSocketsUnderTopicKey(topic);
 
-    const connectionIds = await this.redis.sMembers(topicKeyStr);
+    const socketIds = await this.redis.sMembers(socketsUnderTopicKey);
 
-    const subscribedClients = new Set<WebSocket>();
+    const subscribedSockets = new Set<WebSocket>();
 
-    connectionIds.forEach((id) => {
-      const ws = this.connectionIdToSocket.get(id);
+    socketIds.forEach((id) => {
+      const socket = this.socketIdToSocket.get(id);
 
-      if (ws == null) return;
+      if (socket == null) return;
 
-      subscribedClients.add(ws);
+      subscribedSockets.add(socket);
     });
 
-    return subscribedClients;
+    return subscribedSockets;
   }
 
   /**
    * Topics this client is subscribed to (from Redis).
    */
   async getClientTopics(socket: WebSocket): Promise<Set<string>> {
-    const connectionId = socket.id;
+    const socketId = socket.id;
 
-    if (!connectionId) return new Set<string>();
+    if (!socketId) return new Set<string>();
 
-    const connKeyStr = getConnectionKey(connectionId);
-    const topics = await this.redis.sMembers(connKeyStr);
+    const topicsUnderSocketKey = getTopicsUnderSocketKey(socketId);
+    const topicsOfSocket = await this.redis.sMembers(topicsUnderSocketKey);
 
-    return new Set(topics);
+    return new Set(topicsOfSocket);
   }
 
   async isSubscribed(socket: WebSocket, topic: string): Promise<boolean> {
-    const connectionId = socket.id;
+    const socketId = socket.id;
 
-    if (!connectionId) return false;
+    if (!socketId) return false;
 
-    const topicKeyStr = getTopicKey(topic);
+    const socketsUnderTopicKey = getSocketsUnderTopicKey(topic);
 
-    const isMember = await this.redis.sIsMember(topicKeyStr, connectionId);
+    const isSubscribedToTopic = await this.redis.sIsMember(socketsUnderTopicKey, socketId);
 
-    return Boolean(isMember);
+    return Boolean(isSubscribedToTopic);
   }
 
   /**
    * Total number of topics (across all nodes).
    */
   async getTopicCount(): Promise<number> {
-    const topicsSet = getTopicsSetKey();
+    const topicsGroupKey = getTopicsGroupKey();
 
-    const count = await this.redis.sCard(topicsSet);
+    const topicsCount = await this.redis.sCard(topicsGroupKey);
 
-    return count;
+    return topicsCount;
   }
 
   /**
    * All topic names (across all nodes).
    */
   async getTopicNames(): Promise<string[]> {
-    const topicsSet = getTopicsSetKey();
+    const topicsGroupKey = getTopicsGroupKey();
 
-    const names = await this.redis.sMembers(topicsSet);
+    const topicNames = await this.redis.sMembers(topicsGroupKey);
 
-    return names;
+    return topicNames;
   }
 
   /**
    * Total subscriber count for a topic (across all nodes).
    */
   async getSubscriberCount(topic: string): Promise<number> {
-    const topicKeyStr = getTopicKey(topic);
+    const socketsUnderTopicKey = getSocketsUnderTopicKey(topic);
 
-    const count = await this.redis.sCard(topicKeyStr);
+    const subscribersCount = await this.redis.sCard(socketsUnderTopicKey);
 
-    return count;
+    return subscribersCount;
   }
 
   /**
    * Remove all Redis keys for the given connection IDs (this node's connections).
    * Use on shutdown so this process's keys are removed from Redis.
    */
-  async removeConnectionsFromRedis(connectionIds: string[]): Promise<void> {
-    if (connectionIds.length === 0) return;
+  async removeConnectionsFromRedis(socketIds: string[]): Promise<void> {
+    if (socketIds.length === 0) return;
 
-    const topicsSet = getTopicsSetKey();
-    const keys = [topicsSet, ...connectionIds.map(getConnectionKey)];
+    const topicsGroupKey = getTopicsGroupKey();
+    const keys = [topicsGroupKey, ...socketIds.map(getTopicsUnderSocketKey)];
 
-    await this.eval(CLEANUP_CONNECTIONS_SCRIPT, keys.length, keys, connectionIds);
+    await this.eval(CLEANUP_CONNECTIONS_SCRIPT, keys.length, keys, socketIds);
   }
 
   /**
@@ -191,9 +190,9 @@ export class TopicManager {
    * Call on server shutdown so this process does not leave stale keys in Redis.
    */
   async removeAllLocalConnectionsFromRedis(): Promise<void> {
-    const connectionIds = Array.from(this.connectionIdToSocket.keys());
+    const socketIds = Array.from(this.socketIdToSocket.keys());
 
-    await this.removeConnectionsFromRedis(connectionIds);
+    await this.removeConnectionsFromRedis(socketIds);
   }
 
   /**
