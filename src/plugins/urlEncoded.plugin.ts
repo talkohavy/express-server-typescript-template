@@ -1,7 +1,7 @@
-import express, { type NextFunction, type Request, type Response } from 'express';
+import express, { type Application, type NextFunction, type Request, type Response } from 'express';
 import { EXCLUDED_PATHS } from '../common/constants';
 
-export function urlEncodedPlugin(app: any) {
+export function urlEncodedPlugin(app: Application) {
   app.use(urlEncodedMiddleware);
 }
 

@@ -10,7 +10,7 @@ import type { Application } from 'express';
 export class ServerSentEventModule {
   private serverSentEventsService!: ServerSentEventsService;
 
-  constructor(private readonly app: any) {
+  constructor(private readonly app: Application) {
     this.initializeModule();
   }
 

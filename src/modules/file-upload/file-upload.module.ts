@@ -5,7 +5,7 @@ import type { Application } from 'express';
 export class FileUploadModule {
   private fileUploadService!: FileUploadService;
 
-  constructor(private readonly app: any) {
+  constructor(private readonly app: Application) {
     this.initializeModule();
   }
 

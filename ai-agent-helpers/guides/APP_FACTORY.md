@@ -19,7 +19,7 @@ The `AppFactory` is the central class that composes the Express application. It 
 ### Constructor
 
 ```typescript
-constructor(app: any, optimizedApp = {})
+constructor(app: Application, optimizedApp = {})
 ```
 
 - **app** – The raw Express application (cast as `Application`)

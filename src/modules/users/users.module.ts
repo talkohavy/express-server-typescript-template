@@ -7,6 +7,7 @@ import { FieldScreeningService } from './services/field-screening.service';
 import { UserUtilitiesService } from './services/user-utilities.service';
 import { UsersCrudService } from './services/users-crud.service';
 import type { IUsersRepository } from './repositories/interfaces/users.repository.base';
+import type { Application } from 'express';
 // import { UsersMongoRepository } from './repositories/users.mongo.repository';
 
 export class UsersModule {
@@ -14,7 +15,7 @@ export class UsersModule {
   private usersCrudService!: UsersCrudService;
   private userUtilitiesService!: UserUtilitiesService;
 
-  constructor(private readonly app: any) {
+  constructor(private readonly app: Application) {
     this.initializeModule();
   }
 

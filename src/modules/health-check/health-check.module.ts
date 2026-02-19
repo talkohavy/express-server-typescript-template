@@ -2,7 +2,7 @@ import { HealthCheckController } from './health-check.controller';
 import type { Application } from 'express';
 
 export class HealthCheckModule {
-  constructor(private readonly app: any) {
+  constructor(private readonly app: Application) {
     this.initializeModule();
   }
 

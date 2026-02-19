@@ -6,7 +6,7 @@ import type { Application } from 'express';
 export class BooksModule {
   private booksService!: BooksService;
 
-  constructor(private readonly app: any) {
+  constructor(private readonly app: Application) {
     this.initializeModule();
   }
 
