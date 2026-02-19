@@ -17,6 +17,7 @@ export function wsPlugin(app: Application) {
       // heartbeat: { intervalMs: 10_000 },
     },
     redis.pub,
+    redis.sub,
   );
 
   app.wsClient = wsClient;

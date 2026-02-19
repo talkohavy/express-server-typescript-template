@@ -41,7 +41,7 @@ export class TopicManager {
     const topicsGroupKey = getTopicsGroupKey();
     const ttl = String(DEFAULT_TOPIC_KEY_TTL_SECONDS);
 
-    const result = await this.eval(
+    const result = await this.executeScript(
       SUBSCRIBE_SCRIPT,
       3,
       [socketsUnderTopicKey, topicsUnderSocketKey, topicsGroupKey],
@@ -65,7 +65,7 @@ export class TopicManager {
     const topicsGroupKey = getTopicsGroupKey();
     const ttl = String(DEFAULT_TOPIC_KEY_TTL_SECONDS);
 
-    const result = await this.eval(
+    const result = await this.executeScript(
       UNSUBSCRIBE_SCRIPT,
       3,
       [socketsUnderTopicKey, topicsUnderSocketKey, topicsGroupKey],
@@ -88,7 +88,7 @@ export class TopicManager {
     const topicsGroupKey = getTopicsGroupKey();
     const ttl = String(DEFAULT_TOPIC_KEY_TTL_SECONDS);
 
-    await this.eval(UNSUBSCRIBE_ALL_SCRIPT, 2, [topicsUnderSocketKey, topicsGroupKey], [socketId, ttl]);
+    await this.executeScript(UNSUBSCRIBE_ALL_SCRIPT, 2, [topicsUnderSocketKey, topicsGroupKey], [socketId, ttl]);
 
     this.socketIdToSocket.delete(socketId);
   }
@@ -185,7 +185,7 @@ export class TopicManager {
     const keys = [topicsGroupKey, ...socketIds.map(getTopicsUnderSocketKey)];
     const ttl = String(DEFAULT_TOPIC_KEY_TTL_SECONDS);
 
-    await this.eval(CLEANUP_CONNECTIONS_SCRIPT, keys.length, keys, [ttl, ...socketIds]);
+    await this.executeScript(CLEANUP_CONNECTIONS_SCRIPT, keys.length, keys, [ttl, ...socketIds]);
   }
 
   /**
@@ -201,7 +201,7 @@ export class TopicManager {
   /**
    * Run a Lua script via EVAL. Uses sendCommand for EVAL so we don't depend on scriptLoad.
    */
-  private async eval(script: string, numKeys: number, keys: string[], args: string[]): Promise<number> {
+  private async executeScript(script: string, numKeys: number, keys: string[], args: string[]): Promise<number> {
     const cmd = ['EVAL', script, String(numKeys), ...keys, ...args];
 
     const result = await this.redis.sendCommand(cmd);

@@ -1,5 +1,6 @@
 import { WebSocket, WebSocketServer } from 'ws';
-import { BUILT_IN_WEBSOCKET_EVENTS } from './logic/constants';
+import { parseJson } from '@src/common/utils/parseJson';
+import { BUILT_IN_WEBSOCKET_EVENTS, WS_TOPIC_PUBSUB_CHANNEL } from './logic/constants';
 import { TopicManager } from './logic/topic-manager';
 import type { TopicMessage } from './types';
 import type {
@@ -23,10 +24,11 @@ export class WebsocketClient {
   constructor(
     options: WebSocketServerOptions,
     customConfig: WebsocketClientConfig,
-    private readonly redis: RedisClientType,
+    private readonly redisPub: RedisClientType,
+    private readonly redisSub: RedisClientType,
   ) {
     this.wss = new WebSocketServer(options);
-    this.topicManager = new TopicManager(this.redis);
+    this.topicManager = new TopicManager(this.redisPub); // <--- Note: must NOT be the redisSub, otherwise you'll get an error.
 
     const { heartbeat: heartbeatConfig } = customConfig ?? {};
     const { intervalMs = DEFAULT_HEARTBEAT_INTERVAL_MS } = heartbeatConfig ?? {};
@@ -36,6 +38,44 @@ export class WebsocketClient {
     const isHeartbeatEnabled = this.heartbeatIntervalMs > 0;
 
     if (isHeartbeatEnabled) this.addHeartbeatMechanism();
+
+    this.setupTopicPubSub();
+  }
+
+  /**
+   * Subscribes to the Redis topic channel. When a message is published by any node,
+   * this node receives it and forwards to its local WebSocket clients subscribed to that topic.
+   */
+  private async setupTopicPubSub(): Promise<void> {
+    await this.redisSub.subscribe(WS_TOPIC_PUBSUB_CHANNEL, (message) => {
+      this.forwardTopicMessageToLocalClients(message);
+    });
+  }
+
+  /**
+   * Called when a topic message is received from Redis. Forwards the message to local clients subscribed to the topic.
+   */
+  private async forwardTopicMessageToLocalClients(message: string) {
+    const parsedMessage = parseJson<TopicMessage>(message);
+
+    if (!parsedMessage) {
+      console.error('WS topic pub/sub: invalid JSON received on channel', WS_TOPIC_PUBSUB_CHANNEL);
+      return;
+    }
+
+    const { topic } = parsedMessage;
+
+    const topicSubscribers = await this.topicManager.getSubscribers(topic);
+
+    topicSubscribers.forEach((socket) => {
+      if (socket.readyState !== WebSocket.OPEN) return;
+
+      try {
+        socket.send(message, { binary: false });
+      } catch (error) {
+        console.error(`Failed to send topic message to client in topic "${topic}":`, error);
+      }
+    });
   }
 
   broadcastToAll(props: BroadcastToAllProps): void {
@@ -75,32 +115,20 @@ export class WebsocketClient {
     return this.topicManager.unsubscribeAll(client);
   }
 
+  /**
+   * Publishes a message to a topic via Redis pub/sub. Every node (including this one) receives it
+   * and forwards to its local WebSocket clients subscribed to the topic.
+   * @returns The number of Redis subscriber nodes that received the message.
+   */
   async publishToTopic(props: PublishToTopicProps): Promise<number> {
-    const { topic, payload, options } = props;
-    const { binary: isBinary = false } = options ?? {};
-
-    const topicSubscribers = await this.topicManager.getSubscribers(topic);
-
-    if (topicSubscribers.size === 0) return 0;
+    const { topic, payload } = props;
 
     const messageRaw: TopicMessage = { topic, payload, timestamp: Date.now() };
     const messageStringified = JSON.stringify(messageRaw);
 
-    let sentCount = 0;
+    const subscriberCount = await this.redisPub.publish(WS_TOPIC_PUBSUB_CHANNEL, messageStringified);
 
-    topicSubscribers.forEach((client) => {
-      if (client.readyState !== WebSocket.OPEN) return;
-
-      try {
-        client.send(messageStringified, { binary: isBinary });
-        sentCount++;
-      } catch (error) {
-        // Log error but continue sending to other clients. The client will be cleaned up on next disconnect check.
-        console.error(`Failed to send message to client in topic "${topic}":`, error);
-      }
-    });
-
-    return sentCount;
+    return subscriberCount;
   }
 
   async getClientTopics(client: WebSocket): Promise<Set<string>> {
@@ -124,11 +152,12 @@ export class WebsocketClient {
   }
 
   /**
-   * Remove from Redis all keys created by this server's WebSocket connections.
+   * Remove from Redis all keys created by this server's WebSocket connections, and unsubscribe from topic pub/sub.
    * Should be called on shutdown (graceful or unexpected) so this process does not leave stale keys.
    */
   async cleanup(): Promise<void> {
     try {
+      await this.redisSub.unsubscribe(WS_TOPIC_PUBSUB_CHANNEL);
       await this.topicManager.removeAllLocalConnectionsFromRedis();
     } catch (error) {
       console.log('Redis WS cleanup failed during graceful shutdown');
