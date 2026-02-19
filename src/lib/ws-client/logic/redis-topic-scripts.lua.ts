@@ -87,9 +87,16 @@ export const UNSUBSCRIBE_SCRIPT = `
       redis.call('EXPIRE', socketsUnderTopicKey, ttl)
     end
 
-    -- Step 4d: Refresh TTL on the socket's topics list and on the global topics set (both still in use).
+    -- Step 4d: Refresh TTL on the socket's topics list and on the global topics set (if still non-empty).
     redis.call('EXPIRE', topicsUnderSocketKey, ttl)
-    redis.call('EXPIRE', topicsGroupKey, ttl)
+
+    -- Step 4c: Refresh TTL on the global topics set only if it still has topics.
+    -- If we removed every topic that exists, the set may be empty; so delete the topics group.
+    if redis.call('SCARD', topicsGroupKey) == 0 then
+      redis.call('DEL', topicsGroupKey)
+    else
+      redis.call('EXPIRE', topicsGroupKey, ttl)
+    end
   end
 
   -- Step 5: Return 1 if was subscribed and removed, 0 if was not subscribed.
@@ -135,8 +142,13 @@ export const UNSUBSCRIBE_ALL_SCRIPT = `
     end
   end
 
-  -- Step 5: Refresh TTL on the global topics set (it is still in use by other sockets).
-  redis.call('EXPIRE', topicsGroupKey, ttl)
+  -- Step 5: Refresh TTL on the global topics set only if it still has topics (other sockets may be using them).
+  -- If we removed the last socket from every topic, the set may be empty; then delete it instead of refreshing.
+  if redis.call('SCARD', topicsGroupKey) > 0 then
+    redis.call('EXPIRE', topicsGroupKey, ttl)
+  else
+    redis.call('DEL', topicsGroupKey)
+  end
 
   -- Step 6: Delete the socket's own topic set; the socket is no longer subscribed to anything.
   redis.call('DEL', topicsUnderSocketKey)
@@ -189,8 +201,12 @@ export const CLEANUP_CONNECTIONS_SCRIPT = `
     redis.call('DEL', topicsUnderSocketKey)
   end
 
-  -- Step 6: Refresh TTL on the global topics set (still in use by remaining connections).
-  redis.call('EXPIRE', topicsGroupKey, ttl)
+  -- Step 6: Refresh TTL on the global topics set only if it still has topics; otherwise delete it.
+  if redis.call('SCARD', topicsGroupKey) == 0 then
+    redis.call('DEL', topicsGroupKey)
+  else
+    redis.call('EXPIRE', topicsGroupKey, ttl)
+  end
 
   -- Step 7: Return success.
   return 1
