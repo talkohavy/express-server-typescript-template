@@ -26,7 +26,7 @@ export class TopicManager {
   constructor(private readonly redis: RedisClientType) {}
 
   /**
-   * Subscribe a client to a topic. Registers the socket locally on first subscribe so getSubscribers can resolve it.
+   * Subscribe a client to a topic. Registers the socket locally on first subscribe so getTopicSubscribers can resolve it.
    * @returns true if newly subscribed, false if already subscribed.
    */
   async subscribe(socket: WebSocket, topic: string): Promise<boolean> {
@@ -97,7 +97,7 @@ export class TopicManager {
    * Returns only the local WebSocket clients that are subscribed to the topic.
    * Other nodes have their own local subscribers; each node sends only to its own.
    */
-  async getSubscribers(topic: string): Promise<Set<WebSocket>> {
+  async getTopicSubscribers(topic: string): Promise<Set<WebSocket>> {
     const socketsUnderTopicKey = getSocketsUnderTopicKey(topic);
 
     const socketIds = await this.redis.sMembers(socketsUnderTopicKey);

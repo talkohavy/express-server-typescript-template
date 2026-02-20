@@ -192,8 +192,8 @@ describe('TopicManager', () => {
       await manager.subscribe(mockSockets[0]!, 'b');
       await manager.unsubscribeAll(mockSockets[0]!);
 
-      const subscribersA = await manager.getSubscribers('a');
-      const subscribersB = await manager.getSubscribers('b');
+      const subscribersA = await manager.getTopicSubscribers('a');
+      const subscribersB = await manager.getTopicSubscribers('b');
       const expectedSubscribers = new Set<WebSocket>();
 
       expect(subscribersA).toEqual(expectedSubscribers);
@@ -201,19 +201,19 @@ describe('TopicManager', () => {
     });
   });
 
-  describe('getSubscribers', () => {
+  describe('getTopicSubscribers', () => {
     it('returns only local WebSockets subscribed to the topic', async () => {
       await manager.subscribe(mockSockets[0]!, 'chat');
       await manager.subscribe(mockSockets[1]!, 'chat');
 
-      const actualResult = await manager.getSubscribers('chat');
+      const actualResult = await manager.getTopicSubscribers('chat');
       const expectedResult = new Set<WebSocket>([mockSockets[0]!, mockSockets[1]!]);
 
       expect(actualResult).toEqual(expectedResult);
     });
 
     it('returns empty set when topic has no subscribers on this node', async () => {
-      const actualResult = await manager.getSubscribers('empty');
+      const actualResult = await manager.getTopicSubscribers('empty');
       const expectedResult = new Set<WebSocket>();
       expect(actualResult).toEqual(expectedResult);
     });

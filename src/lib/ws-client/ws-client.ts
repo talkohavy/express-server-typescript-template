@@ -65,7 +65,7 @@ export class WebsocketClient {
 
     const { topic } = parsedMessage;
 
-    const topicSubscribers = await this.topicManager.getSubscribers(topic);
+    const topicSubscribers = await this.topicManager.getTopicSubscribers(topic);
 
     topicSubscribers.forEach((socket) => {
       if (socket.readyState !== WebSocket.OPEN) return;
