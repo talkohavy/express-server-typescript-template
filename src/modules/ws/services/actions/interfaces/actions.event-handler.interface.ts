@@ -1,11 +1,11 @@
 import type WebSocket from 'ws';
 
-export type ActionMessageData = {
+export type TopicRegistrationPayload = {
   topic: string;
-  payload: {
-    action: string;
-    [key: string]: unknown;
-  };
+};
+
+export type TopicUnregisterPayload = {
+  topic: string;
 };
 
 export type SendResponseProps = {

@@ -1,43 +1,31 @@
-import { parseJson } from '../../../../common/utils/parseJson';
-import { BUILT_IN_WEBSOCKET_EVENTS, type WebsocketClient, type ServerSocketResponse } from '../../../../lib/ws-client';
+import { parseJson } from '@src/common/utils/parseJson';
+import { BUILT_IN_WEBSOCKET_EVENTS, type WebsocketClient, type ServerSocketResponse } from '@src/lib/ws-client';
 import { ResponseTypes, StaticTopics } from '../../logic/constants';
-import { Actions } from './logic/constants';
-import type { LoggerService } from '../../../../lib/logger-service';
-import type {
-  ActionMessageData,
-  SendResponseProps,
-  TopicRegistrationPayload,
-  TopicUnregisterPayload,
-} from './interfaces/actions.event-handler.interface';
+import type { ActionHandler } from '../../types';
+import type { ActionMessageData, SendResponseProps } from './interfaces/actions.event-handler.interface';
+import type { LoggerService } from '@src/lib/logger-service';
 import type { WebSocket } from 'ws';
 
 /**
  * @description
  * Handles incoming WebSocket actions.
  *
- * The two most important actions are: topic registration & unregister topic.
- * An action is an incoming message (of type `ActionMessageData`) coming from the socket client,
- * containing a payload with an `action` field.
+ * An action is an incoming message (of type `ActionMessageData`) from the socket client,
+ * containing a payload with an `action` field. Implementation is delegated to domain-specific
+ * handlers under `domains/` (e.g. topic registration/unregister in `domains/topic.actions.ts`).
  *
- * An action doesn't necessarily notify other connected clients that it's doing something (although it can).
- * For example, topic registration/unregister don't publish/producer a message to redis's pub/sub channel (although it can).
- * So when a client subscribes to a topic, it doesn't notify other clients that it did.
- * Instead, it updates a redis state, a subscription state, which is a set of connected clients, and a topics list.
- *
- * You can extend `createActionHandler` to add more action handlers.
+ * To add new actions: implement a handler in the appropriate domain (or create a new domain file),
+ * export a map of action -> handler, and merge it in `createActionHandlerMap`.
  */
 export class ActionsEventHandler {
-  private incomingMessageHandlersByAction: Record<any, (ws: WebSocket, payload: any) => Promise<void>>;
-
   constructor(
     private readonly wsClient: WebsocketClient,
     private readonly logger: LoggerService,
-  ) {
-    this.incomingMessageHandlersByAction = this.createActionHandler();
-  }
+    private readonly actionHandlersByAction: Record<string, ActionHandler>,
+  ) {}
 
   /**
-   * Handle incoming WebSocket messages for topic registration/unregister.
+   * Handle incoming WebSocket messages and dispatch to the right domain action handler.
    */
   private async handleIncomingActionMessage(ws: WebSocket, data: Buffer): Promise<void> {
     const message = parseJson<ActionMessageData>(data);
@@ -51,8 +39,7 @@ export class ActionsEventHandler {
     }
 
     const { payload } = message;
-
-    const actionHandler = this.incomingMessageHandlersByAction[payload.action];
+    const actionHandler = this.actionHandlersByAction[payload.action];
 
     if (!actionHandler) {
       this.logger.debug('Received unknown action', { payload });
@@ -65,61 +52,10 @@ export class ActionsEventHandler {
     try {
       await actionHandler(ws, payload);
     } catch (error) {
-      this.logger.error('Error handling topic message', { payload, error });
+      this.logger.error('Error handling action message', { payload, error });
 
       this.sendResponse({ ws, type: ResponseTypes.ServerError, message: 'Internal server error' });
     }
-  }
-
-  private async handleTopicRegistration(ws: WebSocket, payload: TopicRegistrationPayload): Promise<void> {
-    const { topic } = payload;
-
-    if (!topic) {
-      this.logger.debug('Topic is required', { payload });
-
-      this.sendResponse({ ws, type: ResponseTypes.ValidationError, message: 'Topic is required' });
-
-      return;
-    }
-
-    const isSuccess = await this.wsClient.subscribeToTopic(ws, topic);
-
-    if (!isSuccess) {
-      this.logger.debug('Client is already subscribed to topic', { topic });
-
-      this.sendResponse({
-        ws,
-        type: ResponseTypes.Actions.RegisterSuccess,
-        message: 'Already subscribed',
-      });
-    }
-
-    this.logger.log('Client registered to topic', { topic });
-
-    this.sendResponse({ ws, type: ResponseTypes.Actions.RegisterSuccess });
-  }
-
-  private async handleTopicUnregister(ws: WebSocket, payload: TopicUnregisterPayload): Promise<void> {
-    const { topic } = payload;
-
-    if (!topic) {
-      this.logger.debug('Topic is required', { payload });
-
-      this.sendResponse({ ws, type: ResponseTypes.ValidationError, message: 'Topic is required' });
-
-      return;
-    }
-
-    const isSuccess = await this.wsClient.unsubscribeFromTopic(ws, topic);
-
-    if (!isSuccess) {
-      this.logger.debug('Client not subscribed to topic', { topic });
-      this.sendResponse({ ws, type: ResponseTypes.Actions.UnregisterSuccess, message: 'Not subscribed' });
-    }
-
-    this.logger.log('Client unregistered from topic', { topic });
-
-    this.sendResponse({ ws, type: ResponseTypes.Actions.UnregisterSuccess });
   }
 
   private sendResponse(props: SendResponseProps): void {
@@ -133,17 +69,7 @@ export class ActionsEventHandler {
   }
 
   private isValidActionMessage(message: ActionMessageData | null): message is ActionMessageData {
-    return !!message && message.topic === StaticTopics.Actions && !!message.payload?.action;
-  }
-
-  /**
-   * Extend this to add more action handlers.
-   */
-  private createActionHandler() {
-    return {
-      [Actions.Register]: this.handleTopicRegistration.bind(this),
-      [Actions.Unregister]: this.handleTopicUnregister.bind(this),
-    };
+    return message?.topic === StaticTopics.Actions && !!message.payload?.action;
   }
 
   registerEventHandlers(): void {

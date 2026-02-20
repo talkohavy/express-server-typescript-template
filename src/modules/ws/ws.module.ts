@@ -1,6 +1,7 @@
-import { ActionsEventHandler } from './event-handlers/actions/actions.event-handler';
+import { ActionsEventHandler } from './event-handlers/actions';
 import { ConnectionEventHandler } from './event-handlers/connection/connection.event-handler';
 import { StaticTopics } from './logic/constants';
+import { TopicRegistrationActions } from './services/actions/topic-registration.actions';
 import type { TopicMessage } from '../../lib/ws-client';
 import type { Application } from 'express';
 
@@ -16,7 +17,11 @@ export class WsModule {
     const { wsClient, logger } = this.app;
 
     this.connectionEventHandler = new ConnectionEventHandler(wsClient, logger);
-    this.actionsEventHandler = new ActionsEventHandler(wsClient, logger);
+
+    const topicRegistrationActions = new TopicRegistrationActions(wsClient, logger);
+    this.actionsEventHandler = new ActionsEventHandler(wsClient, logger, {
+      ...topicRegistrationActions.getActionHandlers(),
+    });
 
     this.registerEventHandlers();
   }
