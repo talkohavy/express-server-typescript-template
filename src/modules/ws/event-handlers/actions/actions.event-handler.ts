@@ -121,6 +121,9 @@ export class ActionsEventHandler {
     return !!message && message.topic === StaticTopics.Actions && !!message.payload?.action;
   }
 
+  /**
+   * Extend this to add more action handlers.
+   */
   private createActionHandler() {
     return {
       [Actions.Register]: this.handleTopicRegistration.bind(this),
