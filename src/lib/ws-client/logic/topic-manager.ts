@@ -79,7 +79,7 @@ export class TopicManager {
    * Unsubscribe a client from all topics (e.g. on disconnect).
    * Removes the client from local maps after clearing Redis.
    */
-  async unsubscribeAll(socket: WebSocket): Promise<void> {
+  async unsubscribeClientFromAllTopics(socket: WebSocket): Promise<void> {
     const socketId = socket.id;
 
     if (!socketId) return;

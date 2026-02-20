@@ -186,11 +186,11 @@ describe('TopicManager', () => {
     });
   });
 
-  describe('unsubscribeAll', () => {
+  describe('unsubscribeClientFromAllTopics', () => {
     it('removes client from all topics and from local maps', async () => {
       await manager.subscribe(mockSockets[0]!, 'a');
       await manager.subscribe(mockSockets[0]!, 'b');
-      await manager.unsubscribeAll(mockSockets[0]!);
+      await manager.unsubscribeClientFromAllTopics(mockSockets[0]!);
 
       const subscribersA = await manager.getTopicSubscribers('a');
       const subscribersB = await manager.getTopicSubscribers('b');

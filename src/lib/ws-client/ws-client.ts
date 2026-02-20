@@ -112,7 +112,7 @@ export class WebsocketClient {
    * Unsubscribe a client from all topics (should be called on disconnect).
    */
   async unsubscribeFromAllTopics(client: WebSocket): Promise<void> {
-    return this.topicManager.unsubscribeAll(client);
+    return this.topicManager.unsubscribeClientFromAllTopics(client);
   }
 
   /**
