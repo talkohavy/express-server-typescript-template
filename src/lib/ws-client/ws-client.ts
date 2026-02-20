@@ -42,43 +42,23 @@ export class WebsocketClient {
     if (isHeartbeatEnabled) this.addHeartbeatMechanism();
 
     // Step 4: Set up the topic pub/sub.
-    this.setupTopicPubSub();
+    this.subscribeToPubSubTopicsChannel();
   }
 
   /**
-   * Subscribes to the Redis topic channel. When a message is published by any node,
-   * this node receives it and forwards to its local WebSocket clients subscribed to that topic.
+   * Publishes a message to a topic via Redis pub/sub. Every node (including this one) receives it
+   * and forwards to its local WebSocket clients subscribed to the topic.
+   * @returns The number of Redis subscriber nodes that received the message.
    */
-  private async setupTopicPubSub(): Promise<void> {
-    await this.redisSub.subscribe(WS_TOPIC_PUBSUB_CHANNEL, (message) => {
-      this.forwardTopicMessageToLocalClients(message);
-    });
-  }
+  async publishToTopic(props: PublishToTopicProps): Promise<number> {
+    const { topic, payload } = props;
 
-  /**
-   * Called when a topic message is received from Redis. Forwards the message to local clients subscribed to the topic.
-   */
-  private async forwardTopicMessageToLocalClients(message: string) {
-    const parsedMessage = parseJson<TopicMessage>(message);
+    const messageRaw: TopicMessage = { topic, payload, timestamp: Date.now() };
+    const messageStringified = JSON.stringify(messageRaw);
 
-    if (!parsedMessage) {
-      console.error('WS topic pub/sub: invalid JSON received on channel', WS_TOPIC_PUBSUB_CHANNEL);
-      return;
-    }
+    const subscriberCount = await this.redisPub.publish(WS_TOPIC_PUBSUB_CHANNEL, messageStringified);
 
-    const { topic } = parsedMessage;
-
-    const topicSubscribers = await this.topicManager.getTopicSubscribers(topic);
-
-    topicSubscribers.forEach((socket) => {
-      if (socket.readyState !== WebSocket.OPEN) return;
-
-      try {
-        socket.send(message, { binary: false });
-      } catch (error) {
-        console.error(`Failed to send topic message to client in topic "${topic}":`, error);
-      }
-    });
+    return subscriberCount;
   }
 
   broadcastToAll(props: BroadcastToAllProps): void {
@@ -116,22 +96,6 @@ export class WebsocketClient {
    */
   async unsubscribeFromAllTopics(client: WebSocket): Promise<void> {
     return this.topicManager.unsubscribeClientFromAllTopics(client);
-  }
-
-  /**
-   * Publishes a message to a topic via Redis pub/sub. Every node (including this one) receives it
-   * and forwards to its local WebSocket clients subscribed to the topic.
-   * @returns The number of Redis subscriber nodes that received the message.
-   */
-  async publishToTopic(props: PublishToTopicProps): Promise<number> {
-    const { topic, payload } = props;
-
-    const messageRaw: TopicMessage = { topic, payload, timestamp: Date.now() };
-    const messageStringified = JSON.stringify(messageRaw);
-
-    const subscriberCount = await this.redisPub.publish(WS_TOPIC_PUBSUB_CHANNEL, messageStringified);
-
-    return subscriberCount;
   }
 
   async getClientTopics(client: WebSocket): Promise<Set<string>> {
@@ -207,5 +171,41 @@ export class WebsocketClient {
 
     clearInterval(this.pingIntervalId);
     this.pingIntervalId = null;
+  }
+
+  /**
+   * Subscribes to the Redis topic channel. When a message is published by any node (even this one),
+   * this node receives it and forwards to its local WebSocket clients subscribed to that topic.
+   */
+  private async subscribeToPubSubTopicsChannel(): Promise<void> {
+    await this.redisSub.subscribe(WS_TOPIC_PUBSUB_CHANNEL, (message) => {
+      this.forwardTopicMessageToLocalClients(message);
+    });
+  }
+
+  /**
+   * Called when a topic message is received from Redis. Forwards the message to local clients subscribed to the topic.
+   */
+  private async forwardTopicMessageToLocalClients(message: string) {
+    const parsedMessage = parseJson<TopicMessage>(message);
+
+    if (!parsedMessage) {
+      console.error('WS topic pub/sub: invalid JSON received on channel', WS_TOPIC_PUBSUB_CHANNEL);
+      return;
+    }
+
+    const { topic } = parsedMessage;
+
+    const topicSubscribers = await this.topicManager.getTopicSubscribers(topic);
+
+    topicSubscribers.forEach((socket) => {
+      if (socket.readyState !== WebSocket.OPEN) return;
+
+      try {
+        socket.send(message, { binary: false });
+      } catch (error) {
+        console.error(`Failed to send topic message to client in topic "${topic}":`, error);
+      }
+    });
   }
 }
