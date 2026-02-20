@@ -11,6 +11,15 @@ import type {
 } from './interfaces/actions.event-handler.interface';
 import type { WebSocket } from 'ws';
 
+/**
+ * @description
+ * Handles incoming WebSocket actions.
+ *
+ * The two most important actions are: topic registration & unregister topic.
+ * An action is an incoming message (of type `ActionMessageData`) coming from the socket client,
+ * containing a payload with an `action` field.
+ * Extend `createActionHandler` to add more action handlers.
+ */
 export class ActionsEventHandler {
   private incomingMessageHandlersByAction: Record<any, (ws: WebSocket, payload: any) => Promise<void>>;
 
