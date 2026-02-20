@@ -18,7 +18,13 @@ import type { WebSocket } from 'ws';
  * The two most important actions are: topic registration & unregister topic.
  * An action is an incoming message (of type `ActionMessageData`) coming from the socket client,
  * containing a payload with an `action` field.
- * Extend `createActionHandler` to add more action handlers.
+ *
+ * An action doesn't necessarily notify other connected clients that it's doing something (although it can).
+ * For example, topic registration/unregister don't publish/producer a message to redis's pub/sub channel (although it can).
+ * So when a client subscribes to a topic, it doesn't notify other clients that it did.
+ * Instead, it updates a redis state, a subscription state, which is a set of connected clients, and a topics list.
+ *
+ * You can extend `createActionHandler` to add more action handlers.
  */
 export class ActionsEventHandler {
   private incomingMessageHandlersByAction: Record<any, (ws: WebSocket, payload: any) => Promise<void>>;
