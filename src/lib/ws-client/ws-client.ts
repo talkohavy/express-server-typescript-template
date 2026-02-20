@@ -27,18 +27,21 @@ export class WebsocketClient {
     private readonly redisPub: RedisClientType,
     private readonly redisSub: RedisClientType,
   ) {
+    // Step 1: Create the WebSocket server.
     this.wss = new WebSocketServer(options);
+
+    // Step 2: Create the topic manager.
     this.topicManager = new TopicManager(this.redisPub); // <--- Note: must NOT be the redisSub, otherwise you'll get an error.
 
+    // Step 3: Set up the heartbeat mechanism.
     const { heartbeat: heartbeatConfig } = customConfig ?? {};
     const { intervalMs = DEFAULT_HEARTBEAT_INTERVAL_MS } = heartbeatConfig ?? {};
 
     this.heartbeatIntervalMs = intervalMs > 0 ? intervalMs : 0;
-
     const isHeartbeatEnabled = this.heartbeatIntervalMs > 0;
-
     if (isHeartbeatEnabled) this.addHeartbeatMechanism();
 
+    // Step 4: Set up the topic pub/sub.
     this.setupTopicPubSub();
   }
 
