@@ -1,7 +1,7 @@
 import { ActionsEventHandler } from './event-handlers/actions';
 import { ConnectionEventHandler } from './event-handlers/connection';
 import { StaticTopics } from './logic/constants';
-import { TopicRegistrationActions } from './services/actions/topic-registration.actions';
+import { TopicRegistrationActions } from './services/actions';
 import type { TopicMessage } from '../../lib/ws-client';
 import type { Application } from 'express';
 
