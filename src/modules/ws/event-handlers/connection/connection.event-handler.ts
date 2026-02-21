@@ -2,49 +2,68 @@ import { randomUUID } from 'node:crypto';
 import { BUILT_IN_WEBSOCKET_EVENTS } from '@src/lib/ws-client/logic/constants';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { WebsocketClient } from '@src/lib/ws-client';
-import type { IncomingMessage } from 'node:http';
 import type { WebSocket } from 'ws';
 
 export class ConnectionEventHandler {
+  private readonly isAliveBySocket = new WeakMap<WebSocket, boolean>();
+  private readonly heartbeatIntervalMs = 30_000;
+
   constructor(
     private readonly wsClient: WebsocketClient,
     private readonly logger: LoggerService,
   ) {}
 
-  attachSocketIdToConnection(socket: WebSocket) {
+  private attachSocketIdToConnection(socket: WebSocket) {
     socket.id = randomUUID();
   }
 
-  extractIpFromWebsocket(req: IncomingMessage) {
-    const isXForwardedForHeaderPresent = req?.headers?.['x-forwarded-for'];
+  private registerSocketToPingPong(socket: WebSocket): void {
+    this.isAliveBySocket.set(socket, true);
 
-    if (isXForwardedForHeaderPresent && typeof isXForwardedForHeaderPresent === 'string') {
-      const ipFromXForwardedForHeader = isXForwardedForHeaderPresent.split(',')[0]?.trim();
-      return ipFromXForwardedForHeader;
-    }
+    socket.on(BUILT_IN_WEBSOCKET_EVENTS.Pong, () => {
+      this.isAliveBySocket.set(socket, true);
+    });
 
-    const ipFromSocket = req.socket.remoteAddress;
+    this.startPingPongInterval(socket);
+  }
 
-    return ipFromSocket;
+  private startPingPongInterval(socket: WebSocket): void {
+    setInterval(() => this.pingClientAndTerminateIfUnresponsive(socket), this.heartbeatIntervalMs);
+  }
+
+  private pingClientAndTerminateIfUnresponsive(socket: WebSocket): void {
+    const isAlive = !!this.isAliveBySocket.get(socket);
+
+    if (!isAlive) return void socket.terminate(); // <--- Use `terminate()`, which immediately destroys the connection, instead of `close()`, which waits for the close timer.
+
+    this.isAliveBySocket.set(socket, false);
+
+    socket.ping();
+  }
+
+  private attachErrorHandlerToSocket(socket: WebSocket): void {
+    socket.on(BUILT_IN_WEBSOCKET_EVENTS.Error, (error) => {
+      this.logger.error('WebSocket error', { error });
+    });
+  }
+
+  private attachCloseHandlerToSocket(socket: WebSocket): void {
+    socket.on(BUILT_IN_WEBSOCKET_EVENTS.Close, () => {
+      // Clean up all topic subscriptions for this client (fire-and-forget)
+      this.wsClient.unsubscribeFromAllTopics(socket);
+      this.logger.log('ws connection closed', { socketId: socket.id });
+    });
   }
 
   registerEventHandlers(): void {
-    this.wsClient.wss.on(BUILT_IN_WEBSOCKET_EVENTS.Connection, (ws, req) => {
-      this.attachSocketIdToConnection(ws);
+    this.wsClient.wss.on(BUILT_IN_WEBSOCKET_EVENTS.Connection, (socket, _req) => {
+      this.attachSocketIdToConnection(socket);
 
-      const ip = this.extractIpFromWebsocket(req) ?? 'unknown';
+      this.registerSocketToPingPong(socket);
 
-      this.logger.log('new ws connection', { ip });
+      this.attachErrorHandlerToSocket(socket);
 
-      ws.on(BUILT_IN_WEBSOCKET_EVENTS.Error, (error) => {
-        this.logger.error('WebSocket error', { ip, error });
-      });
-
-      ws.on(BUILT_IN_WEBSOCKET_EVENTS.Close, () => {
-        // Clean up all topic subscriptions for this client (fire-and-forget)
-        this.wsClient.unsubscribeFromAllTopics(ws);
-        this.logger.log('ws connection closed', { ip });
-      });
+      this.attachCloseHandlerToSocket(socket);
     });
   }
 }
