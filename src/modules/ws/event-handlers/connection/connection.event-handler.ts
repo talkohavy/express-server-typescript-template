@@ -1,15 +1,16 @@
 import { randomUUID } from 'node:crypto';
-import { BUILT_IN_WEBSOCKET_EVENTS } from '@src/lib/ws-client/logic/constants';
+import { BUILT_IN_WEBSOCKET_EVENTS } from '@src/lib/websocket-manager/logic/constants';
 import type { LoggerService } from '@src/lib/logger-service';
-import type { WebsocketClient } from '@src/lib/ws-client';
-import type { WebSocket } from 'ws';
+import type { WebsocketManager } from '@src/lib/websocket-manager';
+import type { WebSocket, WebSocketServer } from 'ws';
 
 export class ConnectionEventHandler {
   private readonly isAliveBySocket = new WeakMap<WebSocket, boolean>();
   private readonly heartbeatIntervalMs = 30_000;
 
   constructor(
-    private readonly wsClient: WebsocketClient,
+    private readonly wsApp: WebSocketServer,
+    private readonly wsManager: WebsocketManager,
     private readonly logger: LoggerService,
   ) {}
 
@@ -50,13 +51,14 @@ export class ConnectionEventHandler {
   private attachCloseHandlerToSocket(socket: WebSocket): void {
     socket.on(BUILT_IN_WEBSOCKET_EVENTS.Close, () => {
       // Clean up all topic subscriptions for this client (fire-and-forget)
-      this.wsClient.unsubscribeFromAllTopics(socket);
+      this.wsManager.unsubscribeFromAllTopics(socket);
+
       this.logger.log('ws connection closed', { socketId: socket.id });
     });
   }
 
   registerEventHandlers(): void {
-    this.wsClient.wss.on(BUILT_IN_WEBSOCKET_EVENTS.Connection, (socket, _req) => {
+    this.wsApp.on(BUILT_IN_WEBSOCKET_EVENTS.Connection, (socket, _req) => {
       this.attachSocketIdToConnection(socket);
 
       this.registerSocketToPingPong(socket);

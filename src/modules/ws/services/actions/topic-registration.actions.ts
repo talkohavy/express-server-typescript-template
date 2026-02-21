@@ -7,12 +7,12 @@ import type {
   TopicUnregisterPayload,
 } from './interfaces/actions.event-handler.interface';
 import type { LoggerService } from '@src/lib/logger-service';
-import type { ServerSocketResponse, WebsocketClient } from '@src/lib/ws-client';
+import type { ServerSocketResponse, WebsocketManager } from '@src/lib/websocket-manager';
 import type { WebSocket } from 'ws';
 
 export class TopicRegistrationActions {
   constructor(
-    private readonly wsClient: WebsocketClient,
+    private readonly wsManager: WebsocketManager,
     private readonly logger: LoggerService,
   ) {}
 
@@ -25,7 +25,7 @@ export class TopicRegistrationActions {
       return;
     }
 
-    const isSuccess = await this.wsClient.subscribeToTopic(ws, topic);
+    const isSuccess = await this.wsManager.subscribeToTopic(ws, topic);
 
     if (!isSuccess) {
       this.logger.debug('Client is already subscribed to topic', { topic });
@@ -45,7 +45,7 @@ export class TopicRegistrationActions {
       return;
     }
 
-    const isSuccess = await this.wsClient.unsubscribeFromTopic(ws, topic);
+    const isSuccess = await this.wsManager.unsubscribeFromTopic(ws, topic);
 
     if (!isSuccess) {
       this.logger.debug('Client not subscribed to topic', { topic });

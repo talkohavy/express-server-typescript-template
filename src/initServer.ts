@@ -43,14 +43,14 @@ function createGracefulShutdownHandler(app: Application) {
   return async function gracefulShutdown() {
     if (isShuttingDown) return;
 
-    const { wsClient, logger } = app;
+    const { wsManager, logger } = app;
 
     isShuttingDown = true;
 
     logger.log('Shutting down gracefully...');
 
     try {
-      await wsClient.cleanup();
+      await wsManager.cleanup();
     } catch (error) {
       logger.error('Redis WS cleanup failed during graceful shutdown', { error });
     }
@@ -67,7 +67,7 @@ function createGracefulRejectionOrExceptionHandler(app: Application) {
 
     const runRedisCleanup = async () => {
       try {
-        await app.wsClient.cleanup();
+        await app.wsManager.cleanup();
       } catch (error) {
         console.error('Redis WS cleanup failed during unexpected shutdown', { error });
       }

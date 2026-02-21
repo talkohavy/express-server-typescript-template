@@ -1,7 +1,7 @@
 import type { CallContextService } from '../lib/call-context';
 import type { ConfigService } from '../lib/config-service';
 import type { LoggerService } from '../lib/logger-service';
-import type { WebsocketClient } from '../lib/ws-client';
+import type { WebsocketManager } from '../lib/websocket-manager';
 import type { AuthenticationModule } from '../modules/authentication';
 import type { BooksModule } from '../modules/books';
 import type { DragonsModule } from '../modules/dragons';
@@ -15,6 +15,7 @@ import type { Server as HttpServer } from 'http';
 import type { Client as PgClient } from 'pg';
 import type { RedisClientType } from 'redis';
 import type { Server as SocketIOServer } from 'socket.io';
+import type { WebSocketServer } from 'ws';
 
 export interface OptimizedApp {
   modules: {
@@ -38,7 +39,8 @@ export interface OptimizedApp {
   logger: LoggerService;
   httpServer: HttpServer;
   io: SocketIOServer;
-  wsClient: WebsocketClient;
+  wsApp: WebSocketServer;
+  wsManager: WebsocketManager;
 }
 
 export type UserToken = {

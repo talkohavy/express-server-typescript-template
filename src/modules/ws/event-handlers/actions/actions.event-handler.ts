@@ -1,10 +1,10 @@
 import { parseJson } from '@src/common/utils/parseJson';
-import { BUILT_IN_WEBSOCKET_EVENTS, type WebsocketClient, type ServerSocketResponse } from '@src/lib/ws-client';
+import { BUILT_IN_WEBSOCKET_EVENTS, type ServerSocketResponse } from '@src/lib/websocket-manager';
 import { ResponseTypes, StaticTopics } from '../../logic/constants';
 import type { ActionHandler } from '../../types';
 import type { ActionMessageData, SendResponseProps } from './interfaces/actions.event-handler.interface';
 import type { LoggerService } from '@src/lib/logger-service';
-import type { WebSocket } from 'ws';
+import type { WebSocket, WebSocketServer } from 'ws';
 
 /**
  * @description
@@ -19,7 +19,7 @@ import type { WebSocket } from 'ws';
  */
 export class ActionsEventHandler {
   constructor(
-    private readonly wsClient: WebsocketClient,
+    private readonly wsApp: WebSocketServer,
     private readonly logger: LoggerService,
     private readonly actionHandlersByAction: Record<string, ActionHandler>,
   ) {}
@@ -27,56 +27,57 @@ export class ActionsEventHandler {
   /**
    * Handle incoming WebSocket messages and dispatch to the right domain action handler.
    */
-  private async handleIncomingActionMessage(ws: WebSocket, data: Buffer): Promise<void> {
-    const message = parseJson<ActionMessageData>(data);
+  private handleIncomingActionMessage(socket: WebSocket) {
+    socket.on(BUILT_IN_WEBSOCKET_EVENTS.Message, async (data: Buffer) => {
+      // this.handleIncomingActionMessage(ws, data);
+      const message = parseJson<ActionMessageData>(data);
 
-    if (!this.isValidActionMessage(message)) {
-      this.logger.debug('Received invalid/bad message', { message });
+      if (!this.isValidActionMessage(message)) {
+        this.logger.debug('Received invalid/bad message', { message });
 
-      this.sendResponse({ ws, type: ResponseTypes.ValidationError, message: 'Received invalid/bad message' });
+        this.sendResponse({ socket, type: ResponseTypes.ValidationError, message: 'Received invalid/bad message' });
 
-      return;
-    }
+        return;
+      }
 
-    const { payload } = message;
-    const actionHandler = this.actionHandlersByAction[payload.action];
+      const { payload } = message;
+      const actionHandler = this.actionHandlersByAction[payload.action];
 
-    if (!actionHandler) {
-      this.logger.debug('Received unknown action', { payload });
+      if (!actionHandler) {
+        this.logger.debug('Received unknown action', { payload });
 
-      this.sendResponse({ ws, type: ResponseTypes.ServerError, message: 'Unknown action' });
+        this.sendResponse({ socket, type: ResponseTypes.ServerError, message: 'Unknown action' });
 
-      return;
-    }
+        return;
+      }
 
-    try {
-      await actionHandler(ws, payload);
-    } catch (error) {
-      this.logger.error('Error handling action message', { payload, error });
+      try {
+        await actionHandler(socket, payload);
+      } catch (error) {
+        this.logger.error('Error handling action message', { payload, error });
 
-      this.sendResponse({ ws, type: ResponseTypes.ServerError, message: 'Internal server error' });
-    }
-  }
-
-  private sendResponse(props: SendResponseProps): void {
-    const { ws, type, message } = props;
-
-    if (ws.readyState !== ws.OPEN) return;
-
-    const response: ServerSocketResponse = { type, message };
-
-    ws.send(JSON.stringify(response));
+        this.sendResponse({ socket, type: ResponseTypes.ServerError, message: 'Internal server error' });
+      }
+    });
   }
 
   private isValidActionMessage(message: ActionMessageData | null): message is ActionMessageData {
     return message?.topic === StaticTopics.Actions && !!message.payload?.action;
   }
 
+  private sendResponse(props: SendResponseProps): void {
+    const { socket, type, message } = props;
+
+    if (socket.readyState !== socket.OPEN) return;
+
+    const response: ServerSocketResponse = { type, message };
+
+    socket.send(JSON.stringify(response));
+  }
+
   registerEventHandlers(): void {
-    this.wsClient.wss.on(BUILT_IN_WEBSOCKET_EVENTS.Connection, (ws) => {
-      ws.on(BUILT_IN_WEBSOCKET_EVENTS.Message, (data: Buffer) => {
-        this.handleIncomingActionMessage(ws, data);
-      });
+    this.wsApp.on(BUILT_IN_WEBSOCKET_EVENTS.Connection, (socket) => {
+      this.handleIncomingActionMessage(socket);
     });
   }
 }

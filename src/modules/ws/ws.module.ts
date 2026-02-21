@@ -2,7 +2,7 @@ import { ActionsEventHandler } from './event-handlers/actions';
 import { ConnectionEventHandler } from './event-handlers/connection';
 import { StaticTopics } from './logic/constants';
 import { TopicRegistrationActions } from './services/actions';
-import type { TopicMessage } from '../../lib/ws-client';
+import type { TopicMessage } from '@src/lib/websocket-manager';
 import type { Application } from 'express';
 
 export class WsModule {
@@ -14,12 +14,12 @@ export class WsModule {
   }
 
   private initializeModule(): void {
-    const { wsClient, logger } = this.app;
+    const { wsApp, wsManager, logger } = this.app;
 
-    this.connectionEventHandler = new ConnectionEventHandler(wsClient, logger);
+    this.connectionEventHandler = new ConnectionEventHandler(wsApp, wsManager, logger);
 
-    const topicRegistrationActions = new TopicRegistrationActions(wsClient, logger);
-    this.actionsEventHandler = new ActionsEventHandler(wsClient, logger, {
+    const topicRegistrationActions = new TopicRegistrationActions(wsManager, logger);
+    this.actionsEventHandler = new ActionsEventHandler(wsApp, logger, {
       ...topicRegistrationActions.getActionHandlers(),
     });
 
@@ -38,7 +38,7 @@ export class WsModule {
           timestamp: Date.now(),
         };
 
-        this.app.wsClient.publishToTopic(eventData);
+        this.app.wsManager.publishToTopic(eventData);
       }, 4000);
     }
   }

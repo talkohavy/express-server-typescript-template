@@ -1,6 +1,6 @@
 import { createServer } from 'node:http';
 import { WebSocketServer } from 'ws';
-import { TopicManager, WebsocketClient } from '@src/lib/ws-client';
+import { TopicManager, WebsocketManager } from '@src/lib/websocket-manager';
 import type { Application } from 'express';
 
 /**
@@ -25,9 +25,12 @@ export function wsPlugin(app: Application) {
 
   const { redis } = app;
 
-  const wss = new WebSocketServer({ server: app.httpServer });
-  const topicManager = new TopicManager(redis.pub);
-  const wsClient = new WebsocketClient(wss, topicManager, redis.pub, redis.sub); // { heartbeat: { intervalMs: 10_000 } },
+  const wsApp = new WebSocketServer({ server: app.httpServer });
 
-  app.wsClient = wsClient;
+  app.wsApp = wsApp;
+
+  const topicManager = new TopicManager(redis.pub);
+  const wsManager = new WebsocketManager(topicManager, redis.pub, redis.sub);
+
+  app.wsManager = wsManager;
 }

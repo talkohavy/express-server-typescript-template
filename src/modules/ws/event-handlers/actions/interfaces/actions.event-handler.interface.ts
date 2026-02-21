@@ -9,7 +9,7 @@ export type ActionMessageData = {
 };
 
 export type SendResponseProps = {
-  ws: WebSocket;
+  socket: WebSocket;
   type: string;
   message?: string;
 };

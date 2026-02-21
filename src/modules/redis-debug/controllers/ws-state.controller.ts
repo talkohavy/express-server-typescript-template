@@ -8,15 +8,15 @@ export class WsStateController implements ControllerFactory {
 
   private wsState(): void {
     this.app.get(API_URLS.internalWsState, internalApiKeyMiddleware, async (_req, res: Response) => {
-      const { wsClient, logger } = this.app;
+      const { wsManager, logger } = this.app;
 
       logger.debug(`GET ${API_URLS.internalWsState} - internal ws state`);
 
-      const [topicCount, topicNames] = await Promise.all([wsClient.getTopicCount(), wsClient.getTopicNames()]);
+      const [topicCount, topicNames] = await Promise.all([wsManager.getTopicCount(), wsManager.getTopicNames()]);
 
       const topicDetailsArr = await Promise.all(
         topicNames.map(async (topic) => {
-          const subscriberCount = await wsClient.getTopicSubscriberCount(topic);
+          const subscriberCount = await wsManager.getTopicSubscriberCount(topic);
 
           return { topic, subscriberCount };
         }),
