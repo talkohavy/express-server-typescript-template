@@ -1,8 +1,9 @@
-import { BUILT_IN_WEBSOCKET_EVENTS } from '../../../../lib/ws-client/logic/constants';
-import { attachSocketIdToConnection } from '../../logic/utils/attachSocketIdToConnection';
-import { extractIpFromWebsocket } from '../../logic/utils/extractIpFromWebsocket';
-import type { LoggerService } from '../../../../lib/logger-service';
-import type { WebsocketClient } from '../../../../lib/ws-client';
+import { randomUUID } from 'node:crypto';
+import { BUILT_IN_WEBSOCKET_EVENTS } from '@src/lib/ws-client/logic/constants';
+import type { LoggerService } from '@src/lib/logger-service';
+import type { WebsocketClient } from '@src/lib/ws-client';
+import type { IncomingMessage } from 'node:http';
+import type { WebSocket } from 'ws';
 
 export class ConnectionEventHandler {
   constructor(
@@ -10,11 +11,28 @@ export class ConnectionEventHandler {
     private readonly logger: LoggerService,
   ) {}
 
+  attachSocketIdToConnection(socket: WebSocket) {
+    socket.id = randomUUID();
+  }
+
+  extractIpFromWebsocket(req: IncomingMessage) {
+    const isXForwardedForHeaderPresent = req?.headers?.['x-forwarded-for'];
+
+    if (isXForwardedForHeaderPresent && typeof isXForwardedForHeaderPresent === 'string') {
+      const ipFromXForwardedForHeader = isXForwardedForHeaderPresent.split(',')[0]?.trim();
+      return ipFromXForwardedForHeader;
+    }
+
+    const ipFromSocket = req.socket.remoteAddress;
+
+    return ipFromSocket;
+  }
+
   registerEventHandlers(): void {
     this.wsClient.wss.on(BUILT_IN_WEBSOCKET_EVENTS.Connection, (ws, req) => {
-      attachSocketIdToConnection(ws);
+      this.attachSocketIdToConnection(ws);
 
-      const ip = extractIpFromWebsocket(req) ?? 'unknown';
+      const ip = this.extractIpFromWebsocket(req) ?? 'unknown';
 
       this.logger.log('new ws connection', { ip });
 
