@@ -7,7 +7,6 @@ export { BUILT_IN_WEBSOCKET_EVENTS } from './logic/constants';
 // types
 export type { ServerSocketResponse, TopicMessage } from './types';
 export type {
-  WebSocketServerOptions,
   WebsocketClientConfig,
   BroadcastToAllProps,
   BroadcastToAllButSelfProps,

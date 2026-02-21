@@ -16,6 +16,9 @@ import type { WebSocket } from 'ws';
  *
  * In-memory only:
  * - socketId -> WebSocket (so this node can send to its local clients)
+ *
+ * Redis: Uses a single client for subscription state (EVAL, SADD, SMEMBERS, etc.). This must
+ * be a non-subscriber client — do not pass the same connection used for SUBSCRIBE.
  */
 export class TopicManager {
   /**
@@ -23,6 +26,9 @@ export class TopicManager {
    */
   private readonly socketIdToSocket = new Map<string, WebSocket>();
 
+  /**
+   * @param redis Non-subscriber Redis client (for EVAL, sets, etc.).
+   */
   constructor(private readonly redis: RedisClientType) {}
 
   /**

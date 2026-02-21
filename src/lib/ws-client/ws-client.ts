@@ -1,39 +1,34 @@
-import { WebSocket, WebSocketServer } from 'ws';
+import { WebSocket, type WebSocketServer } from 'ws';
 import { parseJson } from '@src/common/utils/parseJson';
 import { BUILT_IN_WEBSOCKET_EVENTS, WS_TOPIC_PUBSUB_CHANNEL } from './logic/constants';
-import { TopicManager } from './logic/topic-manager';
+import type { TopicManager } from './logic/topic-manager';
 import type { TopicMessage } from './types';
 import type {
   BroadcastToAllButSelfProps,
   BroadcastToAllProps,
   PublishToTopicProps,
   WebsocketClientConfig,
-  WebSocketServerOptions,
 } from './ws-client.interface';
 import type { RedisClientType } from 'redis';
 
 const DEFAULT_HEARTBEAT_INTERVAL_MS = 30_000;
 
 export class WebsocketClient {
-  readonly wss: WebSocketServer;
   private readonly heartbeatIntervalMs: number;
   private readonly isAliveBySocket = new WeakMap<WebSocket, boolean>();
   private pingIntervalId: ReturnType<typeof setInterval> | null = null;
-  private readonly topicManager: TopicManager;
 
+  /**
+   * @param redisPub Used to PUBLISH topic messages to the shared channel (and for TopicManager: subscription state).
+   * @param redisSub Used only to SUBSCRIBE to that channel so this node receives messages and can forward them to local clients.
+   */
   constructor(
-    options: WebSocketServerOptions,
-    customConfig: WebsocketClientConfig,
+    private readonly wss: WebSocketServer,
+    private readonly topicManager: TopicManager,
     private readonly redisPub: RedisClientType,
     private readonly redisSub: RedisClientType,
+    customConfig?: WebsocketClientConfig,
   ) {
-    // Step 1: Create the WebSocket server.
-    this.wss = new WebSocketServer(options);
-
-    // Step 2: Create the topic manager.
-    this.topicManager = new TopicManager(this.redisPub); // <--- Note: must NOT be the redisSub, otherwise you'll get an error.
-
-    // Step 3: Set up the heartbeat mechanism.
     const { heartbeat: heartbeatConfig } = customConfig ?? {};
     const { intervalMs = DEFAULT_HEARTBEAT_INTERVAL_MS } = heartbeatConfig ?? {};
 
@@ -41,7 +36,6 @@ export class WebsocketClient {
     const isHeartbeatEnabled = this.heartbeatIntervalMs > 0;
     if (isHeartbeatEnabled) this.addHeartbeatMechanism();
 
-    // Step 4: Set up the topic pub/sub.
     this.subscribeToPubSubTopicsChannel();
   }
 
