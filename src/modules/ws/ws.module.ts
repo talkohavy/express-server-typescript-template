@@ -1,5 +1,7 @@
 import { ActionsEventHandler } from './event-handlers/actions';
-import { ConnectionEventHandler } from './event-handlers/connection';
+import { CloseEventHandler } from './event-handlers/close';
+import { ErrorEventHandler } from './event-handlers/error';
+import { HeartbeatEventHandler } from './event-handlers/heartbeat';
 import { StaticTopics } from './logic/constants';
 import { WsMiddleware } from './middlewares/ws.middleware';
 import { TopicRegistrationActions } from './services/actions';
@@ -24,7 +26,9 @@ export class WsModule {
   private registerEventHandlers(): void {
     const { wsApp, wsManager, logger } = this.app;
 
-    const connectionEventHandler = new ConnectionEventHandler(wsApp, wsManager, logger);
+    const heartbeatEventHandler = new HeartbeatEventHandler(wsApp);
+    const errorEventHandler = new ErrorEventHandler(wsApp, logger);
+    const closeEventHandler = new CloseEventHandler(wsApp, wsManager, logger);
 
     const actionsEventHandler = new ActionsEventHandler(wsApp, logger, {
       ...this.topicRegistrationActions.getActionHandlers(),
@@ -33,7 +37,9 @@ export class WsModule {
     const wsMiddleware = new WsMiddleware();
 
     wsMiddleware.use();
-    connectionEventHandler.registerEventHandlers();
+    heartbeatEventHandler.registerEventHandlers();
+    errorEventHandler.registerEventHandlers();
+    closeEventHandler.registerEventHandlers();
     actionsEventHandler.registerEventHandlers();
 
     if (process.env.PUB_SUB_ENABLED) {

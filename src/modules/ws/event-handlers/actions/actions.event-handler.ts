@@ -29,7 +29,6 @@ export class ActionsEventHandler {
    */
   private handleIncomingActionMessage(socket: WebSocket) {
     socket.on(BUILT_IN_WEBSOCKET_EVENTS.Message, async (data: Buffer) => {
-      // this.handleIncomingActionMessage(ws, data);
       const message = parseJson<ActionMessageData>(data);
 
       if (!this.isValidActionMessage(message)) {
