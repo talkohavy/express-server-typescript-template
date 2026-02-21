@@ -1,34 +1,40 @@
 import { ActionsEventHandler } from './event-handlers/actions';
 import { ConnectionEventHandler } from './event-handlers/connection';
 import { StaticTopics } from './logic/constants';
+import { WsMiddleware } from './middlewares/ws.middleware';
 import { TopicRegistrationActions } from './services/actions';
 import type { TopicMessage } from '@src/lib/websocket-manager';
 import type { Application } from 'express';
 
 export class WsModule {
-  private connectionEventHandler!: ConnectionEventHandler;
-  private actionsEventHandler!: ActionsEventHandler;
+  topicRegistrationActions!: TopicRegistrationActions;
 
   constructor(private readonly app: Application) {
     this.initializeModule();
   }
 
   private initializeModule(): void {
-    const { wsApp, wsManager, logger } = this.app;
+    const { wsManager, logger } = this.app;
 
-    this.connectionEventHandler = new ConnectionEventHandler(wsApp, wsManager, logger);
-
-    const topicRegistrationActions = new TopicRegistrationActions(wsManager, logger);
-    this.actionsEventHandler = new ActionsEventHandler(wsApp, logger, {
-      ...topicRegistrationActions.getActionHandlers(),
-    });
+    this.topicRegistrationActions = new TopicRegistrationActions(wsManager, logger);
 
     this.registerEventHandlers();
   }
 
   private registerEventHandlers(): void {
-    this.connectionEventHandler.registerEventHandlers();
-    this.actionsEventHandler.registerEventHandlers();
+    const { wsApp, wsManager, logger } = this.app;
+
+    const connectionEventHandler = new ConnectionEventHandler(wsApp, wsManager, logger);
+
+    const actionsEventHandler = new ActionsEventHandler(wsApp, logger, {
+      ...this.topicRegistrationActions.getActionHandlers(),
+    });
+
+    const wsMiddleware = new WsMiddleware();
+
+    wsMiddleware.use();
+    connectionEventHandler.registerEventHandlers();
+    actionsEventHandler.registerEventHandlers();
 
     if (process.env.PUB_SUB_ENABLED) {
       setInterval(() => {

@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import { BUILT_IN_WEBSOCKET_EVENTS } from '@src/lib/websocket-manager/logic/constants';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { WebsocketManager } from '@src/lib/websocket-manager';
@@ -13,10 +12,6 @@ export class ConnectionEventHandler {
     private readonly wsManager: WebsocketManager,
     private readonly logger: LoggerService,
   ) {}
-
-  private attachSocketIdToConnection(socket: WebSocket) {
-    socket.id = randomUUID();
-  }
 
   private registerSocketToPingPong(socket: WebSocket): void {
     this.isAliveBySocket.set(socket, true);
@@ -59,8 +54,6 @@ export class ConnectionEventHandler {
 
   registerEventHandlers(): void {
     this.wsApp.on(BUILT_IN_WEBSOCKET_EVENTS.Connection, (socket, _req) => {
-      this.attachSocketIdToConnection(socket);
-
       this.registerSocketToPingPong(socket);
 
       this.attachErrorHandlerToSocket(socket);
