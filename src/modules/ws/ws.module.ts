@@ -1,7 +1,7 @@
 import { ActionsEventHandler } from './event-handlers/actions';
 import { CloseEventHandler } from './event-handlers/close';
 import { ErrorEventHandler } from './event-handlers/error';
-import { HeartbeatEventHandler } from './event-handlers/heartbeat';
+import { MessageDispatcherEventHandler } from './event-handlers/message-dispatcher';
 import { PingPongEventHandler } from './event-handlers/ping-pong';
 import { StaticTopics } from './logic/constants';
 import { WsMiddleware } from './middlewares/ws.middleware';
@@ -31,9 +31,17 @@ export class WsModule {
     const errorEventHandler = new ErrorEventHandler(wsApp, logger);
     const closeEventHandler = new CloseEventHandler(wsApp, wsManager, logger);
 
-    const actionsEventHandler = new ActionsEventHandler(wsApp, logger, {
+    const actionsEventHandler = new ActionsEventHandler(logger, {
       ...this.topicRegistrationActions.getActionHandlers(),
     });
+
+    const messageDispatcher = new MessageDispatcherEventHandler(
+      wsApp,
+      {
+        [StaticTopics.Actions]: actionsEventHandler.handleEvent,
+      },
+      logger,
+    );
 
     const wsMiddleware = new WsMiddleware();
 
@@ -41,7 +49,7 @@ export class WsModule {
     pingPongEventHandler.registerEventHandlers();
     errorEventHandler.registerEventHandlers();
     closeEventHandler.registerEventHandlers();
-    actionsEventHandler.registerEventHandlers();
+    messageDispatcher.registerEventHandlers();
 
     if (process.env.PUB_SUB_ENABLED) {
       setInterval(() => {
