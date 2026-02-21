@@ -1,7 +1,7 @@
 import { BUILT_IN_WEBSOCKET_EVENTS } from '@src/lib/websocket-manager/logic/constants';
 import type { WebSocket, WebSocketServer } from 'ws';
 
-export class HeartbeatEventHandler {
+export class PingPongEventHandler {
   private readonly isAliveBySocket = new WeakMap<WebSocket, boolean>();
   private readonly heartbeatIntervalMs = 30_000;
 

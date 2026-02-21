@@ -2,6 +2,7 @@ import { ActionsEventHandler } from './event-handlers/actions';
 import { CloseEventHandler } from './event-handlers/close';
 import { ErrorEventHandler } from './event-handlers/error';
 import { HeartbeatEventHandler } from './event-handlers/heartbeat';
+import { PingPongEventHandler } from './event-handlers/ping-pong';
 import { StaticTopics } from './logic/constants';
 import { WsMiddleware } from './middlewares/ws.middleware';
 import { TopicRegistrationActions } from './services/actions';
@@ -26,7 +27,7 @@ export class WsModule {
   private registerEventHandlers(): void {
     const { wsApp, wsManager, logger } = this.app;
 
-    const heartbeatEventHandler = new HeartbeatEventHandler(wsApp);
+    const pingPongEventHandler = new PingPongEventHandler(wsApp);
     const errorEventHandler = new ErrorEventHandler(wsApp, logger);
     const closeEventHandler = new CloseEventHandler(wsApp, wsManager, logger);
 
@@ -37,7 +38,7 @@ export class WsModule {
     const wsMiddleware = new WsMiddleware();
 
     wsMiddleware.use();
-    heartbeatEventHandler.registerEventHandlers();
+    pingPongEventHandler.registerEventHandlers();
     errorEventHandler.registerEventHandlers();
     closeEventHandler.registerEventHandlers();
     actionsEventHandler.registerEventHandlers();
