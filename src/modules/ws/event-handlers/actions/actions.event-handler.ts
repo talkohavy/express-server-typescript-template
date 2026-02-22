@@ -1,67 +1,52 @@
-import { parseJson } from '@src/common/utils/parseJson';
-import { BUILT_IN_WEBSOCKET_EVENTS, type ServerSocketResponse } from '@src/lib/websocket-manager';
-import { ResponseTypes, StaticTopics } from '../../logic/constants';
+import { ResponseTypes } from '../../logic/constants';
 import type { ActionHandler } from '../../types';
-import type { ActionMessageData, SendResponseProps } from './interfaces/actions.event-handler.interface';
+import type { ActionsEventPayload, SendResponseProps } from './interfaces/actions.event-handler.interface';
 import type { LoggerService } from '@src/lib/logger-service';
-import type { WebSocket, WebSocketServer } from 'ws';
+import type { ServerSocketResponse } from '@src/lib/websocket-manager';
+import type WebSocket from 'ws';
 
 /**
- * @description
- * Handles incoming WebSocket actions.
+ * Domain event handler for the "actions" event.
+ * Handles incoming action payloads (e.g. register/unregister to topics) and delegates
+ * to domain-specific handlers under services/actions (e.g. topic-registration.actions.ts).
  *
- * An action is an incoming message (of type `ActionMessageData`) from the socket client,
- * containing a payload with an `action` field. Implementation is delegated to domain-specific
- * handlers under `domains/` (e.g. topic registration/unregister in `domains/topic.actions.ts`).
- *
- * To add new actions: implement a handler in the appropriate domain (or create a new domain file),
- * export a map of action -> handler, and merge it in `createActionHandlerMap`.
+ * Does not listen to WebSocket "message" directly; invoked by MessageDispatcherEventHandler
+ * when message.event === "actions".
  */
 export class ActionsEventHandler {
   constructor(
-    private readonly wsApp: WebSocketServer,
     private readonly logger: LoggerService,
     private readonly actionHandlersByAction: Record<string, ActionHandler>,
   ) {}
 
   /**
-   * Handle incoming WebSocket messages and dispatch to the right domain action handler.
+   * Called by the message dispatcher when event === "actions".
    */
-  private handleIncomingActionMessage(socket: WebSocket) {
-    socket.on(BUILT_IN_WEBSOCKET_EVENTS.Message, async (data: Buffer) => {
-      const message = parseJson<ActionMessageData>(data);
+  async handleEvent(socket: WebSocket, payload: unknown): Promise<void> {
+    if (!this.isValidActionsPayload(payload)) {
+      this.logger.debug('Received invalid actions payload', { payload });
+      this.sendResponse({ socket, type: ResponseTypes.ValidationError, message: 'Received invalid/bad message' });
+      return;
+    }
 
-      if (!this.isValidActionMessage(message)) {
-        this.logger.debug('Received invalid/bad message', { message });
+    const actionHandler = this.actionHandlersByAction[payload.action];
 
-        this.sendResponse({ socket, type: ResponseTypes.ValidationError, message: 'Received invalid/bad message' });
+    if (!actionHandler) {
+      this.logger.debug('Received unknown action', { payload });
+      this.sendResponse({ socket, type: ResponseTypes.ServerError, message: 'Unknown action' });
+      return;
+    }
 
-        return;
-      }
-
-      const { payload } = message;
-      const actionHandler = this.actionHandlersByAction[payload.action];
-
-      if (!actionHandler) {
-        this.logger.debug('Received unknown action', { payload });
-
-        this.sendResponse({ socket, type: ResponseTypes.ServerError, message: 'Unknown action' });
-
-        return;
-      }
-
-      try {
-        await actionHandler(socket, payload);
-      } catch (error) {
-        this.logger.error('Error handling action message', { payload, error });
-
-        this.sendResponse({ socket, type: ResponseTypes.ServerError, message: 'Internal server error' });
-      }
-    });
+    try {
+      await actionHandler(socket, payload);
+    } catch (error) {
+      this.logger.error('Error handling action message', { payload, error });
+      this.sendResponse({ socket, type: ResponseTypes.ServerError, message: 'Internal server error' });
+    }
   }
 
-  private isValidActionMessage(message: ActionMessageData | null): message is ActionMessageData {
-    return message?.topic === StaticTopics.Actions && !!message.payload?.action;
+  private isValidActionsPayload(payload: any): payload is ActionsEventPayload {
+    return typeof payload?.action === 'string';
   }
 
   private sendResponse(props: SendResponseProps): void {
@@ -72,11 +57,5 @@ export class ActionsEventHandler {
     const response: ServerSocketResponse = { type, message };
 
     socket.send(JSON.stringify(response));
-  }
-
-  registerEventHandlers(): void {
-    this.wsApp.on(BUILT_IN_WEBSOCKET_EVENTS.Connection, (socket) => {
-      this.handleIncomingActionMessage(socket);
-    });
   }
 }
