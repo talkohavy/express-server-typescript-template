@@ -22,7 +22,7 @@ export class PingPongEventHandler {
   }
 
   private pingClientAndTerminateIfUnresponsive(socket: WebSocket): void {
-    const isAlive = !!this.isAliveBySocket.get(socket);
+    const isAlive = this.isAliveBySocket.get(socket);
 
     if (!isAlive) return void socket.terminate();
 
