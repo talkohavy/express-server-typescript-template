@@ -69,8 +69,8 @@ export class TopicRegistrationActions {
 
   getActionHandlers(): Record<string, ActionHandler> {
     return {
-      [Actions.Register]: this.handleTopicRegistration,
-      [Actions.Unregister]: this.handleTopicUnregister,
+      [Actions.Register]: this.handleTopicRegistration.bind(this),
+      [Actions.Unregister]: this.handleTopicUnregister.bind(this),
     };
   }
 }
