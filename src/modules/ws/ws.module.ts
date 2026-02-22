@@ -47,12 +47,12 @@ export class WsModule {
     const messageDispatcher = new MessageDispatcherEventHandler(
       wsApp,
       {
-        [StaticTopics.Actions]: actionsEventHandler.handleEvent,
+        [StaticTopics.Actions]: actionsEventHandler.handleEvent.bind(actionsEventHandler),
       },
       logger,
     );
 
-    const wsMiddleware = new WsMiddleware();
+    const wsMiddleware = new WsMiddleware(wsApp);
 
     wsMiddleware.use();
     pingPongEventHandler.registerEventHandlers();
