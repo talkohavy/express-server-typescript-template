@@ -9,6 +9,15 @@ import { TopicRegistrationActions } from './services/actions';
 import type { TopicMessage } from '@src/lib/websocket-manager';
 import type { Application } from 'express';
 
+/**
+ * WebSocket module: connection lifecycle, message dispatch, and topic pub/sub.
+ *
+ * **Sending messages to clients (by topic):**
+ * - Producers call `app.wsManager.publishToTopic({ topic, payload })` (e.g. from routes, jobs, or the sample below).
+ * - Messages are published to Redis channel "ws:topic:pubsub".
+ * - Each node receives them in WebsocketManager (subscribeToPubSubTopicsChannel) and forwards to its local clients
+ *   subscribed to that topic. See WebsocketManager for the receive/forward implementation.
+ */
 export class WsModule {
   topicRegistrationActions!: TopicRegistrationActions;
 
