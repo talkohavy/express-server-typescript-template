@@ -22,12 +22,13 @@ export class WsStateController implements ControllerFactory {
         }),
       );
 
-      const totalSubscribersSum = topicDetailsArr.reduce((sum, d) => sum + d.subscriberCount, 0);
+      const totalSubscriptionsSum = topicDetailsArr.reduce((sum, d) => sum + d.subscriberCount, 0);
 
       const payload = {
         activeTopics: topicCount,
         topics: topicDetailsArr,
-        totalSubscribers: totalSubscribersSum,
+        totalSubscriptions: totalSubscriptionsSum,
+        // totalUniqueSubscribers: totalSubscribersSum,
       };
 
       res.json(payload);
