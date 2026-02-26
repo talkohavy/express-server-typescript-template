@@ -1,4 +1,4 @@
-export { TopicRegistrationService } from './topic-registration.service';
+export { TopicRegistrationService } from './handlers/topic-registration.service';
 export { ActionDispatcherService } from './action-dispatcher.service';
 
 // constants
