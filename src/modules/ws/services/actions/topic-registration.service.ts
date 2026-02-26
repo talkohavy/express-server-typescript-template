@@ -30,6 +30,7 @@ export class TopicRegistrationService {
     if (!isSuccess) {
       this.logger.debug('Client is already subscribed to topic', { topic });
       this.sendResponse({ ws, type: ResponseTypes.Actions.RegisterSuccess, message: 'Already subscribed' });
+      return;
     }
 
     this.logger.log('Client registered to topic', { topic });
@@ -50,6 +51,7 @@ export class TopicRegistrationService {
     if (!isSuccess) {
       this.logger.debug('Client not subscribed to topic', { topic });
       this.sendResponse({ ws, type: ResponseTypes.Actions.UnregisterSuccess, message: 'Not subscribed' });
+      return;
     }
 
     this.logger.log('Client unregistered from topic', { topic });
