@@ -1,5 +1,5 @@
 export { TopicRegistrationService } from './topic-registration.service';
-export { ActionsService } from './actions.service';
+export { ActionDispatcherService } from './action-dispatcher.service';
 
 // constants
 export { Actions } from './logic/constants';

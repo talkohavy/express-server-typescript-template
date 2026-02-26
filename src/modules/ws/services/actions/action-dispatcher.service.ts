@@ -1,6 +1,6 @@
 import { ResponseTypes } from '../../logic/constants';
 import type { ActionHandler } from '../../types';
-import type { ActionsEventPayload, SendResponseProps } from './interfaces/actions.service.interface';
+import type { ActionsEventPayload, SendResponseProps } from './interfaces/action-dispatcher.service.interface';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { ServerSocketResponse } from '@src/lib/websocket-manager';
 import type WebSocket from 'ws';
@@ -13,7 +13,7 @@ import type WebSocket from 'ws';
  * Does not listen to WebSocket "message" directly; invoked by MessageDispatcherEventHandler
  * when message.event === "actions".
  */
-export class ActionsService {
+export class ActionDispatcherService {
   constructor(
     private readonly logger: LoggerService,
     private readonly actionHandlersByAction: Record<string, ActionHandler>,
