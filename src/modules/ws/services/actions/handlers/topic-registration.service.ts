@@ -1,11 +1,11 @@
-import { ResponseTypes } from '../../logic/constants';
-import { Actions } from './logic/constants';
-import type { ActionHandler } from '../../types';
+import { ResponseTypes } from '../../../logic/constants';
+import { Actions } from '../logic/constants';
+import type { ActionHandler } from '../../../types';
 import type {
   SendResponseProps,
   TopicRegistrationPayload,
   TopicUnregisterPayload,
-} from './interfaces/topic-registration.service.interface';
+} from '../interfaces/topic-registration.service.interface';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { ServerSocketResponse, WebsocketManager } from '@src/lib/websocket-manager';
 import type { WebSocket } from 'ws';
