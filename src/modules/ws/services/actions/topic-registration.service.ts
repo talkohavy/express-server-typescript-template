@@ -16,57 +16,57 @@ export class TopicRegistrationService {
     private readonly logger: LoggerService,
   ) {}
 
-  private async handleTopicRegistration(ws: WebSocket, payload: TopicRegistrationPayload): Promise<void> {
+  private async handleTopicRegistration(socket: WebSocket, payload: TopicRegistrationPayload): Promise<void> {
     const { topic } = payload;
 
     if (!topic) {
       this.logger.debug('Topic is required', { payload });
-      this.sendResponse({ ws, type: ResponseTypes.ValidationError, message: 'Topic is required' });
+      this.sendResponse({ socket, type: ResponseTypes.ValidationError, message: 'Topic is required' });
       return;
     }
 
-    const isSuccess = await this.wsManager.subscribeToTopic(ws, topic);
+    const isSuccess = await this.wsManager.subscribeToTopic(socket, topic);
 
     if (!isSuccess) {
       this.logger.debug('Client is already subscribed to topic', { topic });
-      this.sendResponse({ ws, type: ResponseTypes.Actions.RegisterSuccess, message: 'Already subscribed' });
+      this.sendResponse({ socket, type: ResponseTypes.Actions.RegisterSuccess, message: 'Already subscribed' });
       return;
     }
 
     this.logger.log('Client registered to topic', { topic });
-    this.sendResponse({ ws, type: ResponseTypes.Actions.RegisterSuccess });
+    this.sendResponse({ socket, type: ResponseTypes.Actions.RegisterSuccess });
   }
 
-  private async handleTopicUnregister(ws: WebSocket, payload: TopicUnregisterPayload): Promise<void> {
+  private async handleTopicUnregister(socket: WebSocket, payload: TopicUnregisterPayload): Promise<void> {
     const { topic } = payload;
 
     if (!topic) {
       this.logger.debug('Topic is required', { payload });
-      this.sendResponse({ ws, type: ResponseTypes.ValidationError, message: 'Topic is required' });
+      this.sendResponse({ socket, type: ResponseTypes.ValidationError, message: 'Topic is required' });
       return;
     }
 
-    const isSuccess = await this.wsManager.unsubscribeFromTopic(ws, topic);
+    const isSuccess = await this.wsManager.unsubscribeFromTopic(socket, topic);
 
     if (!isSuccess) {
       this.logger.debug('Client not subscribed to topic', { topic });
-      this.sendResponse({ ws, type: ResponseTypes.Actions.UnregisterSuccess, message: 'Not subscribed' });
+      this.sendResponse({ socket, type: ResponseTypes.Actions.UnregisterSuccess, message: 'Not subscribed' });
       return;
     }
 
     this.logger.log('Client unregistered from topic', { topic });
 
-    this.sendResponse({ ws, type: ResponseTypes.Actions.UnregisterSuccess });
+    this.sendResponse({ socket, type: ResponseTypes.Actions.UnregisterSuccess });
   }
 
   private sendResponse(props: SendResponseProps): void {
-    const { ws, type, message } = props;
+    const { socket, type, message } = props;
 
-    if (ws.readyState !== ws.OPEN) return;
+    if (socket.readyState !== socket.OPEN) return;
 
     const response: ServerSocketResponse = { type, message };
 
-    ws.send(JSON.stringify(response));
+    socket.send(JSON.stringify(response));
   }
 
   getActionHandlers(): Record<string, ActionHandler> {

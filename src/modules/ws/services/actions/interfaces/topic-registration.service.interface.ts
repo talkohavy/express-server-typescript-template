@@ -9,7 +9,7 @@ export type TopicUnregisterPayload = {
 };
 
 export type SendResponseProps = {
-  ws: WebSocket;
+  socket: WebSocket;
   type: string;
   message?: string;
 };
