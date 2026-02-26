@@ -1,6 +1,10 @@
 export const StaticTopics = {
   Actions: 'actions',
   Data: 'data',
+  /**
+   * Every connected socket is auto-subscribed to this topic; use for broadcastToAll.
+   */
+  Presence: 'presence',
 };
 
 export const ResponseTypes = {

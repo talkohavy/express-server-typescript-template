@@ -1,4 +1,5 @@
 import { CloseEventHandler } from './event-handlers/close';
+import { ConnectionPresenceEventHandler } from './event-handlers/connection-presence';
 import { ErrorEventHandler } from './event-handlers/error';
 import { MessageDispatcherEventHandler } from './event-handlers/message-dispatcher';
 import { PingPongEventHandler } from './event-handlers/ping-pong';
@@ -42,6 +43,7 @@ export class WsModule {
     const pingPongEventHandler = new PingPongEventHandler(wsApp);
     const errorEventHandler = new ErrorEventHandler(wsApp, logger);
     const closeEventHandler = new CloseEventHandler(wsApp, wsManager, logger);
+    const connectionPresenceEventHandler = new ConnectionPresenceEventHandler(wsApp, wsManager, logger);
     const messageDispatcher = new MessageDispatcherEventHandler(
       wsApp,
       {
@@ -56,6 +58,7 @@ export class WsModule {
     pingPongEventHandler.registerEventHandlers();
     errorEventHandler.registerEventHandlers();
     closeEventHandler.registerEventHandlers();
+    connectionPresenceEventHandler.registerEventHandlers();
     messageDispatcher.registerEventHandlers();
 
     if (process.env.PUB_SUB_ENABLED) {
