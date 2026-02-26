@@ -16,6 +16,9 @@ export class TopicRegistrationService {
     private readonly logger: LoggerService,
   ) {}
 
+  /**
+   * Called by the action dispatcher when payload.action === "register".
+   */
   private async handleTopicRegistration(socket: WebSocket, payload: TopicRegistrationPayload): Promise<void> {
     const { topic } = payload;
 
@@ -37,6 +40,9 @@ export class TopicRegistrationService {
     this.sendResponse({ socket, type: ResponseTypes.Actions.RegisterSuccess });
   }
 
+  /**
+   * Called by the action dispatcher when action === "unregister".
+   */
   private async handleTopicUnregister(socket: WebSocket, payload: TopicUnregisterPayload): Promise<void> {
     const { topic } = payload;
 
