@@ -1,4 +1,5 @@
-export { TopicRegistrationActions } from './topic-registration.actions';
+export { TopicRegistrationService } from './topic-registration.service';
+export { ActionsService } from './actions.service';
 
 // constants
 export { Actions } from './logic/constants';

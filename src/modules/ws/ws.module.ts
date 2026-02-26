@@ -1,11 +1,10 @@
-import { ActionsEventHandler } from './event-handlers/actions';
 import { CloseEventHandler } from './event-handlers/close';
 import { ErrorEventHandler } from './event-handlers/error';
 import { MessageDispatcherEventHandler } from './event-handlers/message-dispatcher';
 import { PingPongEventHandler } from './event-handlers/ping-pong';
 import { StaticTopics } from './logic/constants';
 import { WsMiddleware } from './middlewares/ws.middleware';
-import { TopicRegistrationActions } from './services/actions';
+import { ActionsService, TopicRegistrationService } from './services/actions';
 import type { TopicMessage } from '@src/lib/websocket-manager';
 import type { Application } from 'express';
 
@@ -19,7 +18,8 @@ import type { Application } from 'express';
  *   subscribed to that topic. See WebsocketManager for the receive/forward implementation.
  */
 export class WsModule {
-  topicRegistrationActions!: TopicRegistrationActions;
+  topicRegistrationService!: TopicRegistrationService;
+  actionsService!: ActionsService;
 
   constructor(private readonly app: Application) {
     this.initializeModule();
@@ -28,7 +28,10 @@ export class WsModule {
   private initializeModule(): void {
     const { wsManager, logger } = this.app;
 
-    this.topicRegistrationActions = new TopicRegistrationActions(wsManager, logger);
+    this.topicRegistrationService = new TopicRegistrationService(wsManager, logger);
+    this.actionsService = new ActionsService(logger, {
+      ...this.topicRegistrationService.getActionHandlers(),
+    });
 
     this.registerEventHandlers();
   }
@@ -39,15 +42,10 @@ export class WsModule {
     const pingPongEventHandler = new PingPongEventHandler(wsApp);
     const errorEventHandler = new ErrorEventHandler(wsApp, logger);
     const closeEventHandler = new CloseEventHandler(wsApp, wsManager, logger);
-
-    const actionsEventHandler = new ActionsEventHandler(logger, {
-      ...this.topicRegistrationActions.getActionHandlers(),
-    });
-
     const messageDispatcher = new MessageDispatcherEventHandler(
       wsApp,
       {
-        [StaticTopics.Actions]: actionsEventHandler.handleEvent.bind(actionsEventHandler),
+        [StaticTopics.Actions]: this.actionsService.handleEvent.bind(this.actionsService),
       },
       logger,
     );

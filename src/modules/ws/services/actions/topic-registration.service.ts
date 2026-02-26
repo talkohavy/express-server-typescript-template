@@ -5,12 +5,12 @@ import type {
   SendResponseProps,
   TopicRegistrationPayload,
   TopicUnregisterPayload,
-} from './interfaces/actions.event-handler.interface';
+} from './interfaces/topic-registration.service.interface';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { ServerSocketResponse, WebsocketManager } from '@src/lib/websocket-manager';
 import type { WebSocket } from 'ws';
 
-export class TopicRegistrationActions {
+export class TopicRegistrationService {
   constructor(
     private readonly wsManager: WebsocketManager,
     private readonly logger: LoggerService,
