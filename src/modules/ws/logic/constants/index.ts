@@ -1,3 +1,8 @@
+export * from './socketEvents';
+
+// types
+export type * from './socketEvents';
+
 export const StaticTopics = {
   Actions: 'actions',
   Data: 'data',

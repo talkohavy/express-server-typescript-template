@@ -1,7 +1,7 @@
 import { parseJson } from '@src/common/utils/parseJson';
 import { BUILT_IN_WEBSOCKET_EVENTS, type ServerSocketResponse } from '@src/lib/websocket-manager';
-import { ResponseTypes } from '../../logic/constants';
-import type { ClientMessage, MessageHandler } from '../../types';
+import { ResponseTypes, type SocketEventValues } from '../../logic/constants';
+import type { ClientMessage, EventHandler } from '../../types';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { WebSocket, WebSocketServer } from 'ws';
 
@@ -13,7 +13,7 @@ import type { WebSocket, WebSocketServer } from 'ws';
 export class MessageDispatcherEventHandler {
   constructor(
     private readonly wsApp: WebSocketServer,
-    private readonly handlersByEvent: Record<string, MessageHandler>,
+    private readonly handlersByEvent: Record<SocketEventValues, EventHandler>,
     private readonly logger: LoggerService,
   ) {}
 

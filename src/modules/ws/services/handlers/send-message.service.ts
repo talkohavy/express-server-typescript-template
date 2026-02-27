@@ -1,6 +1,5 @@
-import { ResponseTypes } from '../../../logic/constants';
-import { Actions } from '../logic/constants';
-import type { ActionHandler } from '../../../types';
+import { ResponseTypes, type SendEventValues, SocketEvents } from '../../logic/constants';
+import type { EventHandler } from '../../types';
 import type { HandleSendMessagePayload, SendResponseProps } from '../interfaces/send-message.service.interface';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { ServerSocketResponse, WebsocketManager } from '@src/lib/websocket-manager';
@@ -61,9 +60,9 @@ export class SendMessageService {
     socket.send(JSON.stringify(response));
   }
 
-  getActionHandlers(): Record<string, ActionHandler> {
+  getEventHandlers(): Record<SendEventValues, EventHandler> {
     return {
-      [Actions.Send]: this.handleSendMessage.bind(this),
+      [SocketEvents.Send]: this.handleSendMessage.bind(this),
     };
   }
 }

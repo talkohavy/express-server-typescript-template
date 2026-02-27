@@ -1,6 +1,5 @@
-import { ResponseTypes } from '../../../logic/constants';
-import { Actions } from '../logic/constants';
-import type { ActionHandler } from '../../../types';
+import { type RegistrationEventValues, ResponseTypes, SocketEvents } from '../../logic/constants';
+import type { EventHandler } from '../../types';
 import type {
   SendResponseProps,
   TopicRegistrationPayload,
@@ -75,10 +74,10 @@ export class TopicRegistrationService {
     socket.send(JSON.stringify(response));
   }
 
-  getActionHandlers(): Record<string, ActionHandler> {
+  getEventHandlers(): Record<RegistrationEventValues, EventHandler> {
     return {
-      [Actions.Register]: this.handleTopicRegistration.bind(this),
-      [Actions.Unregister]: this.handleTopicUnregister.bind(this),
+      [SocketEvents.Register]: this.handleTopicRegistration.bind(this),
+      [SocketEvents.Unregister]: this.handleTopicUnregister.bind(this),
     };
   }
 }

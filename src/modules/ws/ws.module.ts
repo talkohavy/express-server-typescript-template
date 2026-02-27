@@ -5,7 +5,7 @@ import { MessageDispatcherEventHandler } from './event-handlers/message-dispatch
 import { PingPongEventHandler } from './event-handlers/ping-pong';
 import { StaticTopics } from './logic/constants';
 import { WsMiddleware } from './middlewares/ws.middleware';
-import { ActionDispatcherService, SendMessageService, TopicRegistrationService } from './services/actions';
+import { SendMessageService, TopicRegistrationService } from './services';
 import type { TopicMessage } from '@src/lib/websocket-manager';
 import type { Application } from 'express';
 
@@ -20,7 +20,6 @@ import type { Application } from 'express';
  */
 export class WsModule {
   topicRegistrationService!: TopicRegistrationService;
-  actionDispatcherService!: ActionDispatcherService;
   sendMessageService!: SendMessageService;
 
   constructor(private readonly app: Application) {
@@ -32,10 +31,6 @@ export class WsModule {
 
     this.topicRegistrationService = new TopicRegistrationService(wsManager, logger);
     this.sendMessageService = new SendMessageService(wsManager, logger);
-    this.actionDispatcherService = new ActionDispatcherService(logger, {
-      ...this.topicRegistrationService.getActionHandlers(),
-      ...this.sendMessageService.getActionHandlers(),
-    });
 
     this.registerEventHandlers();
   }
@@ -50,7 +45,8 @@ export class WsModule {
     const messageDispatcher = new MessageDispatcherEventHandler(
       wsApp,
       {
-        [StaticTopics.Actions]: this.actionDispatcherService.handleEvent.bind(this.actionDispatcherService),
+        ...this.topicRegistrationService.getEventHandlers(),
+        ...this.sendMessageService.getEventHandlers(),
       },
       logger,
     );
