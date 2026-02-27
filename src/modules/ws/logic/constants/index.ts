@@ -4,7 +4,6 @@ export * from './socketEvents';
 export type * from './socketEvents';
 
 export const StaticTopics = {
-  Actions: 'actions',
   Data: 'data',
   /**
    * Every connected socket is auto-subscribed to this topic; use for broadcastToAll.
