@@ -5,7 +5,7 @@ import { MessageDispatcherEventHandler } from './event-handlers/message-dispatch
 import { PingPongEventHandler } from './event-handlers/ping-pong';
 import { StaticTopics } from './logic/constants';
 import { WsMiddleware } from './middlewares/ws.middleware';
-import { SendMessageService, TopicRegistrationService } from './services';
+import { SendMessageService, TopicRegistrationService, WebRtcSignalingService } from './services';
 import type { TopicMessage } from '@src/lib/websocket-manager';
 import type { Application } from 'express';
 
@@ -21,6 +21,7 @@ import type { Application } from 'express';
 export class WsModule {
   topicRegistrationService!: TopicRegistrationService;
   sendMessageService!: SendMessageService;
+  webRtcSignalingService!: WebRtcSignalingService;
 
   constructor(private readonly app: Application) {
     this.initializeModule();
@@ -31,6 +32,7 @@ export class WsModule {
 
     this.topicRegistrationService = new TopicRegistrationService(wsManager, logger);
     this.sendMessageService = new SendMessageService(wsManager, logger);
+    this.webRtcSignalingService = new WebRtcSignalingService(logger);
 
     this.registerEventHandlers();
   }
@@ -47,6 +49,7 @@ export class WsModule {
       {
         ...this.topicRegistrationService.getActionHandlers(),
         ...this.sendMessageService.getActionHandlers(),
+        ...this.webRtcSignalingService.getActionHandlers(),
       },
       logger,
     );

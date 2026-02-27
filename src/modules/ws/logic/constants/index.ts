@@ -1,7 +1,9 @@
 export * from './socketEvents';
+export * from './webRtcSignals';
 
 // types
 export type * from './socketEvents';
+export type * from './webRtcSignals';
 
 export const StaticTopics = {
   Data: 'data',
