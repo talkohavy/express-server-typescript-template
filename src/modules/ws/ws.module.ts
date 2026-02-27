@@ -45,8 +45,8 @@ export class WsModule {
     const messageDispatcher = new MessageDispatcherEventHandler(
       wsApp,
       {
-        ...this.topicRegistrationService.getEventHandlers(),
-        ...this.sendMessageService.getEventHandlers(),
+        ...this.topicRegistrationService.getActionHandlers(),
+        ...this.sendMessageService.getActionHandlers(),
       },
       logger,
     );

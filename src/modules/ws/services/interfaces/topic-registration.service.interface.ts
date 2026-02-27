@@ -1,13 +1,13 @@
-import type { Actions } from '../logic/constants';
+import type { SocketEvents } from '../../logic/constants';
 import type WebSocket from 'ws';
 
 export type TopicRegistrationPayload = {
-  action: typeof Actions.Register;
+  event: typeof SocketEvents.Register;
   topic: string;
 };
 
 export type TopicUnregisterPayload = {
-  action: typeof Actions.Unregister;
+  event: typeof SocketEvents.Unregister;
   topic: string;
 };
 

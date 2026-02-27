@@ -10,7 +10,4 @@ export type ClientMessage = {
   payload?: unknown;
 };
 
-/**
- * Domain handler invoked by the message dispatcher for a specific event name.
- */
-export type EventHandler = (socket: WebSocket, payload: any) => Promise<void>;
+export type ActionHandler = (socket: WebSocket, payload: any) => Promise<void>;

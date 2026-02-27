@@ -1,5 +1,5 @@
 import { type RegistrationEventValues, ResponseTypes, SocketEvents } from '../../logic/constants';
-import type { EventHandler } from '../../types';
+import type { ActionHandler } from '../../types';
 import type {
   SendResponseProps,
   TopicRegistrationPayload,
@@ -16,7 +16,7 @@ export class TopicRegistrationService {
   ) {}
 
   /**
-   * Called by the action dispatcher when payload.action === "register".
+   * Called by the action dispatcher when the event === "register".
    */
   private async handleTopicRegistration(socket: WebSocket, payload: TopicRegistrationPayload): Promise<void> {
     const { topic } = payload;
@@ -40,7 +40,7 @@ export class TopicRegistrationService {
   }
 
   /**
-   * Called by the action dispatcher when action === "unregister".
+   * Called by the action dispatcher when the event === "unregister".
    */
   private async handleTopicUnregister(socket: WebSocket, payload: TopicUnregisterPayload): Promise<void> {
     const { topic } = payload;
@@ -74,7 +74,7 @@ export class TopicRegistrationService {
     socket.send(JSON.stringify(response));
   }
 
-  getEventHandlers(): Record<RegistrationEventValues, EventHandler> {
+  getActionHandlers(): Record<RegistrationEventValues, ActionHandler> {
     return {
       [SocketEvents.Register]: this.handleTopicRegistration.bind(this),
       [SocketEvents.Unregister]: this.handleTopicUnregister.bind(this),
