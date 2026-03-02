@@ -8,6 +8,8 @@ export const WebRtcSignals = {
   IceCandidate: 'iceCandidate',
 } as const;
 
+export type WebRtcSignalValues = (typeof WebRtcSignals)[keyof typeof WebRtcSignals];
+
 export function getWebRtcToSenderTopic(sessionId: string): string {
   return `${SocketEvents.WebRtc}:session:${sessionId}:to-sender`;
 }

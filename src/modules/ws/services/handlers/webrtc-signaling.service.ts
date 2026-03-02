@@ -2,6 +2,7 @@ import { BUILT_IN_WEBSOCKET_EVENTS, type WebsocketManager } from '@src/lib/webso
 import {
   SocketEvents,
   type WebRtcEventValues,
+  type WebRtcSignalValues,
   WebRtcSignals,
   getWebRtcToReceiversTopic,
   getWebRtcToSenderTopic,
@@ -18,11 +19,14 @@ import type { WebSocket } from 'ws';
  */
 export class WebRtcSignalingService {
   private readonly senderSocketsBySessionId = new Map<string, WebSocket>();
+  private readonly handlersByType: Record<WebRtcSignalValues, ActionHandler>;
 
   constructor(
     private readonly wsManager: WebsocketManager,
     private readonly logger: LoggerService,
-  ) {}
+  ) {
+    this.handlersByType = this.getHandlersByType();
+  }
 
   private clearSender(socket: WebSocket): void {
     this.senderSocketsBySessionId.delete(socket.id);
@@ -37,111 +41,123 @@ export class WebRtcSignalingService {
     });
   }
 
-  private async handleWebRtcMessage(socket: WebSocket, payload: unknown): Promise<void> {
-    const data = payload as WebRtcSignalingPayload;
+  private async handleWebRtcMessage(socket: WebSocket, payload: WebRtcSignalingPayload): Promise<void> {
+    const { type: signalType } = payload ?? {};
 
-    if (!data?.type) {
-      this.logger.debug('WebRTC signaling: missing payload.type', { payload: data });
+    if (!signalType) {
+      this.logger.debug('WebRTC signaling: missing payload.type', { payload });
       return;
     }
 
-    switch (data.type) {
-      case WebRtcSignals.Sender: {
-        const sessionId = data.sessionId;
+    const handler = this.handlersByType[signalType];
 
-        if (!sessionId) {
-          this.logger.debug('WebRTC signaling: missing sessionId', { payload: data });
-          return;
-        }
-
-        const topic = getWebRtcToSenderTopic(sessionId);
-        const wasSubscribed = await this.wsManager.subscribeToTopic(socket, topic);
-
-        if (!wasSubscribed) {
-          this.logger.debug('WebRTC sender already subscribed to session', { sessionId });
-        }
-
-        this.senderSocketsBySessionId.set(sessionId, socket);
-
-        this.attachCloseListener(socket);
-
-        this.logger.log('WebRTC sender registered', { sessionId });
-        break;
-      }
-      case WebRtcSignals.Receiver: {
-        const sessionId = data.sessionId;
-
-        if (!sessionId) {
-          this.logger.debug('WebRTC signaling: missing sessionId', { payload: data });
-          return;
-        }
-
-        const topic = getWebRtcToReceiversTopic(sessionId);
-        const wasSubscribed = await this.wsManager.subscribeToTopic(socket, topic);
-
-        if (!wasSubscribed) {
-          this.logger.debug('WebRTC receiver already subscribed to session', { sessionId });
-        }
-
-        this.logger.log('WebRTC receiver registered', { sessionId });
-        break;
-      }
-      case WebRtcSignals.CreateOffer: {
-        const sessionId = data.sessionId;
-
-        if (!sessionId) {
-          this.logger.debug('WebRTC signaling: missing sessionId', { payload: data });
-          return;
-        }
-
-        if (this.senderSocketsBySessionId.get(sessionId) !== socket) {
-          this.logger.debug('WebRTC: createOffer from non-sender socket', { sessionId });
-          return;
-        }
-
-        const topic = getWebRtcToReceiversTopic(sessionId);
-
-        await this.wsManager.publishToTopic({ topic, payload: data });
-
-        this.logger.debug('WebRTC: relayed offer to receivers', { sessionId });
-        break;
-      }
-      case WebRtcSignals.CreateAnswer: {
-        const sessionId = data.sessionId;
-
-        if (!sessionId) {
-          this.logger.debug('WebRTC signaling: missing sessionId', { payload: data });
-          return;
-        }
-
-        const topic = getWebRtcToSenderTopic(sessionId);
-
-        await this.wsManager.publishToTopic({ topic, payload: data });
-
-        this.logger.debug('WebRTC: relayed answer to sender', { sessionId });
-        break;
-      }
-      case WebRtcSignals.IceCandidate: {
-        const sessionId = data.sessionId;
-
-        if (!sessionId) {
-          this.logger.debug('WebRTC signaling: missing sessionId', { payload: data });
-          return;
-        }
-
-        const isSender = this.senderSocketsBySessionId.get(sessionId) === socket;
-
-        const topic = isSender ? getWebRtcToReceiversTopic(sessionId) : getWebRtcToSenderTopic(sessionId);
-        this.logger.debug(`WebRTC: relayed ICE to ${isSender ? 'receivers' : 'sender'}`, { sessionId });
-
-        await this.wsManager.publishToTopic({ topic, payload: data });
-
-        break;
-      }
-      default: {
-        this.logger.debug('WebRTC signaling: unknown payload.type', { type: (data as { type: string }).type });
-      }
+    if (!handler) {
+      this.logger.debug('WebRTC signaling: unknown payload.type', { signalType });
+      return;
     }
+
+    await handler(socket, payload);
+  }
+
+  private async handleSenderSignal(socket: WebSocket, payload: any): Promise<void> {
+    const sessionId = payload.sessionId;
+
+    if (!sessionId) {
+      this.logger.debug('WebRTC signaling: missing sessionId', { payload });
+      return;
+    }
+
+    const topic = getWebRtcToSenderTopic(sessionId);
+    const wasSubscribed = await this.wsManager.subscribeToTopic(socket, topic);
+
+    if (!wasSubscribed) {
+      this.logger.debug('WebRTC sender already subscribed to session', { sessionId });
+    }
+
+    this.senderSocketsBySessionId.set(sessionId, socket);
+
+    this.attachCloseListener(socket);
+
+    this.logger.log('WebRTC sender registered', { sessionId });
+  }
+
+  private async handleReceiverSignal(socket: WebSocket, payload: any): Promise<void> {
+    const sessionId = payload.sessionId;
+
+    if (!sessionId) {
+      this.logger.debug('WebRTC signaling: missing sessionId', { payload });
+      return;
+    }
+
+    const topic = getWebRtcToReceiversTopic(sessionId);
+    const wasSubscribed = await this.wsManager.subscribeToTopic(socket, topic);
+
+    if (!wasSubscribed) {
+      this.logger.debug('WebRTC receiver already subscribed to session', { sessionId });
+    }
+
+    this.logger.log('WebRTC receiver registered', { sessionId });
+  }
+
+  private async handleCreateOfferSignal(socket: WebSocket, payload: any): Promise<void> {
+    const sessionId = payload.sessionId;
+
+    if (!sessionId) {
+      this.logger.debug('WebRTC signaling: missing sessionId', { payload });
+      return;
+    }
+
+    if (this.senderSocketsBySessionId.get(sessionId) !== socket) {
+      this.logger.debug('WebRTC: createOffer from non-sender socket', { sessionId });
+      return;
+    }
+
+    const topic = getWebRtcToReceiversTopic(sessionId);
+
+    await this.wsManager.publishToTopic({ topic, payload });
+
+    this.logger.debug('WebRTC: relayed offer to receivers', { sessionId });
+  }
+
+  private async handleCreateAnswerSignal(_socket: WebSocket, payload: any): Promise<void> {
+    const sessionId = payload.sessionId;
+
+    if (!sessionId) {
+      this.logger.debug('WebRTC signaling: missing sessionId', { payload });
+      return;
+    }
+
+    const topic = getWebRtcToSenderTopic(sessionId);
+
+    await this.wsManager.publishToTopic({ topic, payload });
+
+    this.logger.debug('WebRTC: relayed answer to sender', { sessionId });
+  }
+
+  private async handleIceCandidateSignal(socket: WebSocket, payload: any): Promise<void> {
+    const sessionId = payload.sessionId;
+
+    if (!sessionId) {
+      this.logger.debug('WebRTC signaling: missing sessionId', { payload });
+      return;
+    }
+
+    const isSender = this.senderSocketsBySessionId.get(sessionId) === socket;
+
+    const topic = isSender ? getWebRtcToReceiversTopic(sessionId) : getWebRtcToSenderTopic(sessionId);
+    this.logger.debug(`WebRTC: relayed ICE to ${isSender ? 'receivers' : 'sender'}`, { sessionId });
+
+    await this.wsManager.publishToTopic({ topic, payload });
+  }
+
+  getHandlersByType(): Record<WebRtcSignalValues, ActionHandler> {
+    return {
+      [WebRtcSignals.Sender]: this.handleSenderSignal.bind(this),
+      [WebRtcSignals.Receiver]: this.handleReceiverSignal.bind(this),
+      [WebRtcSignals.CreateOffer]: this.handleCreateOfferSignal.bind(this),
+      [WebRtcSignals.CreateAnswer]: this.handleCreateAnswerSignal.bind(this),
+      [WebRtcSignals.IceCandidate]: this.handleIceCandidateSignal.bind(this),
+    };
   }
 
   getActionHandlers(): Record<WebRtcEventValues, ActionHandler> {
