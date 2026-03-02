@@ -1,3 +1,5 @@
+import { SocketEvents } from './socketEvents';
+
 export const WebRtcSignals = {
   Sender: 'sender',
   Receiver: 'receiver',
@@ -6,4 +8,10 @@ export const WebRtcSignals = {
   IceCandidate: 'iceCandidate',
 } as const;
 
-export type WebRtcSignalingTypeValues = (typeof WebRtcSignals)[keyof typeof WebRtcSignals];
+export function getWebRtcToSenderTopic(sessionId: string): string {
+  return `${SocketEvents.WebRtc}:session:${sessionId}:to-sender`;
+}
+
+export function getWebRtcToReceiversTopic(sessionId: string): string {
+  return `${SocketEvents.WebRtc}:session:${sessionId}:to-receivers`;
+}

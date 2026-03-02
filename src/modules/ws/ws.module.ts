@@ -32,7 +32,7 @@ export class WsModule {
 
     this.topicRegistrationService = new TopicRegistrationService(wsManager, logger);
     this.sendMessageService = new SendMessageService(wsManager, logger);
-    this.webRtcSignalingService = new WebRtcSignalingService(logger);
+    this.webRtcSignalingService = new WebRtcSignalingService(wsManager, logger);
 
     this.registerEventHandlers();
   }
