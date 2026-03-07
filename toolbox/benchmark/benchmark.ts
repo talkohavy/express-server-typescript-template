@@ -1,5 +1,5 @@
 import autocannon, { type Result } from 'autocannon';
-import { buildMockApp } from '../src/mockApp';
+import { buildMockApp } from '../../src/mockApp';
 
 const PORT = 8000;
 
