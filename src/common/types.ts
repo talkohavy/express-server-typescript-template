@@ -38,7 +38,7 @@ export interface OptimizedApp {
   pg: PgClient;
   logger: LoggerService;
   httpServer: HttpServer;
-  io: SocketIOServer;
+  socketIOApp: SocketIOServer;
   wsApp: WebSocketServer;
   wsManager: WebsocketManager;
 }

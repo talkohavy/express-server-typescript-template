@@ -1,0 +1,37 @@
+import { BUILT_IN_WEBSOCKET_EVENTS, SOCKET_EVENTS } from '../logic/constants';
+import type { SocketType } from '../types';
+import type { LoggerService } from '@src/lib/logger-service';
+import type { Socket, Server as SocketIOServer } from 'socket.io';
+
+export class MessagesEventHandler {
+  constructor(
+    private readonly socketIOApp: SocketIOServer,
+    private readonly logger: LoggerService,
+  ) {}
+
+  private async handleSendMessageToTopicEvent(socket: SocketType) {
+    socket.on(SOCKET_EVENTS.SendMessageToTopic, (data) => {
+      this.SendMessageToTopic(socket, data);
+    });
+  }
+
+  private async SendMessageToTopic(socket: SocketType, data: { topic: string; message: string }) {
+    const { topic, message } = data ?? {};
+
+    if (!topic) {
+      this.logger.error('Topic is required');
+      socket.emit(SOCKET_EVENTS.Message, { error: 'Topic is required' });
+      return;
+    }
+
+    this.logger.debug('[registerToTopic] user registered to topic', { topic });
+
+    socket.to(topic).emit(SOCKET_EVENTS.SendMessageToTopic, { message });
+  }
+
+  registerEventHandlers(): void {
+    this.socketIOApp.on(BUILT_IN_WEBSOCKET_EVENTS.Connection, (socket: Socket) => {
+      this.handleSendMessageToTopicEvent(socket);
+    });
+  }
+}

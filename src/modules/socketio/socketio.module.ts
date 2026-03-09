@@ -1,5 +1,8 @@
+import { AuthenticationEventHandler } from './event-handlers/authentication.event-handler';
+import { MessagesEventHandler } from './event-handlers/messages.event-handler';
+import { PrivateMasterRoomEventHandler } from './event-handlers/private-master-room.event-handler';
 import { TopicsRegistererEventHandler } from './event-handlers/topics-registerer.event-handler';
-import { SOCKET_EVENTS, TOPICS } from './logic/constants';
+import { SOCKET_EVENTS, StaticTopics } from './logic/constants';
 import type { Application } from 'express';
 import type { Server as SocketIOServer } from 'socket.io';
 
@@ -13,23 +16,29 @@ export class SocketIOModule {
   }
 
   private attachEventHandlers(): void {
-    const { io, logger } = this.app;
+    const { socketIOApp, logger } = this.app;
 
-    const topicsRegistererEventHandler = new TopicsRegistererEventHandler(io, logger);
+    const authenticationEventHandler = new AuthenticationEventHandler(socketIOApp, logger); // <--- authenticates socket on connection
+    const privateMasterRoomEventHandler = new PrivateMasterRoomEventHandler(socketIOApp, logger); // <--- automatically registers socket to private master room on connection
+    const topicsRegistererEventHandler = new TopicsRegistererEventHandler(socketIOApp, logger); // <--- ready to accept topics registrations from clients
+    const messagesEventHandler = new MessagesEventHandler(socketIOApp, logger);
 
+    authenticationEventHandler.registerEventHandlers();
+    privateMasterRoomEventHandler.registerEventHandlers();
     topicsRegistererEventHandler.registerEventHandlers();
+    messagesEventHandler.registerEventHandlers();
 
-    this.fakeEmitEventsStream(io);
+    this.fakeEmitEventsStream(socketIOApp);
   }
 
-  fakeEmitEventsStream(io: SocketIOServer) {
+  fakeEmitEventsStream(socketIOApp: SocketIOServer) {
     setInterval(() => {
       // Everyone will get this:
       // this.io.emit(SOCKET_EVENTS.Topics.EventsStream, { message: 'Hello, world!' });
 
       // TODO: this needs to be generic, and support multiple dynamic topics.
       // Send everyone:
-      io.to(TOPICS.EventsStream).emit(SOCKET_EVENTS.Data, { message: 'Hello, world!' });
+      socketIOApp.to(StaticTopics.EventsStream).emit(SOCKET_EVENTS.Message, { message: 'Hello, world!' });
     }, 4000);
   }
 }

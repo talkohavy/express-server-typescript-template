@@ -24,7 +24,7 @@ export const optimizedApp: OptimizedApp = {
   logger: null as any,
   callContextService: null as any,
   httpServer: null as any,
-  io: null as any,
-  wss: null as any,
+  socketIOApp: null as any,
+  wsApp: null as any,
   wsManager: null as any,
 };

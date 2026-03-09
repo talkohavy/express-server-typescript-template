@@ -1,57 +1,58 @@
-import { SOCKET_EVENTS, TOPICS } from '../logic/constants';
-import { getMasterRoomByUserId } from '../logic/utils/getMasterRoomByUserId';
-import { getSocketData } from '../logic/utils/getSocketData';
+import { BUILT_IN_WEBSOCKET_EVENTS, SOCKET_EVENTS } from '../logic/constants';
 import type { LoggerService } from '../../../lib/logger-service';
 import type { SocketType } from '../types';
 import type { Socket, Server as SocketIOServer } from 'socket.io';
 
 export class TopicsRegistererEventHandler {
   constructor(
-    private readonly io: SocketIOServer,
+    private readonly socketIOApp: SocketIOServer,
     private readonly logger: LoggerService,
   ) {}
 
-  async registerToTopic(socket: SocketType, data: any) {
+  private async handleRegisterToTopicEvent(socket: SocketType) {
+    socket.on(SOCKET_EVENTS.RegisterToTopic, (data) => {
+      this.registerSocketToTopic(socket, data);
+    });
+  }
+
+  private async registerSocketToTopic(socket: SocketType, data: { topic: string }) {
     const { topic } = data ?? {};
 
     if (!topic) {
       this.logger.error('Topic is required');
-      socket.emit(SOCKET_EVENTS.NotificationCenter, { error: 'Topic is required' });
+      socket.emit(SOCKET_EVENTS.Message, { error: 'Topic is required' });
       return;
     }
 
-    this.logger.debug('[registerToTopic] user registered to topic', { topic: TOPICS.EventsStream });
+    this.logger.debug('[registerToTopic] user registered to topic', { topic });
 
     socket.join(topic);
   }
 
-  async joinSocketToMasterUserRoom(socket: SocketType) {
-    this.logger.debug(`[${SOCKET_EVENTS.NotificationCenter}] user joined master room`);
+  private async handleUnregisterFromTopicEvent(socket: SocketType) {
+    socket.on(SOCKET_EVENTS.RegisterToTopic, (data) => {
+      this.unregisterFromTopic(socket, data);
+    });
+  }
 
-    const { user } = getSocketData(socket);
-    const { id: userId } = user;
+  private async unregisterFromTopic(socket: SocketType, data: { topic: string }) {
+    const { topic } = data ?? {};
 
-    const masterRoomName = getMasterRoomByUserId(userId);
-    socket.join(masterRoomName);
+    if (!topic) {
+      this.logger.error('Topic is required');
+      socket.emit(SOCKET_EVENTS.Message, { error: 'Topic is required' });
+      return;
+    }
+
+    this.logger.debug('[unregisterFromTopic] user unregistered from topic', { topic });
+
+    socket.leave(topic);
   }
 
   registerEventHandlers() {
-    this.io.on('connection', (socket: Socket) => {
-      this.logger.info('New socket connection for TopicsRegistererEventHandler', { socketId: socket.id });
-
-      // Authenticate socket on connection
-      // this.handleAuthentication(socket);
-      socket.data.user = { id: '123' }; // <--- fake user id for testing purposes.
-
-      // Server does this automatically:
-      this.joinSocketToMasterUserRoom(socket);
-
-      // Client sends this manually, by demand:
-      socket.on(SOCKET_EVENTS.RegisterToTopic, (data) => this.registerToTopic(socket, data));
-
-      socket.on('disconnect', (reason) => {
-        this.logger.info('User socket disconnected from TopicsRegistererEventHandler', { socketId: socket.id, reason });
-      });
+    this.socketIOApp.on(BUILT_IN_WEBSOCKET_EVENTS.Connection, (socket: Socket) => {
+      this.handleRegisterToTopicEvent(socket);
+      this.handleUnregisterFromTopicEvent(socket);
     });
   }
 }
