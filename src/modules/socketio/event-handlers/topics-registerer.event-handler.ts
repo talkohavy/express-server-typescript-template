@@ -30,7 +30,7 @@ export class TopicsRegistererEventHandler {
   }
 
   private async handleUnregisterFromTopicEvent(socket: SocketType) {
-    socket.on(SOCKET_EVENTS.RegisterToTopic, (data) => {
+    socket.on(SOCKET_EVENTS.UnregisterFromTopic, (data) => {
       this.unregisterFromTopic(socket, data);
     });
   }

@@ -9,6 +9,7 @@ export const SOCKET_EVENTS = {
    */
   Message: 'message',
   RegisterToTopic: 'register-to-topic',
+  UnregisterFromTopic: 'unregister-from-topic',
   SendMessageToTopic: 'send-message-to-topic',
 };
 
