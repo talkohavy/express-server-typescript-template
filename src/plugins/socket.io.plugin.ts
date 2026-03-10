@@ -12,11 +12,14 @@ import type { Application } from 'express';
  * - redis plugin
  */
 export async function socketIOPlugin(app: Application): Promise<void> {
+  const { logger, redis } = app;
+  const { pub: redisPub, sub: redisSub } = redis;
+
   const httpServer = createServer(app);
 
-  const redisAdapter = createAdapter(app.redis.pub, app.redis.sub);
+  const redisAdapter = createAdapter(redisPub, redisSub);
 
-  const io = new SocketIOServer(httpServer, {
+  const socketIOApp = new SocketIOServer(httpServer, {
     adapter: redisAdapter,
     cors: {
       origin: [...ALLOWED_DOMAINS, 'https://admin.socket.io'],
@@ -38,15 +41,15 @@ export async function socketIOPlugin(app: Application): Promise<void> {
     allowUpgrades: true, // <--- defaults to true
   });
 
-  app.io = io;
+  app.socketIOApp = socketIOApp;
   app.httpServer = httpServer;
 
   // Enable Socket.IO Admin UI
-  instrument(io, {
+  instrument(socketIOApp, {
     auth: false, // Set to true in production with proper authentication
     mode: process.env.NODE_ENV === 'dev' ? 'development' : 'production',
   });
 
-  app.logger.log('🔗 Socket.IO server configured with connection state recovery');
-  app.logger.log('📊 Socket.IO Admin UI enabled');
+  logger.log('🔗 Socket.IO server configured with connection state recovery');
+  logger.log('📊 Socket.IO Admin UI enabled');
 }
