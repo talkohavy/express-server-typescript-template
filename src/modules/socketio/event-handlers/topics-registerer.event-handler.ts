@@ -24,6 +24,14 @@ export class TopicsRegistererEventHandler {
       return;
     }
 
+    const isAlreadyRegistered = socket.rooms.has(topic);
+
+    if (isAlreadyRegistered) {
+      this.logger.warn('Socket is already registered to this topic', { socketId: socket.id, topic });
+      socket.emit(SOCKET_EVENTS.Message, { error: 'User is already registered to topic' });
+      return;
+    }
+
     this.logger.debug('[registerToTopic] user registered to topic', { topic });
 
     socket.join(topic);
