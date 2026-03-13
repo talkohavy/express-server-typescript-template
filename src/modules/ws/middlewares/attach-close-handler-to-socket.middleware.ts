@@ -3,24 +3,24 @@ import type { LoggerService } from '@src/lib/logger-service';
 import type { WebsocketManager } from '@src/lib/websocket-manager';
 import type { WebSocket, WebSocketServer } from 'ws';
 
-export class CloseEventHandler {
+export class AttachCloseHandlerToSocketMiddleware {
   constructor(
     private readonly wsApp: WebSocketServer,
     private readonly wsManager: WebsocketManager,
     private readonly logger: LoggerService,
   ) {}
 
+  use() {
+    this.wsApp.on(BUILT_IN_WEBSOCKET_EVENTS.Connection, (socket, _req) => {
+      this.attachCloseHandlerToSocket(socket);
+    });
+  }
+
   private attachCloseHandlerToSocket(socket: WebSocket): void {
     socket.on(BUILT_IN_WEBSOCKET_EVENTS.Close, () => {
       this.wsManager.unsubscribeFromAllTopics(socket); // <--- redis cleanup! remove phantom keys
 
       this.logger.log('ws connection closed', { socketId: socket.id });
-    });
-  }
-
-  registerEventHandlers(): void {
-    this.wsApp.on(BUILT_IN_WEBSOCKET_EVENTS.Connection, (socket, _req) => {
-      this.attachCloseHandlerToSocket(socket);
     });
   }
 }

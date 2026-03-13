@@ -7,6 +7,12 @@ export class PingPongEventHandler {
 
   constructor(private readonly wsApp: WebSocketServer) {}
 
+  registerEventHandlers(): void {
+    this.wsApp.on(BUILT_IN_WEBSOCKET_EVENTS.Connection, (socket, _req) => {
+      this.registerSocketToPingPong(socket);
+    });
+  }
+
   private registerSocketToPingPong(socket: WebSocket): void {
     this.isAliveBySocket.set(socket, true);
 
@@ -29,11 +35,5 @@ export class PingPongEventHandler {
     this.isAliveBySocket.set(socket, false);
 
     socket.ping();
-  }
-
-  registerEventHandlers(): void {
-    this.wsApp.on(BUILT_IN_WEBSOCKET_EVENTS.Connection, (socket, _req) => {
-      this.registerSocketToPingPong(socket);
-    });
   }
 }
