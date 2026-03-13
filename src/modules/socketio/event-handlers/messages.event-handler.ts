@@ -1,5 +1,6 @@
 import { BUILT_IN_WEBSOCKET_EVENTS, SOCKET_EVENTS } from '../logic/constants';
 import type { SocketType } from '../types';
+import type { SendMessageToTopicPayload } from './messages.event-handler.interface';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { Socket, Server as SocketIOServer } from 'socket.io';
 
@@ -15,8 +16,8 @@ export class MessagesEventHandler {
     });
   }
 
-  private async SendMessageToTopic(socket: SocketType, data: { topic: string; message: string }) {
-    const { topic, message } = data ?? {};
+  private async SendMessageToTopic(socket: SocketType, payload: SendMessageToTopicPayload) {
+    const { topic, data } = payload ?? {};
 
     if (!topic) {
       this.logger.error('Topic is required');
@@ -26,7 +27,7 @@ export class MessagesEventHandler {
 
     this.logger.debug('[registerToTopic] user registered to topic', { topic });
 
-    socket.to(topic).emit(SOCKET_EVENTS.SendMessageToTopic, { message });
+    this.socketIOApp.to(topic).emit(SOCKET_EVENTS.SendMessageToTopic, data);
   }
 
   registerEventHandlers(): void {
