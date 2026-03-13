@@ -52,6 +52,14 @@ export class TopicsRegistererEventHandler {
       return;
     }
 
+    const isRegisteredToRoom = socket.rooms.has(topic);
+
+    if (!isRegisteredToRoom) {
+      this.logger.warn('Socket is not registered to this topic', { socketId: socket.id, topic });
+      socket.emit(SOCKET_EVENTS.Message, { error: 'Socket is not registered to this topic' });
+      return;
+    }
+
     this.logger.debug('[unregisterFromTopic] user unregistered from topic', { topic });
 
     socket.leave(topic);
