@@ -1,4 +1,4 @@
-import type { ModuleConstructor, PluginAsyncFn, PluginFn } from './types';
+import type { ModuleConstructor, NullishFalsy, PluginAsyncFn, PluginFn } from './types';
 
 export class AppFactory {
   private registeredModules: any[] = [];
@@ -11,16 +11,20 @@ export class AppFactory {
     Object.assign(this.app, optimizedApp);
   }
 
-  registerModules(modules: ModuleConstructor[]): void {
+  registerModules(modules: (ModuleConstructor | NullishFalsy)[]): void {
     modules.forEach((Module) => {
+      if (!Module) return;
+
       const moduleInstance = new Module(this.app);
       this.registeredModules.push(moduleInstance);
       this.app.modules[Module.name] = moduleInstance;
     });
   }
 
-  async registerPlugins(plugins: (PluginFn | PluginAsyncFn)[]): Promise<void> {
+  async registerPlugins(plugins: (PluginFn | PluginAsyncFn | NullishFalsy)[]): Promise<void> {
     for (const plugin of plugins) {
+      if (!plugin) return;
+
       this.registeredPlugins.push(plugin);
       await plugin(this.app);
     }
