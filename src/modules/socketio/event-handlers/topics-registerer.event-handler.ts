@@ -34,7 +34,7 @@ export class TopicsRegistererEventHandler {
 
     this.logger.debug('[registerToTopic] user registered to topic', { topic });
 
-    socket.join(topic);
+    await socket.join(topic);
   }
 
   private async handleUnregisterFromTopicEvent(socket: SocketType) {
