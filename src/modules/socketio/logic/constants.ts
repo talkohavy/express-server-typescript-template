@@ -8,12 +8,12 @@ export const SOCKET_EVENTS = {
    * Every client socket should be listening to this event for generic messages.
    */
   Message: 'message',
-  RegisterToTopic: 'register-to-topic',
-  UnregisterFromTopic: 'unregister-from-topic',
-  SendMessageToTopic: 'send-message-to-topic',
+  RegisterToTopic: 'register',
+  UnregisterFromTopic: 'unregister',
+  SendMessageToTopic: 'send',
 };
 
 export const StaticTopics = {
   Presence: 'presence',
-  EventsStream: 'topics:events-stream',
+  EventsStream: 'event-stream',
 } as const;
