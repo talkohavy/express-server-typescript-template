@@ -1,14 +1,7 @@
-import type { SocketEvents } from '../../logic/constants';
+import type { TopicMessage } from '@src/lib/websocket-manager';
 import type WebSocket from 'ws';
 
-export type HandleSendMessagePayload = {
-  event: typeof SocketEvents.Send;
-  topic: string;
-  /**
-   * Message contents sent to all subscribers of the topic.
-   */
-  data: Record<string, unknown>;
-};
+export type HandleSendMessagePayload<T = any> = TopicMessage<T>;
 
 export type SendResponseProps = {
   socket: WebSocket;

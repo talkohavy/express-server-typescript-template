@@ -28,6 +28,22 @@ export class WebRtcSignalingService {
     this.handlersByType = this.getHandlersByType();
   }
 
+  getActionHandlers(): Record<WebRtcEventValues, ActionHandler> {
+    return {
+      [SocketEvents.WebRtc]: this.handleWebRtcMessage.bind(this),
+    };
+  }
+
+  private getHandlersByType(): Record<WebRtcSignalValues, ActionHandler> {
+    return {
+      [WebRtcSignals.Sender]: this.handleSenderSignal.bind(this),
+      [WebRtcSignals.Receiver]: this.handleReceiverSignal.bind(this),
+      [WebRtcSignals.CreateOffer]: this.handleCreateOfferSignal.bind(this),
+      [WebRtcSignals.CreateAnswer]: this.handleCreateAnswerSignal.bind(this),
+      [WebRtcSignals.IceCandidate]: this.handleIceCandidateSignal.bind(this),
+    };
+  }
+
   private clearSender(socket: WebSocket): void {
     this.senderSocketsBySessionId.delete(socket.id);
 
@@ -41,11 +57,11 @@ export class WebRtcSignalingService {
     });
   }
 
-  private async handleWebRtcMessage(socket: WebSocket, payload: WebRtcSignalingPayload): Promise<void> {
-    const { type: signalType } = payload ?? {};
+  private async handleWebRtcMessage(socket: WebSocket, data: WebRtcSignalingPayload): Promise<void> {
+    const { type: signalType } = data ?? {};
 
     if (!signalType) {
-      this.logger.debug('WebRTC signaling: missing payload.type', { payload });
+      this.logger.debug('WebRTC signaling: missing payload.type', { data });
       return;
     }
 
@@ -56,14 +72,14 @@ export class WebRtcSignalingService {
       return;
     }
 
-    await handler(socket, payload);
+    await handler(socket, data);
   }
 
-  private async handleSenderSignal(socket: WebSocket, payload: any): Promise<void> {
-    const sessionId = payload.sessionId;
+  private async handleSenderSignal(socket: WebSocket, data: any): Promise<void> {
+    const { sessionId } = data;
 
     if (!sessionId) {
-      this.logger.debug('WebRTC signaling: missing sessionId', { payload });
+      this.logger.debug('WebRTC signaling: missing sessionId', { data });
       return;
     }
 
@@ -81,11 +97,11 @@ export class WebRtcSignalingService {
     this.logger.log('WebRTC sender registered', { sessionId });
   }
 
-  private async handleReceiverSignal(socket: WebSocket, payload: any): Promise<void> {
-    const sessionId = payload.sessionId;
+  private async handleReceiverSignal(socket: WebSocket, data: any): Promise<void> {
+    const { sessionId } = data;
 
     if (!sessionId) {
-      this.logger.debug('WebRTC signaling: missing sessionId', { payload });
+      this.logger.debug('WebRTC signaling: missing sessionId', { data });
       return;
     }
 
@@ -99,11 +115,11 @@ export class WebRtcSignalingService {
     this.logger.log('WebRTC receiver registered', { sessionId });
   }
 
-  private async handleCreateOfferSignal(socket: WebSocket, payload: any): Promise<void> {
-    const sessionId = payload.sessionId;
+  private async handleCreateOfferSignal(socket: WebSocket, data: any): Promise<void> {
+    const { sessionId } = data;
 
     if (!sessionId) {
-      this.logger.debug('WebRTC signaling: missing sessionId', { payload });
+      this.logger.debug('WebRTC signaling: missing sessionId', { data });
       return;
     }
 
@@ -114,31 +130,31 @@ export class WebRtcSignalingService {
 
     const topic = getWebRtcToReceiversTopic(sessionId);
 
-    await this.wsManager.publishToTopic({ topic, payload });
+    await this.wsManager.publishToTopic({ topic, data });
 
     this.logger.debug('WebRTC: relayed offer to receivers', { sessionId });
   }
 
-  private async handleCreateAnswerSignal(_socket: WebSocket, payload: any): Promise<void> {
-    const sessionId = payload.sessionId;
+  private async handleCreateAnswerSignal(_socket: WebSocket, data: any): Promise<void> {
+    const sessionId = data.sessionId;
 
     if (!sessionId) {
-      this.logger.debug('WebRTC signaling: missing sessionId', { payload });
+      this.logger.debug('WebRTC signaling: missing sessionId', { data });
       return;
     }
 
     const topic = getWebRtcToSenderTopic(sessionId);
 
-    await this.wsManager.publishToTopic({ topic, payload });
+    await this.wsManager.publishToTopic({ topic, data });
 
     this.logger.debug('WebRTC: relayed answer to sender', { sessionId });
   }
 
-  private async handleIceCandidateSignal(socket: WebSocket, payload: any): Promise<void> {
-    const sessionId = payload.sessionId;
+  private async handleIceCandidateSignal(socket: WebSocket, data: any): Promise<void> {
+    const sessionId = data.sessionId;
 
     if (!sessionId) {
-      this.logger.debug('WebRTC signaling: missing sessionId', { payload });
+      this.logger.debug('WebRTC signaling: missing sessionId', { data });
       return;
     }
 
@@ -147,22 +163,6 @@ export class WebRtcSignalingService {
     const topic = isSender ? getWebRtcToReceiversTopic(sessionId) : getWebRtcToSenderTopic(sessionId);
     this.logger.debug(`WebRTC: relayed ICE to ${isSender ? 'receivers' : 'sender'}`, { sessionId });
 
-    await this.wsManager.publishToTopic({ topic, payload });
-  }
-
-  getHandlersByType(): Record<WebRtcSignalValues, ActionHandler> {
-    return {
-      [WebRtcSignals.Sender]: this.handleSenderSignal.bind(this),
-      [WebRtcSignals.Receiver]: this.handleReceiverSignal.bind(this),
-      [WebRtcSignals.CreateOffer]: this.handleCreateOfferSignal.bind(this),
-      [WebRtcSignals.CreateAnswer]: this.handleCreateAnswerSignal.bind(this),
-      [WebRtcSignals.IceCandidate]: this.handleIceCandidateSignal.bind(this),
-    };
-  }
-
-  getActionHandlers(): Record<WebRtcEventValues, ActionHandler> {
-    return {
-      [SocketEvents.WebRtc]: this.handleWebRtcMessage.bind(this),
-    };
+    await this.wsManager.publishToTopic({ topic, data });
   }
 }

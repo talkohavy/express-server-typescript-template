@@ -1,6 +1,7 @@
 import { WebSocket } from 'ws';
 import { parseJson } from '@src/common/utils/parseJson';
 import { WS_TOPIC_PUBSUB_CHANNEL } from './logic/constants';
+import type { LoggerService } from '../logger-service';
 import type { TopicManager } from './logic/topic-manager';
 import type { TopicMessage } from './types';
 import type { PublishToTopicProps } from './websocket-manager.interface';
@@ -15,6 +16,7 @@ export class WebsocketManager {
     private readonly topicManager: TopicManager,
     private readonly redisPub: RedisClientType,
     private readonly redisSub: RedisClientType,
+    private readonly logger: LoggerService,
   ) {
     this.subscribeToPubSubTopicsChannel();
   }
@@ -25,9 +27,9 @@ export class WebsocketManager {
    * @returns The number of Redis subscriber nodes that received the message.
    */
   async publishToTopic(props: PublishToTopicProps): Promise<number> {
-    const { topic, payload } = props;
+    const { topic, data } = props;
 
-    const messageRaw: TopicMessage = { topic, payload, timestamp: Date.now() };
+    const messageRaw: TopicMessage = { topic, data, timestamp: Date.now() };
     const messageStringified = JSON.stringify(messageRaw);
 
     const subscriberCount = await this.redisPub.publish(WS_TOPIC_PUBSUB_CHANNEL, messageStringified);
@@ -97,15 +99,22 @@ export class WebsocketManager {
   /**
    * Called when a topic message is received from Redis. Forwards the message to local clients subscribed to the topic.
    */
-  private async forwardTopicMessageToLocalClients(message: string) {
-    const parsedMessage = parseJson<TopicMessage>(message);
+  private async forwardTopicMessageToLocalClients(payloadAsString: string) {
+    const parsedPayload = parseJson<TopicMessage>(payloadAsString);
 
-    if (!parsedMessage) {
+    if (!parsedPayload) {
       console.error('WS topic pub/sub: invalid JSON received on channel', WS_TOPIC_PUBSUB_CHANNEL);
       return;
     }
 
-    const { topic } = parsedMessage;
+    const { topic, data } = parsedPayload;
+
+    if (typeof data !== 'object' || data === null) {
+      this.logger.error('WS topic pub/sub: invalid data received on channel', WS_TOPIC_PUBSUB_CHANNEL);
+      return;
+    }
+
+    const dataAsString = JSON.stringify(data);
 
     const topicSubscribers = await this.topicManager.getTopicSubscribers(topic);
 
@@ -113,7 +122,7 @@ export class WebsocketManager {
       if (socket.readyState !== WebSocket.OPEN) return;
 
       try {
-        socket.send(message, { binary: false });
+        socket.send(dataAsString, { binary: false });
       } catch (error) {
         console.error(`Failed to send topic message to client in topic "${topic}":`, error);
       }

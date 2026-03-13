@@ -1,9 +1,3 @@
-type BroadcastOptions = {
-  binary?: boolean;
-};
+import type { TopicMessage } from './types';
 
-export type PublishToTopicProps = {
-  topic: string;
-  payload: unknown;
-  options?: BroadcastOptions;
-};
+export type PublishToTopicProps<T = any> = TopicMessage<T>;

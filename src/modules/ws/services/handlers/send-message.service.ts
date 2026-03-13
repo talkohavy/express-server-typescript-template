@@ -15,6 +15,12 @@ export class SendMessageService {
     private readonly logger: LoggerService,
   ) {}
 
+  getActionHandlers(): Record<SendEventValues, ActionHandler> {
+    return {
+      [SocketEvents.Send]: this.handleSendMessage.bind(this),
+    };
+  }
+
   /**
    * Called by the action dispatcher when the event === "send".
    */
@@ -31,7 +37,7 @@ export class SendMessageService {
     }
 
     try {
-      await this.wsManager.publishToTopic({ topic, payload: data });
+      await this.wsManager.publishToTopic({ topic, data });
 
       this.logger.debug('Client published to topic', { topic, socketId: socket.id });
 
@@ -58,11 +64,5 @@ export class SendMessageService {
     const response: ServerSocketResponse = { type, message };
 
     socket.send(JSON.stringify(response));
-  }
-
-  getActionHandlers(): Record<SendEventValues, ActionHandler> {
-    return {
-      [SocketEvents.Send]: this.handleSendMessage.bind(this),
-    };
   }
 }

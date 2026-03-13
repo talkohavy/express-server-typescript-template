@@ -23,14 +23,14 @@ import type { Application } from 'express';
 export function wsPlugin(app: Application) {
   app.httpServer ??= createServer(app);
 
-  const { redis } = app;
+  const { redis, logger } = app;
 
   const wsApp = new WebSocketServer({ server: app.httpServer });
 
   app.wsApp = wsApp;
 
   const topicManager = new TopicManager(redis.pub);
-  const wsManager = new WebsocketManager(topicManager, redis.pub, redis.sub);
+  const wsManager = new WebsocketManager(topicManager, redis.pub, redis.sub, logger);
 
   app.wsManager = wsManager;
 }

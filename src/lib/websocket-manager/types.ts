@@ -3,8 +3,8 @@ export type ServerSocketResponse = {
   message?: string;
 };
 
-export type TopicMessage = {
+export type TopicMessage<T = any> = {
   topic: string;
-  payload: unknown;
+  data: T;
   timestamp?: number;
 };

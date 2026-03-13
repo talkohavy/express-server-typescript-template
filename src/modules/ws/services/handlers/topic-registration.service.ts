@@ -15,6 +15,13 @@ export class TopicRegistrationService {
     private readonly logger: LoggerService,
   ) {}
 
+  getActionHandlers(): Record<RegistrationEventValues, ActionHandler> {
+    return {
+      [SocketEvents.Register]: this.handleTopicRegistration.bind(this),
+      [SocketEvents.Unregister]: this.handleTopicUnregister.bind(this),
+    };
+  }
+
   /**
    * Called by the action dispatcher when the event === "register".
    */
@@ -72,12 +79,5 @@ export class TopicRegistrationService {
     const response: ServerSocketResponse = { type, message };
 
     socket.send(JSON.stringify(response));
-  }
-
-  getActionHandlers(): Record<RegistrationEventValues, ActionHandler> {
-    return {
-      [SocketEvents.Register]: this.handleTopicRegistration.bind(this),
-      [SocketEvents.Unregister]: this.handleTopicUnregister.bind(this),
-    };
   }
 }

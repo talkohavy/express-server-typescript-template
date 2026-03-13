@@ -69,13 +69,13 @@ export class WsModule {
 
     if (process.env.PUB_SUB_ENABLED) {
       setInterval(() => {
-        const eventData: TopicMessage = {
+        const payload: TopicMessage = {
           topic: StaticTopics.Data,
-          payload: { message: 'Hello, world!' },
+          data: { message: 'Hello, world!' },
           timestamp: Date.now(),
         };
 
-        this.app.wsManager.publishToTopic(eventData);
+        this.app.wsManager.publishToTopic(payload);
       }, 4000);
     }
   }
