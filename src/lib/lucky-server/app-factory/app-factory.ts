@@ -23,7 +23,7 @@ export class AppFactory {
 
   async registerPlugins(plugins: (PluginFn | PluginAsyncFn | NullishFalsy)[]): Promise<void> {
     for (const plugin of plugins) {
-      if (!plugin) return;
+      if (!plugin) continue;
 
       this.registeredPlugins.push(plugin);
       await plugin(this.app);
