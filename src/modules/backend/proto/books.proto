@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+package backend.books.v1;
+
+// BooksService defines the gRPC contract for the Books domain.
+// It mirrors the HTTP/JSON API exposed by the backend Books adapter (IBooksAdapter).
+// Server implementation and client adapter (BooksGrpcAdapter) are out of scope for this contract.
+service BooksService {
+  rpc GetBooks(GetBooksRequest) returns (PaginatedBooksResponse);
+  rpc GetBookById(GetBookByIdRequest) returns (Book);
+  rpc CreateBook(CreateBookRequest) returns (Book);
+  rpc UpdateBook(UpdateBookRequest) returns (Book);
+  rpc DeleteBook(DeleteBookRequest) returns (DeleteBookResponse);
+}
+
+message Book {
+  int64 id = 1;
+  string name = 2;
+  string author = 3;
+  int32 published_year = 4;
+  string genre = 5;
+  string isbn = 6;
+  string cover_image_url = 7;
+  string description = 8;
+  int32 page_count = 9;
+  double rating = 10;
+  string language = 11;
+  string publisher = 12;
+  string created_at = 13;
+}
+
+message GetBooksRequest {
+  int32 page = 1;
+  int32 limit = 2;
+}
+
+message PaginatedBooksResponse {
+  repeated Book data = 1;
+  int32 total_items_count = 2;
+  int32 page = 3;
+  int32 limit = 4;
+  int32 total_pages_count = 5;
+  bool has_more = 6;
+}
+
+message GetBookByIdRequest {
+  string book_id = 1;
+}
+
+message CreateBookRequest {
+  string name = 1;
+  string author = 2;
+  int32 published_year = 3;
+  optional string genre = 4;
+  optional string isbn = 5;
+  optional string cover_image_url = 6;
+  optional string description = 7;
+  optional int32 page_count = 8;
+  optional double rating = 9;
+  optional string language = 10;
+  optional string publisher = 11;
+}
+
+message UpdateBookRequest {
+  string book_id = 1;
+  optional string name = 2;
+  optional string author = 3;
+  optional int32 published_year = 4;
+  optional string genre = 5;
+  optional string isbn = 6;
+  optional string cover_image_url = 7;
+  optional string description = 8;
+  optional int32 page_count = 9;
+  optional double rating = 10;
+  optional string language = 11;
+  optional string publisher = 12;
+}
+
+message DeleteBookRequest {
+  string book_id = 1;
+}
+
+message DeleteBookResponse {
+  string message = 1;
+}
