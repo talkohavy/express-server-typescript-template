@@ -4,7 +4,7 @@ import type { SendMessageToTopicPayload } from './messages.event-handler.interfa
 import type { LoggerService } from '@src/lib/logger-service';
 import type { Socket, Server as SocketIOServer } from 'socket.io';
 
-export class MessagesEventHandler {
+export class PublishMessageToTopicEventHandler {
   constructor(
     private readonly socketIOApp: SocketIOServer,
     private readonly logger: LoggerService,
