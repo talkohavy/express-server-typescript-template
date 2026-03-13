@@ -64,7 +64,7 @@ export async function buildApp() {
     BooksModule,
     DragonsModule,
     FileUploadModule,
-    // SocketIOModule,
+    // SocketIOModule, // <--- To make the SocketIO module work, make sure you comment out the wsPlugin above, and the WsModule below. Otherwise, you will get the error of "Invalid frame header".
     WsModule,
     RedisDebugModule,
     // - BFF module (route provider) - requires Main modules to be ready
