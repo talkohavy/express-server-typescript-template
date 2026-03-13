@@ -9,6 +9,10 @@ export class ServerSentEventsController implements ControllerFactory {
     private readonly serverSentEventsService: ServerSentEventsService,
   ) {}
 
+  registerRoutes() {
+    this.connectToChannel();
+  }
+
   private connectToChannel() {
     this.app.get('/api/sse', (req, res) => {
       res.setHeader('Content-Type', 'text/event-stream');
@@ -27,9 +31,5 @@ export class ServerSentEventsController implements ControllerFactory {
         res.end();
       });
     });
-  }
-
-  registerRoutes() {
-    this.connectToChannel();
   }
 }

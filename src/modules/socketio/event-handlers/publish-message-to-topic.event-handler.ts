@@ -10,6 +10,12 @@ export class PublishMessageToTopicEventHandler {
     private readonly logger: LoggerService,
   ) {}
 
+  registerEventHandlers(): void {
+    this.socketIOApp.on(BUILT_IN_WEBSOCKET_EVENTS.Connection, (socket: Socket) => {
+      this.handleSendMessageToTopicEvent(socket);
+    });
+  }
+
   private async handleSendMessageToTopicEvent(socket: SocketType) {
     socket.on(SOCKET_EVENTS.SendMessageToTopic, (data) => {
       this.SendMessageToTopic(socket, data);
@@ -28,11 +34,5 @@ export class PublishMessageToTopicEventHandler {
     this.logger.debug('[registerToTopic] user registered to topic', { topic });
 
     this.socketIOApp.to(topic).emit(SOCKET_EVENTS.SendMessageToTopic, data);
-  }
-
-  registerEventHandlers(): void {
-    this.socketIOApp.on(BUILT_IN_WEBSOCKET_EVENTS.Connection, (socket: Socket) => {
-      this.handleSendMessageToTopicEvent(socket);
-    });
   }
 }

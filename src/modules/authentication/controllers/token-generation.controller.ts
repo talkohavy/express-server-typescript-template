@@ -11,6 +11,10 @@ export class TokenGenerationController implements ControllerFactory {
     private readonly tokenGenerationService: TokenGenerationService,
   ) {}
 
+  registerRoutes() {
+    this.createTokens();
+  }
+
   private createTokens() {
     this.app.post(API_URLS.createTokens, joiBodyMiddleware(createTokensSchema), async (req: Request, res: Response) => {
       const { body } = req;
@@ -23,9 +27,5 @@ export class TokenGenerationController implements ControllerFactory {
 
       res.json(tokens);
     });
-  }
-
-  registerRoutes() {
-    this.createTokens();
   }
 }

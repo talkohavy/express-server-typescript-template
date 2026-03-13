@@ -11,11 +11,7 @@ import type {
 import type { Client } from 'pg';
 
 export class UsersPostgresRepository implements IUsersRepository {
-  constructor(private readonly pgClient: Client) {
-    this.initializeTable();
-  }
-
-  private async initializeTable(): Promise<void> {}
+  constructor(private readonly pgClient: Client) {}
 
   async getUserByEmail(email: string, options: GetUserByEmailOptions = {}): Promise<DatabaseUser | null> {
     const fields = options.fields || ['*'];

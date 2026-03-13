@@ -12,6 +12,10 @@ export class PasswordManagementController implements ControllerFactory {
     private readonly passwordManagementService: PasswordManagementService,
   ) {}
 
+  registerRoutes() {
+    this.getIsPasswordValid();
+  }
+
   private getIsPasswordValid() {
     this.app.post(
       API_URLS.isPasswordValid,
@@ -34,9 +38,5 @@ export class PasswordManagementController implements ControllerFactory {
         }
       },
     );
-  }
-
-  registerRoutes() {
-    this.getIsPasswordValid();
   }
 }

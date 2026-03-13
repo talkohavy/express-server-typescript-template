@@ -10,7 +10,7 @@ import {
   type IFileUploadAdapter,
 } from './file-upload';
 import { HttpClient } from './logic/http-client';
-import { BackendMiddleware } from './middlewares/backend.middleware';
+import { AuthenticationMiddleware } from './middlewares/authentication.middleware';
 import {
   UsersDirectAdapter,
   UsersHttpAdapter,
@@ -79,9 +79,10 @@ export class BackendModule {
     const dragonsController = new DragonsController(this.app, this.dragonsAdapter);
     const fileUploadController = new FileUploadController(this.app, this.fileUploadAdapter);
 
-    const backendMiddleware = new BackendMiddleware(this.app, this.authAdapter);
+    const backendMiddleware = new AuthenticationMiddleware(this.app, this.authAdapter);
 
-    backendMiddleware.useAuthenticationMiddleware(); // <--- Attach auth middleware before protected routes (for RBAC)
+    backendMiddleware.use(); // <--- Attach auth middleware before protected routes (for RBAC)
+
     healthCheckController.registerRoutes();
     authController.registerRoutes();
     usersCrudController.registerRoutes();

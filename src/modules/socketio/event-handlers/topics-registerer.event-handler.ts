@@ -9,6 +9,13 @@ export class TopicsRegistererEventHandler {
     private readonly logger: LoggerService,
   ) {}
 
+  registerEventHandlers() {
+    this.socketIOApp.on(BUILT_IN_WEBSOCKET_EVENTS.Connection, (socket: Socket) => {
+      this.handleRegisterToTopicEvent(socket);
+      this.handleUnregisterFromTopicEvent(socket);
+    });
+  }
+
   private async handleRegisterToTopicEvent(socket: SocketType) {
     socket.on(SOCKET_EVENTS.RegisterToTopic, (data) => {
       this.registerSocketToTopic(socket, data);
@@ -63,12 +70,5 @@ export class TopicsRegistererEventHandler {
     this.logger.debug('[unregisterFromTopic] user unregistered from topic', { topic });
 
     socket.leave(topic);
-  }
-
-  registerEventHandlers() {
-    this.socketIOApp.on(BUILT_IN_WEBSOCKET_EVENTS.Connection, (socket: Socket) => {
-      this.handleRegisterToTopicEvent(socket);
-      this.handleUnregisterFromTopicEvent(socket);
-    });
   }
 }

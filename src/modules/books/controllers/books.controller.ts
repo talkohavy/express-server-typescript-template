@@ -15,6 +15,14 @@ export class BooksController implements ControllerFactory {
     private readonly booksService: BooksService,
   ) {}
 
+  registerRoutes() {
+    this.getBooks();
+    this.getBookById();
+    this.createBook();
+    this.updateBook();
+    this.deleteBook();
+  }
+
   private createBook() {
     this.app.post(API_URLS.books, joiBodyMiddleware(createBookSchema), async (req: Request, res: Response) => {
       const { body } = req;
@@ -97,13 +105,5 @@ export class BooksController implements ControllerFactory {
 
       res.json({ message: 'Book deleted successfully' });
     });
-  }
-
-  registerRoutes() {
-    this.getBooks();
-    this.getBookById();
-    this.createBook();
-    this.updateBook();
-    this.deleteBook();
   }
 }

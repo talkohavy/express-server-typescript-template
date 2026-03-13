@@ -12,6 +12,14 @@ export class DragonsController implements ControllerFactory {
     private readonly dragonsAdapter: IDragonsAdapter,
   ) {}
 
+  registerRoutes() {
+    this.createDragon();
+    this.getDragons();
+    this.getDragonById();
+    this.updateDragon();
+    this.deleteDragon();
+  }
+
   private createDragon() {
     this.app.post(API_URLS.dragons, joiBodyMiddleware(createDragonSchema), async (req: Request, res: Response) => {
       const { body } = req;
@@ -90,13 +98,5 @@ export class DragonsController implements ControllerFactory {
 
       res.json({ message: 'Dragon deleted successfully' });
     });
-  }
-
-  registerRoutes() {
-    this.createDragon();
-    this.getDragons();
-    this.getDragonById();
-    this.updateDragon();
-    this.deleteDragon();
   }
 }

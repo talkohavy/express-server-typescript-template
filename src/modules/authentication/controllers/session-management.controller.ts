@@ -5,6 +5,10 @@ import type { Application, Request, Response } from 'express';
 export class SessionManagementController implements ControllerFactory {
   constructor(private readonly app: Application) {}
 
+  registerRoutes() {
+    this.logout();
+  }
+
   private logout() {
     this.app.get(API_URLS.authLogout, async (_req: Request, res: Response) => {
       this.app.logger.info(`GET ${API_URLS.authLogout} - user logout`);
@@ -13,9 +17,5 @@ export class SessionManagementController implements ControllerFactory {
 
       res.json({});
     });
-  }
-
-  registerRoutes() {
-    this.logout();
   }
 }

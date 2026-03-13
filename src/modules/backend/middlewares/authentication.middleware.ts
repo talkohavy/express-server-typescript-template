@@ -4,13 +4,13 @@ import type { IAuthAdapter } from '../authentication';
 import type { UserToken } from '@src/common/types';
 import type { Application, Request, Response, NextFunction } from 'express';
 
-export class BackendMiddleware {
+export class AuthenticationMiddleware {
   public constructor(
     private readonly app: Application,
     private readonly authAdapter: IAuthAdapter,
   ) {}
 
-  public useAuthenticationMiddleware() {
+  use() {
     this.app.use(API_URLS.users, this.attachUserFromTokenMiddleware.bind(this));
   }
 

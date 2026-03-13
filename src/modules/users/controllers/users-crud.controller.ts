@@ -14,6 +14,14 @@ export class UsersCrudController implements ControllerFactory {
     private readonly usersService: UsersCrudService,
   ) {}
 
+  registerRoutes() {
+    this.createUser();
+    this.getUsers();
+    this.getUserById();
+    this.updateUserById();
+    this.deleteUserById();
+  }
+
   private createUser() {
     this.app.post(
       API_URLS.users,
@@ -100,13 +108,5 @@ export class UsersCrudController implements ControllerFactory {
         res.json(result);
       },
     );
-  }
-
-  registerRoutes() {
-    this.createUser();
-    this.getUsers();
-    this.getUserById();
-    this.updateUserById();
-    this.deleteUserById();
   }
 }

@@ -6,6 +6,10 @@ import type { Application, Response } from 'express';
 export class WsStateController implements ControllerFactory {
   constructor(private readonly app: Application) {}
 
+  registerRoutes() {
+    this.wsState();
+  }
+
   private wsState(): void {
     this.app.get(API_URLS.internalWsState, internalApiKeyMiddleware, async (_req, res: Response) => {
       const { wsManager, logger } = this.app;
@@ -33,9 +37,5 @@ export class WsStateController implements ControllerFactory {
 
       res.json(payload);
     });
-  }
-
-  registerRoutes(): void {
-    this.wsState();
   }
 }

@@ -12,6 +12,10 @@ export class UserUtilitiesController implements ControllerFactory {
     private readonly authAdapter: IAuthAdapter,
   ) {}
 
+  registerRoutes() {
+    this.getProfile();
+  }
+
   private getProfile() {
     this.app.get(API_URLS.getProfile, async (req: Request, res: Response) => {
       const { cookies } = req;
@@ -35,9 +39,5 @@ export class UserUtilitiesController implements ControllerFactory {
   private extractAccessTokenFromCookies(cookies: any) {
     const { accessCookie } = this.app.configService.get<CookiesConfig>(ConfigKeys.Cookies);
     return cookies[accessCookie.name];
-  }
-
-  registerRoutes() {
-    this.getProfile();
   }
 }

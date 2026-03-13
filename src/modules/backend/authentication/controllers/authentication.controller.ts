@@ -16,6 +16,11 @@ export class AuthenticationController implements ControllerFactory {
     private readonly usersAdapter: IUsersAdapter,
   ) {}
 
+  registerRoutes() {
+    this.login();
+    this.logout();
+  }
+
   private login() {
     this.app.post(API_URLS.authLogin, joiBodyMiddleware(loginSchema), async (req: Request, res: Response) => {
       const { body } = req;
@@ -81,10 +86,5 @@ export class AuthenticationController implements ControllerFactory {
 
       res.json({});
     });
-  }
-
-  registerRoutes() {
-    this.login();
-    this.logout();
   }
 }

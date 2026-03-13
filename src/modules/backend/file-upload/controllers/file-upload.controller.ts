@@ -9,6 +9,11 @@ export class FileUploadController implements ControllerFactory {
     private readonly fileUploadAdapter: IFileUploadAdapter,
   ) {}
 
+  registerRoutes() {
+    this.uploadFileMultipart();
+    this.uploadFileBinary();
+  }
+
   private uploadFileMultipart() {
     this.app.post(API_URLS.uploadFileMultipart, async (req: Request, res: Response) => {
       this.app.logger.info(`POST ${API_URLS.uploadFileMultipart} - uploading file`);
@@ -27,10 +32,5 @@ export class FileUploadController implements ControllerFactory {
 
       res.status(StatusCodes.OK).json(result);
     });
-  }
-
-  registerRoutes() {
-    this.uploadFileMultipart();
-    this.uploadFileBinary();
   }
 }

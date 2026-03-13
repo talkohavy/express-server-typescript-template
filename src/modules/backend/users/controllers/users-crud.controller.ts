@@ -15,6 +15,14 @@ export class UsersCrudController implements ControllerFactory {
     private readonly usersAdapter: IUsersAdapter,
   ) {}
 
+  registerRoutes() {
+    this.createUser();
+    this.getUsers();
+    this.getUserById();
+    this.updateUser();
+    this.deleteUser();
+  }
+
   private createUser() {
     this.app.post(
       API_URLS.users,
@@ -102,13 +110,5 @@ export class UsersCrudController implements ControllerFactory {
         res.json(result);
       },
     );
-  }
-
-  registerRoutes() {
-    this.createUser();
-    this.getUsers();
-    this.getUserById();
-    this.updateUser();
-    this.deleteUser();
   }
 }

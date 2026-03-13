@@ -13,6 +13,10 @@ export class UserUtilitiesController implements ControllerFactory {
     private readonly userUtilitiesService: UserUtilitiesService,
   ) {}
 
+  registerRoutes() {
+    this.getUserByEmail();
+  }
+
   private getUserByEmail() {
     this.app.post(
       API_URLS.getUserByEmail,
@@ -36,9 +40,5 @@ export class UserUtilitiesController implements ControllerFactory {
         }
       },
     );
-  }
-
-  registerRoutes() {
-    this.getUserByEmail();
   }
 }

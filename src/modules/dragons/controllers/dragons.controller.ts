@@ -13,6 +13,14 @@ export class DragonsController implements ControllerFactory {
     private readonly dragonService: DragonsService,
   ) {}
 
+  registerRoutes() {
+    this.getDragons();
+    this.getDragonById();
+    this.createDragon();
+    this.updateDragon();
+    this.deleteDragon();
+  }
+
   private getDragons() {
     this.app.get(API_URLS.dragons, async (_req, res) => {
       this.app.logger.info(`GET ${API_URLS.dragons} - fetching dragons`);
@@ -96,13 +104,5 @@ export class DragonsController implements ControllerFactory {
 
       res.json({ message: 'Dragon deleted successfully' });
     });
-  }
-
-  registerRoutes() {
-    this.getDragons();
-    this.getDragonById();
-    this.createDragon();
-    this.updateDragon();
-    this.deleteDragon();
   }
 }

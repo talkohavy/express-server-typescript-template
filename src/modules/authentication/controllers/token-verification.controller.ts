@@ -11,6 +11,10 @@ export class TokenVerificationController implements ControllerFactory {
     private readonly tokenVerificationService: TokenVerificationService,
   ) {}
 
+  registerRoutes() {
+    this.verifyToken();
+  }
+
   private verifyToken() {
     this.app.get(API_URLS.verifyToken, async (req: Request, res: Response) => {
       const { cookies } = req;
@@ -35,9 +39,5 @@ export class TokenVerificationController implements ControllerFactory {
     const token = cookies[accessCookie.name] as string;
 
     return token;
-  }
-
-  registerRoutes() {
-    this.verifyToken();
   }
 }
