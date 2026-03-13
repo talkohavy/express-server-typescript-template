@@ -70,7 +70,7 @@ export async function buildApp() {
     FileUploadModule,
     isSocketIOModuleEnabled && SocketIOModule, // <--- To make the SocketIO module work, make sure you comment out the wsPlugin above, and the WsModule below. Otherwise, you will get the error of "Invalid frame header".
     isWsModuleEnabled && WsModule,
-    RedisDebugModule,
+    isWsModuleEnabled && RedisDebugModule,
     // - BFF module (route provider) - requires Main modules to be ready
     BackendModule,
     // - Utility modules
