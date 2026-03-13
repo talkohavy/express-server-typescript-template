@@ -9,7 +9,7 @@ import type { WebSocket } from 'ws';
  * Handles the "send" action: client publishes a message to a topic.
  * All subscribers of that topic (including other clients) receive the message.
  */
-export class SendMessageService {
+export class PublishMessageToTopicService {
   constructor(
     private readonly wsManager: WebsocketManager,
     private readonly logger: LoggerService,

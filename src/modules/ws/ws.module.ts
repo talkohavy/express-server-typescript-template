@@ -5,7 +5,7 @@ import { AttachCloseHandlerToSocketMiddleware } from './middlewares/attach-close
 import { AttachErrorHandlerToSocketMiddleware } from './middlewares/attach-error-handler-to-socket.middleware';
 import { SubscribeSocketToRootTopicMiddleware } from './middlewares/subscribe-socket-to-root-topic.middleware';
 import { WsMiddleware } from './middlewares/ws.middleware';
-import { SendMessageService, TopicRegistrationService, WebRtcSignalingService } from './services';
+import { PublishMessageToTopicService, TopicRegistrationService, WebRtcSignalingService } from './services';
 import type { TopicMessage } from '@src/lib/websocket-manager';
 import type { Application } from 'express';
 
@@ -20,7 +20,7 @@ import type { Application } from 'express';
  */
 export class WsModule {
   topicRegistrationService!: TopicRegistrationService;
-  sendMessageService!: SendMessageService;
+  publishMessageToTopicService!: PublishMessageToTopicService;
   webRtcSignalingService!: WebRtcSignalingService;
 
   constructor(private readonly app: Application) {
@@ -31,7 +31,7 @@ export class WsModule {
     const { wsManager, logger } = this.app;
 
     this.topicRegistrationService = new TopicRegistrationService(wsManager, logger);
-    this.sendMessageService = new SendMessageService(wsManager, logger);
+    this.publishMessageToTopicService = new PublishMessageToTopicService(wsManager, logger);
     this.webRtcSignalingService = new WebRtcSignalingService(wsManager, logger);
 
     this.registerEventHandlers();
@@ -55,7 +55,7 @@ export class WsModule {
       wsApp,
       {
         ...this.topicRegistrationService.getActionHandlers(),
-        ...this.sendMessageService.getActionHandlers(),
+        ...this.publishMessageToTopicService.getActionHandlers(),
         ...this.webRtcSignalingService.getActionHandlers(),
       },
       logger,
