@@ -1,4 +1,3 @@
-import express, { type Application } from 'express';
 import { optimizedApp } from './common/constants';
 import { AppFactory } from './lib/lucky-server/app-factory';
 import { errorHandler } from './middlewares/errorHandler.middleware';
@@ -29,16 +28,13 @@ import { addRequestIdHeaderPlugin } from './plugins/request-id.plugin';
 import { socketIOPlugin } from './plugins/socket.io.plugin';
 import { urlEncodedPlugin } from './plugins/urlEncoded.plugin';
 import { wsPlugin } from './plugins/ws.plugin';
+import type { Application } from 'express';
 
 const websocketModule = process.env.WEBSOCKET_MODULE;
 const isSocketIOModuleEnabled = websocketModule === 'socket.io';
 const isWsModuleEnabled = websocketModule === 'ws';
 
-export async function buildApp() {
-  const app = express() as unknown as Application;
-
-  app.disable('x-powered-by');
-
+export async function buildApp(app: Application) {
   const appModule = new AppFactory(app, optimizedApp);
 
   await appModule.registerPlugins([
@@ -80,6 +76,4 @@ export async function buildApp() {
 
   appModule.registerErrorHandler(errorHandler);
   appModule.registerPathNotFoundHandler(pathNotFoundHandler);
-
-  return app;
 }
