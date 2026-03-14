@@ -114,6 +114,9 @@ export class BackendModule {
     this.fileUploadAdapter = new FileUploadHttpAdapter(httpClient);
   }
 
+  /**
+   * NOTE: gRPC base URLs must NOT include the "http://" protocol. Only the host & port.
+   */
   private initializeGrpcAdapters() {
     const { books } = this.app.configService.get<ServicesConfig>(ConfigKeys.Services);
 
