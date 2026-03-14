@@ -6,10 +6,10 @@ package backend.books.v1;
 // It mirrors the HTTP/JSON API exposed by the backend Books adapter (IBooksAdapter).
 // Server implementation and client adapter (BooksGrpcAdapter) are out of scope for this contract.
 service BooksService {
-  rpc GetBooks(GetBooksRequest) returns (PaginatedBooksResponse);
-  rpc GetBookById(GetBookByIdRequest) returns (Book);
-  rpc CreateBook(CreateBookRequest) returns (Book);
-  rpc UpdateBook(UpdateBookRequest) returns (Book);
+  rpc GetBooks(GetBooksRequest) returns (GetBooksResponse);
+  rpc GetBookById(GetBookByIdRequest) returns (GetBookByIdResponse);
+  rpc CreateBook(CreateBookRequest) returns (CreateBookResponse);
+  rpc UpdateBook(UpdateBookRequest) returns (UpdateBookResponse);
   rpc DeleteBook(DeleteBookRequest) returns (DeleteBookResponse);
 }
 
@@ -34,7 +34,7 @@ message GetBooksRequest {
   int32 limit = 2;
 }
 
-message PaginatedBooksResponse {
+message GetBooksResponse {
   repeated Book data = 1;
   int32 total_items_count = 2;
   int32 page = 3;
@@ -45,6 +45,10 @@ message PaginatedBooksResponse {
 
 message GetBookByIdRequest {
   string book_id = 1;
+}
+
+message GetBookByIdResponse {
+  optional Book book = 1;
 }
 
 message CreateBookRequest {
@@ -61,6 +65,10 @@ message CreateBookRequest {
   optional string publisher = 11;
 }
 
+message CreateBookResponse {
+  Book book = 1;
+}
+
 message UpdateBookRequest {
   string book_id = 1;
   optional string name = 2;
@@ -74,6 +82,10 @@ message UpdateBookRequest {
   optional double rating = 10;
   optional string language = 11;
   optional string publisher = 12;
+}
+
+message UpdateBookResponse {
+  optional Book book = 1;
 }
 
 message DeleteBookRequest {
