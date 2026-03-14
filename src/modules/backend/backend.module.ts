@@ -46,15 +46,15 @@ export class BackendModule {
     const microServicesProtocol = process.env.MICRO_SERVICES_PROTOCOL;
 
     if (microServicesProtocol === 'direct') {
-      this.initializeDirectAdapters();
+      return void this.initializeDirectAdapters();
     }
 
     if (microServicesProtocol === 'http') {
-      this.initializeHttpAdapters();
+      return void this.initializeHttpAdapters();
     }
 
     if (microServicesProtocol === 'grpc') {
-      this.initializeGrpcAdapters();
+      return void this.initializeGrpcAdapters();
     }
 
     throw new Error(`Invalid micro-services protocol: ${microServicesProtocol}`);
