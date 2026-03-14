@@ -1,6 +1,8 @@
+import { ChannelCredentials } from '@grpc/grpc-js';
+import { ConfigKeys, type ServicesConfig } from '../../configurations';
 import { HealthCheckController } from '../health-check/health-check.controller';
 import { AuthDirectAdapter, AuthHttpAdapter, AuthenticationController, type IAuthAdapter } from './authentication';
-import { BooksDirectAdapter, BooksHttpAdapter, BooksController, type IBooksAdapter } from './books';
+import { BooksDirectAdapter, BooksGrpcAdapter, BooksHttpAdapter, BooksController, type IBooksAdapter } from './books';
 import { DragonsController } from './dragons';
 import { DragonsDirectAdapter, DragonsHttpAdapter, type IDragonsAdapter } from './dragons';
 import {
@@ -11,6 +13,7 @@ import {
 } from './file-upload';
 import { HttpClient } from './logic/http-client';
 import { AuthenticationMiddleware } from './middlewares/authentication.middleware';
+import { BooksServiceClient } from './proto/generated/backend/books/v1/books';
 import {
   UsersDirectAdapter,
   UsersHttpAdapter,
@@ -40,33 +43,21 @@ export class BackendModule {
   }
 
   private initializeAdapters(): void {
-    if (process.env.IS_STANDALONE_MICRO_SERVICES) {
-      // HTTP adapters for micro-services communication
-      const httpClient = new HttpClient(this.app.configService);
-      this.usersAdapter = new UsersHttpAdapter(httpClient);
-      this.authAdapter = new AuthHttpAdapter(httpClient);
-      this.booksAdapter = new BooksHttpAdapter(httpClient);
-      this.dragonsAdapter = new DragonsHttpAdapter(httpClient);
-      this.fileUploadAdapter = new FileUploadHttpAdapter(httpClient);
-    } else {
-      // Direct adapters wrapping module services (monolith mode)
-      const { usersCrudService, userUtilitiesService } = this.app.modules.UsersModule.services;
-      const { passwordManagementService, tokenGenerationService, tokenVerificationService } =
-        this.app.modules.AuthenticationModule.services;
-      const { booksService } = this.app.modules.BooksModule.services;
-      const { dragonsService } = this.app.modules.DragonsModule.services;
-      const { fileUploadService } = this.app.modules.FileUploadModule.services;
+    const microServicesProtocol = process.env.MICRO_SERVICES_PROTOCOL;
 
-      this.usersAdapter = new UsersDirectAdapter(usersCrudService, userUtilitiesService);
-      this.authAdapter = new AuthDirectAdapter(
-        passwordManagementService,
-        tokenGenerationService,
-        tokenVerificationService,
-      );
-      this.booksAdapter = new BooksDirectAdapter(booksService);
-      this.dragonsAdapter = new DragonsDirectAdapter(dragonsService);
-      this.fileUploadAdapter = new FileUploadDirectAdapter(fileUploadService);
+    if (microServicesProtocol === 'direct') {
+      return void this.initializeDirectAdapters();
     }
+
+    if (microServicesProtocol === 'http') {
+      return void this.initializeHttpAdapters();
+    }
+
+    if (microServicesProtocol === 'grpc') {
+      return void this.initializeGrpcAdapters();
+    }
+
+    throw new Error(`Invalid micro-services protocol: ${microServicesProtocol}`);
   }
 
   private attachControllers(): void {
@@ -90,5 +81,51 @@ export class BackendModule {
     booksController.registerRoutes();
     dragonsController.registerRoutes();
     fileUploadController.registerRoutes();
+  }
+
+  private initializeDirectAdapters() {
+    // Direct adapters wrapping module services (monolith mode)
+    const { usersCrudService, userUtilitiesService } = this.app.modules.UsersModule.services;
+    const { passwordManagementService, tokenGenerationService, tokenVerificationService } =
+      this.app.modules.AuthenticationModule.services;
+    const { booksService } = this.app.modules.BooksModule.services;
+    const { dragonsService } = this.app.modules.DragonsModule.services;
+    const { fileUploadService } = this.app.modules.FileUploadModule.services;
+
+    this.usersAdapter = new UsersDirectAdapter(usersCrudService, userUtilitiesService);
+    this.authAdapter = new AuthDirectAdapter(
+      passwordManagementService,
+      tokenGenerationService,
+      tokenVerificationService,
+    );
+    this.booksAdapter = new BooksDirectAdapter(booksService);
+    this.dragonsAdapter = new DragonsDirectAdapter(dragonsService);
+    this.fileUploadAdapter = new FileUploadDirectAdapter(fileUploadService);
+  }
+
+  private initializeHttpAdapters() {
+    const { configService } = this.app;
+
+    const httpClient = new HttpClient(configService);
+    this.usersAdapter = new UsersHttpAdapter(httpClient);
+    this.authAdapter = new AuthHttpAdapter(httpClient);
+    this.booksAdapter = new BooksHttpAdapter(httpClient);
+    this.dragonsAdapter = new DragonsHttpAdapter(httpClient);
+    this.fileUploadAdapter = new FileUploadHttpAdapter(httpClient);
+  }
+
+  /**
+   * NOTE: gRPC base URLs must NOT include the "http://" protocol. Only the host & port.
+   */
+  private initializeGrpcAdapters() {
+    const { books } = this.app.configService.get<ServicesConfig>(ConfigKeys.Services);
+
+    if (books.baseUrl == null) {
+      throw new Error('booksGrpcUrl is required when booksTransport is grpc');
+    }
+
+    const grpcBooksClient = new BooksServiceClient(books.baseUrl, ChannelCredentials.createInsecure());
+
+    this.booksAdapter = new BooksGrpcAdapter(grpcBooksClient);
   }
 }

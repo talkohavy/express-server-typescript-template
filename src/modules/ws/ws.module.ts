@@ -67,7 +67,7 @@ export class WsModule {
     pingPongEventHandler.registerEventHandlers();
     messageDispatcherByEventHandler.registerEventHandlers();
 
-    if (process.env.PUB_SUB_ENABLED) {
+    if (process.env.SIMULATE_STREAMING_TO_TOPIC) {
       setInterval(() => {
         const payload: TopicMessage = {
           topic: StaticTopics.Data,

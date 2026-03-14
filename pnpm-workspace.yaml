@@ -1,0 +1,5 @@
+ignoredBuiltDependencies:
+  - '@scarf/scarf'
+  - esbuild
+  - protobufjs
+  - unrs-resolver
