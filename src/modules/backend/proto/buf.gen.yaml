@@ -1,0 +1,8 @@
+version: v2
+plugins:
+  - remote: buf.build/community/stephenh-ts-proto
+    out: generated
+    opt:
+      - outputServices=grpc-js
+      - useOptionals=messages
+      - esModuleInterop=true
