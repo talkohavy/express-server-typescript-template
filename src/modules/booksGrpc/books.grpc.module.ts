@@ -1,0 +1,35 @@
+import { BooksServiceService } from '../backend/proto/generated/backend/books/v1/books';
+import { BooksService } from '../books/services/books.service';
+import { BooksGrpcController } from './controllers/books.grpc.controller';
+import type { Server } from '@grpc/grpc-js';
+
+export class BooksGrpcModule {
+  private booksService!: BooksService;
+
+  constructor(private readonly app: Server) {
+    this.initializeModule();
+  }
+
+  private initializeModule(): void {
+    this.booksService = new BooksService();
+
+    // Only attach routes if running as a standalone micro-service
+    if (process.env.IS_STANDALONE_MICRO_SERVICES) {
+      this.attachControllers();
+    }
+  }
+
+  private attachControllers() {
+    const { logger } = this.app;
+
+    const booksGrpcController = new BooksGrpcController(this.booksService, logger);
+
+    this.app.addService(BooksServiceService, booksGrpcController as any);
+  }
+
+  get services() {
+    return {
+      booksService: this.booksService,
+    };
+  }
+}

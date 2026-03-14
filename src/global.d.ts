@@ -21,3 +21,9 @@ declare module 'ws' {
     id: string;
   }
 }
+
+declare module '@grpc/grpc-js' {
+  export interface Server extends OptimizedApp {
+    no_keys: never;
+  }
+}

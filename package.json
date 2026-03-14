@@ -11,6 +11,7 @@
     "dev:auth": "node --import tsx --watch --env-file=.env.micro-services src/initAsMicroServices/authentication/authentication.init-server.ts",
     "dev:backend": "node --import tsx --watch --env-file=.env.micro-services src/initAsMicroServices/backend/backend.init-server.ts",
     "dev:books": "node --import tsx --watch --env-file=.env.micro-services src/initAsMicroServices/books/books.init-server.ts",
+    "dev:books-grpc": "node --import tsx --watch --env-file=.env.micro-services src/initAsMicroServices/books/grpc/books-grpc.init-server.ts",
     "dev:dragons": "node --import tsx --watch --env-file=.env.micro-services src/initAsMicroServices/dragons/dragons.init-server.ts",
     "dev:file-upload": "node --import tsx --watch --env-file=.env.micro-services src/initAsMicroServices/file-upload/file-upload.init-server.ts",
     "dev:users": "node --import tsx --watch --env-file=.env.micro-services src/initAsMicroServices/users/users.init-server.ts",
