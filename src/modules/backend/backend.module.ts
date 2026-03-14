@@ -1,6 +1,8 @@
+import { ChannelCredentials } from '@grpc/grpc-js';
+import { ConfigKeys, type ServicesConfig } from '../../configurations';
 import { HealthCheckController } from '../health-check/health-check.controller';
 import { AuthDirectAdapter, AuthHttpAdapter, AuthenticationController, type IAuthAdapter } from './authentication';
-import { BooksDirectAdapter, BooksHttpAdapter, BooksController, type IBooksAdapter } from './books';
+import { BooksDirectAdapter, BooksGrpcAdapter, BooksHttpAdapter, BooksController, type IBooksAdapter } from './books';
 import { DragonsController } from './dragons';
 import { DragonsDirectAdapter, DragonsHttpAdapter, type IDragonsAdapter } from './dragons';
 import {
@@ -11,6 +13,7 @@ import {
 } from './file-upload';
 import { HttpClient } from './logic/http-client';
 import { AuthenticationMiddleware } from './middlewares/authentication.middleware';
+import { BooksServiceClient } from './proto/generated/backend/books/v1/books';
 import {
   UsersDirectAdapter,
   UsersHttpAdapter,
@@ -48,6 +51,10 @@ export class BackendModule {
 
     if (microServicesProtocol === 'http') {
       this.initializeHttpAdapters();
+    }
+
+    if (microServicesProtocol === 'grpc') {
+      this.initializeGrpcAdapters();
     }
 
     throw new Error(`Invalid micro-services protocol: ${microServicesProtocol}`);
@@ -105,5 +112,17 @@ export class BackendModule {
     this.booksAdapter = new BooksHttpAdapter(httpClient);
     this.dragonsAdapter = new DragonsHttpAdapter(httpClient);
     this.fileUploadAdapter = new FileUploadHttpAdapter(httpClient);
+  }
+
+  private initializeGrpcAdapters() {
+    const { books } = this.app.configService.get<ServicesConfig>(ConfigKeys.Services);
+
+    if (books.baseUrl == null) {
+      throw new Error('booksGrpcUrl is required when booksTransport is grpc');
+    }
+
+    const grpcBooksClient = new BooksServiceClient(books.baseUrl, ChannelCredentials.createInsecure());
+
+    this.booksAdapter = new BooksGrpcAdapter(grpcBooksClient);
   }
 }
