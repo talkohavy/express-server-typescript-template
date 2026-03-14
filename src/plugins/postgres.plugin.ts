@@ -20,7 +20,7 @@ export async function postgresPlugin(app: Application) {
   app.pg = pgClient;
 
   // Run migrations and seeds
-  if (process.env.POSTGRES_SHOULD_MIGRATE) {
+  if (process.env.SHOULD_MIGRATE_POSTGRES) {
     await runAllMigrations(pgClient);
     await runAllSeeds(pgClient, { users: { skipIfExists: false, clearBeforeSeeding: true } });
   }
