@@ -40,33 +40,17 @@ export class BackendModule {
   }
 
   private initializeAdapters(): void {
-    if (process.env.IS_STANDALONE_MICRO_SERVICES) {
-      // HTTP adapters for micro-services communication
-      const httpClient = new HttpClient(this.app.configService);
-      this.usersAdapter = new UsersHttpAdapter(httpClient);
-      this.authAdapter = new AuthHttpAdapter(httpClient);
-      this.booksAdapter = new BooksHttpAdapter(httpClient);
-      this.dragonsAdapter = new DragonsHttpAdapter(httpClient);
-      this.fileUploadAdapter = new FileUploadHttpAdapter(httpClient);
-    } else {
-      // Direct adapters wrapping module services (monolith mode)
-      const { usersCrudService, userUtilitiesService } = this.app.modules.UsersModule.services;
-      const { passwordManagementService, tokenGenerationService, tokenVerificationService } =
-        this.app.modules.AuthenticationModule.services;
-      const { booksService } = this.app.modules.BooksModule.services;
-      const { dragonsService } = this.app.modules.DragonsModule.services;
-      const { fileUploadService } = this.app.modules.FileUploadModule.services;
+    const microServicesProtocol = process.env.MICRO_SERVICES_PROTOCOL;
 
-      this.usersAdapter = new UsersDirectAdapter(usersCrudService, userUtilitiesService);
-      this.authAdapter = new AuthDirectAdapter(
-        passwordManagementService,
-        tokenGenerationService,
-        tokenVerificationService,
-      );
-      this.booksAdapter = new BooksDirectAdapter(booksService);
-      this.dragonsAdapter = new DragonsDirectAdapter(dragonsService);
-      this.fileUploadAdapter = new FileUploadDirectAdapter(fileUploadService);
+    if (microServicesProtocol === 'direct') {
+      this.initializeDirectAdapters();
     }
+
+    if (microServicesProtocol === 'http') {
+      this.initializeHttpAdapters();
+    }
+
+    throw new Error(`Invalid micro-services protocol: ${microServicesProtocol}`);
   }
 
   private attachControllers(): void {
@@ -90,5 +74,36 @@ export class BackendModule {
     booksController.registerRoutes();
     dragonsController.registerRoutes();
     fileUploadController.registerRoutes();
+  }
+
+  private initializeDirectAdapters() {
+    // Direct adapters wrapping module services (monolith mode)
+    const { usersCrudService, userUtilitiesService } = this.app.modules.UsersModule.services;
+    const { passwordManagementService, tokenGenerationService, tokenVerificationService } =
+      this.app.modules.AuthenticationModule.services;
+    const { booksService } = this.app.modules.BooksModule.services;
+    const { dragonsService } = this.app.modules.DragonsModule.services;
+    const { fileUploadService } = this.app.modules.FileUploadModule.services;
+
+    this.usersAdapter = new UsersDirectAdapter(usersCrudService, userUtilitiesService);
+    this.authAdapter = new AuthDirectAdapter(
+      passwordManagementService,
+      tokenGenerationService,
+      tokenVerificationService,
+    );
+    this.booksAdapter = new BooksDirectAdapter(booksService);
+    this.dragonsAdapter = new DragonsDirectAdapter(dragonsService);
+    this.fileUploadAdapter = new FileUploadDirectAdapter(fileUploadService);
+  }
+
+  private initializeHttpAdapters() {
+    const { configService } = this.app;
+
+    const httpClient = new HttpClient(configService);
+    this.usersAdapter = new UsersHttpAdapter(httpClient);
+    this.authAdapter = new AuthHttpAdapter(httpClient);
+    this.booksAdapter = new BooksHttpAdapter(httpClient);
+    this.dragonsAdapter = new DragonsHttpAdapter(httpClient);
+    this.fileUploadAdapter = new FileUploadHttpAdapter(httpClient);
   }
 }
