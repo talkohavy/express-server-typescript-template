@@ -1,0 +1,14 @@
+---
+description: how to create a middleware
+alwaysApply: false
+---
+
+- there are 2 types of middlewares: global ones, and module specific ones.
+- a module specific middleware should always live as part of a module, and be located at: `./src/modules/[module-name]/middleware/`
+- a middleware file must be named: `[name].middleware.ts`
+- never create a module specific middleware as a function. always as a class.
+- a middleware class should implement the `MiddlewareFactory` interface.
+- methods not on the `MiddlewareFactory` interface spec should be private.
+- an http middleware class always accepts `private readonly app: Application` as its first argument.
+- a websocket middleware class always accepts `private readonly wsApp: WebSocketServer` as its first argument.
+- a module specific middleware can only be instantiated by its domain module main class, under which it lives.
