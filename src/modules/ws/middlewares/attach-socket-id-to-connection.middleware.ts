@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { BUILT_IN_WEBSOCKET_EVENTS } from '../../../lib/websocket-manager';
 import type { WebSocket, WebSocketServer } from 'ws';
 
-export class WsMiddleware {
+export class AttachSocketIdToConnectionMiddleware {
   constructor(private readonly wsApp: WebSocketServer) {}
 
   private attachSocketIdToConnection(socket: WebSocket) {

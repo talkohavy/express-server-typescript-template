@@ -3,8 +3,8 @@ import { PingPongEventHandler } from './event-handlers/ping-pong.event-handler';
 import { StaticTopics } from './logic/constants';
 import { AttachCloseHandlerToSocketMiddleware } from './middlewares/attach-close-handler-to-socket.middleware';
 import { AttachErrorHandlerToSocketMiddleware } from './middlewares/attach-error-handler-to-socket.middleware';
+import { AttachSocketIdToConnectionMiddleware } from './middlewares/attach-socket-id-to-connection.middleware';
 import { SubscribeSocketToRootTopicMiddleware } from './middlewares/subscribe-socket-to-root-topic.middleware';
-import { WsMiddleware } from './middlewares/ws.middleware';
 import { PublishMessageToTopicService, TopicRegistrationService, WebRtcSignalingService } from './services';
 import type { TopicMessage } from '@src/lib/websocket-manager';
 import type { Application } from 'express';
@@ -41,10 +41,12 @@ export class WsModule {
     const { wsApp, wsManager, logger } = this.app;
 
     // middlewares:
+    const attachSocketIdToConnectionMiddleware = new AttachSocketIdToConnectionMiddleware(wsApp);
     const subscribeSocketToRootTopicMiddleware = new SubscribeSocketToRootTopicMiddleware(wsApp, wsManager, logger);
     const attachCloseHandlerToSocketMiddleware = new AttachCloseHandlerToSocketMiddleware(wsApp, wsManager, logger);
     const attachErrorHandlerToSocketMiddleware = new AttachErrorHandlerToSocketMiddleware(wsApp, logger);
 
+    attachSocketIdToConnectionMiddleware.use();
     subscribeSocketToRootTopicMiddleware.use();
     attachCloseHandlerToSocketMiddleware.use();
     attachErrorHandlerToSocketMiddleware.use();
@@ -61,9 +63,6 @@ export class WsModule {
       logger,
     );
 
-    const wsMiddleware = new WsMiddleware(wsApp);
-
-    wsMiddleware.use();
     pingPongEventHandler.registerEventHandlers();
     messageDispatcherByEventHandler.registerEventHandlers();
 
