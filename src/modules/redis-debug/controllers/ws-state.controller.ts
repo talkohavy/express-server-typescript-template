@@ -1,5 +1,5 @@
 import { API_URLS } from '@src/common/constants';
-import { internalApiKeyMiddleware } from '../middlewares/internal-api-key.middleware';
+import { internalApiKeyMiddleware } from '../middleware/internal-api-key.middleware';
 import type { ControllerFactory } from '@src/lib/lucky-server';
 import type { Application, Response } from 'express';
 

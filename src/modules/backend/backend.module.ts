@@ -12,7 +12,7 @@ import {
   type IFileUploadAdapter,
 } from './file-upload';
 import { HttpClient } from './logic/http-client';
-import { AuthenticationMiddleware } from './middlewares/authentication.middleware';
+import { AuthenticationMiddleware } from './middleware/authentication.middleware';
 import { BooksServiceClient } from './proto/generated/backend/books/v1/books';
 import {
   UsersDirectAdapter,

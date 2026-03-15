@@ -1,10 +1,10 @@
 import { MessageDispatcherByEventHandler } from './event-handlers/message-dispatcher-by-event.event-handler';
 import { PingPongEventHandler } from './event-handlers/ping-pong.event-handler';
 import { StaticTopics } from './logic/constants';
-import { AttachCloseHandlerToSocketMiddleware } from './middlewares/attach-close-handler-to-socket.middleware';
-import { AttachErrorHandlerToSocketMiddleware } from './middlewares/attach-error-handler-to-socket.middleware';
-import { AttachSocketIdToConnectionMiddleware } from './middlewares/attach-socket-id-to-connection.middleware';
-import { SubscribeSocketToRootTopicMiddleware } from './middlewares/subscribe-socket-to-root-topic.middleware';
+import { AttachCloseHandlerToSocketMiddleware } from './middleware/attach-close-handler-to-socket.middleware';
+import { AttachErrorHandlerToSocketMiddleware } from './middleware/attach-error-handler-to-socket.middleware';
+import { AttachSocketIdToConnectionMiddleware } from './middleware/attach-socket-id-to-connection.middleware';
+import { SubscribeSocketToRootTopicMiddleware } from './middleware/subscribe-socket-to-root-topic.middleware';
 import { PublishMessageToTopicService, TopicRegistrationService, WebRtcSignalingService } from './services';
 import type { TopicMessage } from '@src/lib/websocket-manager';
 import type { Application } from 'express';
