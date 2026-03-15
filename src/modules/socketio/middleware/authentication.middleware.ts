@@ -1,8 +1,9 @@
 import type { LoggerService } from '../../../lib/logger-service';
+import type { MiddlewareFactory } from '../../../lib/lucky-server';
 import type { SocketType } from '../types';
 import type { Server as SocketIOServer } from 'socket.io';
 
-export class AuthenticationMiddleware {
+export class AuthenticationMiddleware implements MiddlewareFactory {
   constructor(
     private readonly socketIOApp: SocketIOServer,
     private readonly logger: LoggerService,

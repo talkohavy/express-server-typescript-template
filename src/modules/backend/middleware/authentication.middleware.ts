@@ -2,10 +2,11 @@ import { API_URLS } from '@src/common/constants';
 import { ConfigKeys, type CookiesConfig } from '@src/configurations';
 import type { IAuthAdapter } from '../authentication';
 import type { UserToken } from '@src/common/types';
-import type { Application, Request, Response, NextFunction } from 'express';
+import type { MiddlewareFactory } from '@src/lib/lucky-server';
+import type { Application, NextFunction, Request, Response } from 'express';
 
-export class AuthenticationMiddleware {
-  public constructor(
+export class AuthenticationMiddleware implements MiddlewareFactory {
+  constructor(
     private readonly app: Application,
     private readonly authAdapter: IAuthAdapter,
   ) {}
