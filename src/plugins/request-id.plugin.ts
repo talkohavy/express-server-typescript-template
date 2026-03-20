@@ -1,6 +1,9 @@
 import { Headers } from '../common/constants';
 import type { Application, NextFunction, Request, Response } from 'express';
 
+/**
+ * @express
+ */
 export function addRequestIdHeaderPlugin(app: Application): void {
   app.use(addRequestIdHeaderMiddleware);
 }

@@ -1,7 +1,10 @@
 import { Permissions } from '../common/constants/permissions';
 import type { Request, Response, NextFunction, Application } from 'express';
 
-export async function fetchPermissionsPlugin(app: Application): Promise<void> {
+/**
+ * @express
+ */
+export function fetchPermissionsPlugin(app: Application) {
   app.use(fetchPermissionsMiddleware);
 }
 

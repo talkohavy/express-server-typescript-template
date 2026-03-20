@@ -1,6 +1,9 @@
 import express, { type Application, type NextFunction, type Request, type Response } from 'express';
 import { EXCLUDED_PATHS } from '../common/constants';
 
+/**
+ * @express
+ */
 export function bodyLimitPlugin(app: Application) {
   app.use(bodyLimitMiddleware);
 }

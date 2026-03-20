@@ -3,6 +3,9 @@ import { Environment } from '../../common/constants';
 import { handleCors } from './logic/utils/handleCors';
 import type { Application } from 'express';
 
+/**
+ * @express
+ */
 export function corsPlugin(app: Application) {
   app.use(corsMiddleware());
 }
