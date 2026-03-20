@@ -96,12 +96,13 @@ This is typically done inside the BackendModule when initializing DirectAdapters
 
 The BackendModule uses adapters so the same controllers work in both deployment modes:
 
-| Mode            | Adapter type   | Communication                          |
-|-----------------|----------------|----------------------------------------|
-| **Monolith**    | DirectAdapter  | In-process: `module.services.xyz()`     |
-| **Micro-services** | HttpAdapter | HTTP calls to other services           |
+| Mode               | Adapter type  | Communication                       |
+| ------------------ | ------------- | ----------------------------------- |
+| **Monolith**       | DirectAdapter | In-process: `module.services.xyz()` |
+| **Micro-services** | HttpAdapter   | HTTP calls to other services        |
 
 Each domain has an interface (e.g., `IBooksAdapter`) and two implementations:
+
 - **DirectAdapter** – Wraps the module’s service, calls it directly
 - **HttpAdapter** – Uses `HttpClient` to call the remote service
 
@@ -170,5 +171,5 @@ Avoid creating modules for small utilities—use shared services or plugins inst
 1. Create the module under `src/modules/<name>/`
 2. Implement constructor, initialization, and optional `services` getter
 3. Add to `optimizedApp.modules` and `OptimizedApp` type in `src/common/`
-4. Register in `app.ts`: `appModule.registerModules([..., NewModule])`
+4. Register in `buildApp.ts`: `appModule.registerModules([..., NewModule])`
 5. If BackendModule uses it: add adapter (Direct + Http) and wire it in BackendModule

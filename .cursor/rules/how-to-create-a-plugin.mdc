@@ -11,5 +11,5 @@ alwaysApply: false
   - Attach an **infrastructure service** used across multiple modules (config, logger, DB clients, Redis)
   - Add **global middleware** (CORS, body parsing, security headers)
   - Set up **shared resources** that modules depend on before they initialize
-- Plugins are being registered inside the `buildApp` function under `app.ts` file, using the `new AppFactory().registerPlugins` method.
+- Plugins are being registered inside the `buildApp` function under `buildApp.ts` file, using the `new AppFactory().registerPlugins` method.
 - Plugins execute **sequentially** in registration order. Order matters when one plugin depends on another.

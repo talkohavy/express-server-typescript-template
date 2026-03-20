@@ -1,7 +1,7 @@
 import { hostname } from 'os';
 import { COLORS } from 'color-my-json';
 import express, { type Application } from 'express';
-import { buildApp } from './app';
+import { buildApp } from './buildApp';
 import { ConfigKeys } from './configurations';
 
 startServer();

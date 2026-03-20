@@ -32,16 +32,16 @@ express-server-typescript-template/
 │   ├── common/               # Holds common utilities, ang global constants.
 │   ├── configurations/       # Configurations for project startup
 │   ├── database/             # Contains each individual db used in the project (mongodb, postgres, etc.)
-│   ├── initAsMicroServices/  # initServer.ts & app.ts for each micro-service to run as standalone server.
+│   ├── initAsMicroServices/  # initServer.ts & buildApp.ts for each micro-service to run as standalone server.
 │   ├── lib/                  # library
 │   ├── middlewares/          # middleware for request data validation (body & query)
 │   ├── modules/              # modules of the project
 │   ├── plugins/              # plugins of the project
 │   ├── tests/                # tests setup folder
-│   ├── app.ts                # the main app builder
+│   ├── buildApp.ts                # the main app builder
 │   ├── global.d.ts           # global type overrides & type enhancements
-│   ├── initServer.ts         # the server initiator (calls app.ts)
-│   └── mockApp.ts            # build an app mock.
+│   ├── initServer.ts         # the server initiator (calls buildApp.ts)
+│   └── mockbuildApp.ts            # build an app mock.
 ├── toolbox/                  # A toolbox for stuff not included in the source code.
 │   └── init-micro-services.sh
 ├── build.config.mjs          # The script used for building the project

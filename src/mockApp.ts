@@ -1,7 +1,8 @@
-import { buildApp } from './app';
+import { buildApp } from './buildApp';
+import type { Application } from 'express';
 
-export async function buildMockApp() {
-  const app = await buildApp();
+export async function buildMockApp(app: Application) {
+  await buildApp(app);
 
   return app;
 }

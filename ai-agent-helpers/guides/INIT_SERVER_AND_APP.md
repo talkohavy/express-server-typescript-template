@@ -1,4 +1,4 @@
-# initServer.ts & app.ts
+# initServer.ts & buildApp.ts
 
 Every server in this project follows the same pattern: an **init server** file that bootstraps the app and starts listening, and an **app** file that builds the composed Express application.
 
@@ -38,9 +38,9 @@ process.on('uncaughtException', ...);
 startServer();
 ```
 
-### app.ts – App Composition
+### buildApp.ts – App Composition
 
-**Location:** `src/app.ts` (monolith) or `src/initAsMicroServices/<service>/<service>.app.ts` (micro-services)
+**Location:** `src/buildApp.ts` (monolith) or `src/initAsMicroServices/<service>/<service>.buildApp.ts` (micro-services)
 
 Responsibilities:
 
@@ -74,9 +74,9 @@ If you use `app.listen()` instead, a new HTTP server is created. Socket.IO and W
 
 **Use `app.listen()`** when the app has no such plugins (e.g., typical micro-services without Socket.IO/WebSocket). In that case, `app.httpServer` may be undefined.
 
-| Scenario         | Use                    |
-|-----------------|------------------------|
-| Monolith (Socket.IO, WS) | `app.httpServer.listen()` |
+| Scenario                     | Use                       |
+| ---------------------------- | ------------------------- |
+| Monolith (Socket.IO, WS)     | `app.httpServer.listen()` |
 | Micro-service (no Socket.IO) | `app.listen()`            |
 
 ---
@@ -86,7 +86,7 @@ If you use `app.listen()` instead, a new HTTP server is created. Socket.IO and W
 ### Monolith
 
 - **Entry:** `pnpm dev` → `src/initServer.ts`
-- **App:** `src/app.ts` → `buildApp()`
+- **App:** `src/buildApp.ts` → `buildApp()`
 - **Plugins:** Full set (config, logger, postgres, redis, socket.io, ws, cors, etc.)
 - **Modules:** All domain modules + BackendModule + SwaggerModule
 - **Listen:** `app.httpServer.listen()` (because of Socket.IO/WS)
@@ -94,20 +94,20 @@ If you use `app.listen()` instead, a new HTTP server is created. Socket.IO and W
 ### Micro-Services
 
 - **Entry:** `pnpm dev:users` → `src/initAsMicroServices/users/users.init-server.ts`
-- **App:** `src/initAsMicroServices/users/users.app.ts` → `buildApp()`
+- **App:** `src/initAsMicroServices/users/users.buildApp.ts` → `buildApp()`
 - **Plugins:** Subset per service (e.g., users service: config, postgres, logger; no redis/socket.io)
 - **Modules:** One or two domain modules + HealthCheckModule
 - **Listen:** `app.listen()` (no Socket.IO/WS)
 - **Env:** `IS_STANDALONE_MICRO_SERVICES` is set so domain modules attach their own routes
 
-Each micro-service has its own `init-server.ts` and `app.ts`, with a focused set of plugins and modules.
+Each micro-service has its own `init-server.ts` and `buildApp.ts`, with a focused set of plugins and modules.
 
 ---
 
 ## Adding a New Micro-Service
 
 1. Create `src/initAsMicroServices/<name>/<name>.init-server.ts` – import and call `buildApp`, listen on port from config
-2. Create `src/initAsMicroServices/<name>/<name>.app.ts` – define `buildApp()` with AppFactory, plugins, and modules
+2. Create `src/initAsMicroServices/<name>/<name>.buildApp.ts` – define `buildApp()` with AppFactory, plugins, and modules
 3. Add an npm script in `package.json`, e.g. `"dev:<name>": "node --import tsx --watch --env-file=.env.micro-services src/initAsMicroServices/<name>/<name>.init-server.ts"`
 4. Set `IS_STANDALONE_MICRO_SERVICES` in `.env.micro-services` so domain modules attach routes
 5. Use `configServicePluggable(configSettings)` for service-specific config (port, service name, etc.)
@@ -119,11 +119,11 @@ Each micro-service has its own `init-server.ts` and `app.ts`, with a focused set
 ```
 src/
 ├── initServer.ts          # Monolith entry
-├── app.ts                 # Monolith app builder
+├── buildApp.ts                 # Monolith app builder
 └── initAsMicroServices/
     ├── users/
     │   ├── users.init-server.ts
-    │   └── users.app.ts
+    │   └── users.buildApp.ts
     ├── books/
     ├── dragons/
     ├── backend/

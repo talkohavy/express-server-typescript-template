@@ -102,7 +102,7 @@ Headers used (from `src/common/constants/headers.ts`):
 
 ### `req.userPermissions`
 
-Populated by the **fetchPermissionsPlugin** (registered in `app.ts`). The plugin runs on every request and sets `req.userPermissions`. Currently mocks all permissions; implement database or cache lookup per user/role as needed.
+Populated by the **fetchPermissionsPlugin** (registered in `buildApp.ts`). The plugin runs on every request and sets `req.userPermissions`. Currently mocks all permissions; implement database or cache lookup per user/role as needed.
 
 ### `req.user`
 
@@ -125,5 +125,5 @@ The Users module demonstrates RBAC:
 
 1. Add permission constants in `src/common/constants/permissions.ts`
 2. Add `requirePermissionMiddleware([Permissions.<resource>.<action>])` to route handlers
-3. Ensure `fetchPermissionsPlugin` is registered (already in `app.ts`)
+3. Ensure `fetchPermissionsPlugin` is registered (already in `buildApp.ts`)
 4. If the route needs `req.user`, ensure `attachUserFromHeadersMiddleware` (or equivalent) runs on the relevant path
