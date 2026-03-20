@@ -1,4 +1,4 @@
-import { API_URLS, StatusCodes } from '../../../../common/constants';
+import { API_PATHS, StatusCodes } from '../../../../common/constants';
 import { ConfigKeys, type CookiesConfig } from '../../../../configurations';
 import type { ControllerFactory } from '../../../../lib/lucky-server';
 import type { IAuthAdapter } from '../../authentication/adapters/auth.adapter.interface';
@@ -17,10 +17,10 @@ export class UserUtilitiesController implements ControllerFactory {
   }
 
   private getProfile() {
-    this.app.get(API_URLS.getProfile, async (req: Request, res: Response) => {
+    this.app.get(API_PATHS.getProfile, async (req: Request, res: Response) => {
       const { cookies } = req;
 
-      this.app.logger.info(`GET ${API_URLS.getProfile} - get user profile`);
+      this.app.logger.info(`GET ${API_PATHS.getProfile} - get user profile`);
 
       const token = this.extractAccessTokenFromCookies(cookies);
 

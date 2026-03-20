@@ -1,6 +1,6 @@
 import express, { type Application } from 'express';
 import request from 'supertest';
-import { API_URLS, StatusCodes } from '../../../common/constants';
+import { API_PATHS, StatusCodes } from '../../../common/constants';
 import { BooksController } from './books.controller';
 import type { BooksService } from '../services/books.service';
 
@@ -77,12 +77,12 @@ describe('BooksController', () => {
 
       mockBooksService.getBooks.mockResolvedValue(mockPaginatedResponse);
 
-      const response = await request(app).get(API_URLS.books);
+      const response = await request(app).get(API_PATHS.books);
 
       expect(response.status).toBe(StatusCodes.OK);
       expect(response.body).toEqual(mockPaginatedResponse);
       expect(mockBooksService.getBooks).toHaveBeenCalledWith({ page: 1, limit: 20 });
-      expect(app.logger.info).toHaveBeenCalledWith(`GET ${API_URLS.books} - fetching books (page=1, limit=20)`);
+      expect(app.logger.info).toHaveBeenCalledWith(`GET ${API_PATHS.books} - fetching books (page=1, limit=20)`);
     });
 
     it('should pass page and limit query params to service', async () => {
@@ -95,7 +95,7 @@ describe('BooksController', () => {
         hasMore: false,
       });
 
-      await request(app).get(`${API_URLS.books}?page=2&limit=10`);
+      await request(app).get(`${API_PATHS.books}?page=2&limit=10`);
 
       expect(mockBooksService.getBooks).toHaveBeenCalledWith({ page: 2, limit: 10 });
     });
@@ -121,7 +121,7 @@ describe('BooksController', () => {
 
       mockBooksService.getBookById.mockResolvedValue(mockBook);
 
-      const response = await request(app).get(`${API_URLS.books}/1`);
+      const response = await request(app).get(`${API_PATHS.books}/1`);
 
       expect(response.status).toBe(StatusCodes.OK);
       expect(response.body).toEqual(mockBook);
@@ -131,7 +131,7 @@ describe('BooksController', () => {
     it('should return 404 when book not found', async () => {
       mockBooksService.getBookById.mockResolvedValue(null);
 
-      const response = await request(app).get(`${API_URLS.books}/999`);
+      const response = await request(app).get(`${API_PATHS.books}/999`);
 
       expect(response.status).toBe(StatusCodes.NOT_FOUND);
       expect(response.body).toEqual({ message: 'Book not found' });
@@ -146,7 +146,7 @@ describe('BooksController', () => {
 
       mockBooksService.createBook.mockResolvedValue(mockCreatedBook);
 
-      const response = await request(app).post(API_URLS.books).send(bookData);
+      const response = await request(app).post(API_PATHS.books).send(bookData);
 
       expect(response.status).toBe(StatusCodes.CREATED);
       expect(response.body).toEqual(mockCreatedBook);
@@ -161,7 +161,7 @@ describe('BooksController', () => {
 
       mockBooksService.updateBook.mockResolvedValue(mockUpdatedBook);
 
-      const response = await request(app).patch(`${API_URLS.books}/1`).send(updateData);
+      const response = await request(app).patch(`${API_PATHS.books}/1`).send(updateData);
 
       expect(response.status).toBe(StatusCodes.OK);
       expect(response.body).toEqual(mockUpdatedBook);
@@ -171,7 +171,7 @@ describe('BooksController', () => {
     it('should return 404 when book not found', async () => {
       mockBooksService.updateBook.mockResolvedValue(null);
 
-      const response = await request(app).patch(`${API_URLS.books}/999`).send({ name: 'Updated' });
+      const response = await request(app).patch(`${API_PATHS.books}/999`).send({ name: 'Updated' });
 
       expect(response.status).toBe(StatusCodes.NOT_FOUND);
       expect(response.body).toEqual({ message: 'Book not found' });
@@ -183,7 +183,7 @@ describe('BooksController', () => {
     it('should delete an existing book', async () => {
       mockBooksService.deleteBook.mockResolvedValue({ message: 'Book deleted successfully' });
 
-      const response = await request(app).delete(`${API_URLS.books}/1`);
+      const response = await request(app).delete(`${API_PATHS.books}/1`);
 
       expect(response.status).toBe(StatusCodes.OK);
       expect(response.body).toEqual({ message: 'Book deleted successfully' });
@@ -193,7 +193,7 @@ describe('BooksController', () => {
     it('should return 404 when book not found', async () => {
       mockBooksService.deleteBook.mockResolvedValue(null);
 
-      const response = await request(app).delete(`${API_URLS.books}/999`);
+      const response = await request(app).delete(`${API_PATHS.books}/999`);
 
       expect(response.status).toBe(StatusCodes.NOT_FOUND);
       expect(response.body).toEqual({ message: 'Book not found' });

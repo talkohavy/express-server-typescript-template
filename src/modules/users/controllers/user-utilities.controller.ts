@@ -1,4 +1,4 @@
-import { API_URLS } from '../../../common/constants';
+import { API_PATHS } from '../../../common/constants';
 import { NotFoundError } from '../../../lib/Errors';
 import { joiBodyMiddleware } from '../../../middlewares/joi-body.middleware';
 import { UserNotFoundError } from '../logic/users.errors';
@@ -19,7 +19,7 @@ export class UserUtilitiesController implements ControllerFactory {
 
   private getUserByEmail() {
     this.app.post(
-      API_URLS.getUserByEmail,
+      API_PATHS.getUserByEmail,
       joiBodyMiddleware(getUserByEmailSchema),
       async (req: Request, res: Response) => {
         try {

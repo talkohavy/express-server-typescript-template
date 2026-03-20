@@ -5,7 +5,7 @@ import {
   createApiRoute,
   createSwaggerApiDocs,
 } from 'api-opener';
-import { API_URLS } from '../../../../common/constants';
+import { API_PATHS } from '../../../../common/constants';
 import { AbstractSwaggerConfig } from '../../logic/swagger.abstract.config';
 import { definitions, USER_REFS } from './user.refs';
 
@@ -43,7 +43,7 @@ export class UsersSwaggerConfig extends AbstractSwaggerConfig {
         // Get Many:
         createApiRoute({
           method: 'get',
-          route: API_URLS.users,
+          route: API_PATHS.users,
           summary: 'Find users by query params',
           parameters: [
             addPageParamToQuery(),
@@ -90,7 +90,7 @@ export class UsersSwaggerConfig extends AbstractSwaggerConfig {
         // Post One:
         createApiRoute({
           method: 'post',
-          route: API_URLS.users,
+          route: API_PATHS.users,
           summary: 'Create new user in db',
           operationId: 'create-user',
           requestBody: addRequestBody({

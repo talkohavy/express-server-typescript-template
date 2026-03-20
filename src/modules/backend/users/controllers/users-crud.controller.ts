@@ -1,4 +1,4 @@
-import { API_URLS, StatusCodes } from '@src/common/constants';
+import { API_PATHS, StatusCodes } from '@src/common/constants';
 import { Permissions } from '@src/common/constants/permissions';
 import { joiBodyMiddleware } from '@src/middlewares/joi-body.middleware';
 import { requirePermissionMiddleware } from '@src/middlewares/require-permission.middleware';
@@ -25,13 +25,13 @@ export class UsersCrudController implements ControllerFactory {
 
   private createUser() {
     this.app.post(
-      API_URLS.users,
+      API_PATHS.users,
       requirePermissionMiddleware([Permissions.users.create]),
       joiBodyMiddleware(createUserSchema),
       async (req: Request, res: Response) => {
         const { body } = req;
 
-        this.app.logger.info(`POST ${API_URLS.users} - create new user`);
+        this.app.logger.info(`POST ${API_PATHS.users} - create new user`);
 
         const user = await this.usersAdapter.createUser(body);
 
@@ -42,12 +42,12 @@ export class UsersCrudController implements ControllerFactory {
 
   private getUsers() {
     this.app.get(
-      API_URLS.users,
+      API_PATHS.users,
       requirePermissionMiddleware([Permissions.users.read]),
       async (req: Request, res: Response) => {
         const { query } = req;
 
-        this.app.logger.info(`GET ${API_URLS.users} - get all users`);
+        this.app.logger.info(`GET ${API_PATHS.users} - get all users`);
 
         const users = await this.usersAdapter.getUsers(query);
 
@@ -58,14 +58,14 @@ export class UsersCrudController implements ControllerFactory {
 
   private getUserById() {
     this.app.get(
-      API_URLS.userById,
+      API_PATHS.userById,
       requirePermissionMiddleware([Permissions.users.read]),
       async (req: Request, res: Response) => {
         const { params } = req;
 
         const userId = params.userId! as string;
 
-        this.app.logger.info(`GET ${API_URLS.userById} - get user by id`);
+        this.app.logger.info(`GET ${API_PATHS.userById} - get user by id`);
 
         const fetchedUser = await this.usersAdapter.getUserById(userId);
 
@@ -76,14 +76,14 @@ export class UsersCrudController implements ControllerFactory {
 
   private updateUser() {
     this.app.patch(
-      API_URLS.userById,
+      API_PATHS.userById,
       requireUserAuthMiddleware,
       requirePermissionMiddleware([Permissions.users.update]),
       joiBodyMiddleware(updateUserSchema),
       async (req: Request, res: Response) => {
         const { body, params } = req;
 
-        this.app.logger.info(`PATCH ${API_URLS.userById} - updating user by ID`);
+        this.app.logger.info(`PATCH ${API_PATHS.userById} - updating user by ID`);
 
         const userId = params.userId!;
         const updatedUser = await this.usersAdapter.updateUserById(userId, body);
@@ -95,7 +95,7 @@ export class UsersCrudController implements ControllerFactory {
 
   private deleteUser() {
     this.app.delete(
-      API_URLS.userById,
+      API_PATHS.userById,
       requireUserAuthMiddleware,
       requirePermissionMiddleware([Permissions.users.delete]),
       async (req: Request, res: Response) => {
@@ -103,7 +103,7 @@ export class UsersCrudController implements ControllerFactory {
 
         const id = params.userId!;
 
-        this.app.logger.info(`DELETE ${API_URLS.userById} - delete user`);
+        this.app.logger.info(`DELETE ${API_PATHS.userById} - delete user`);
 
         const result = await this.usersAdapter.deleteUserById(id);
 

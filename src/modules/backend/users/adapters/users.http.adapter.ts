@@ -1,4 +1,4 @@
-import { API_URLS } from '../../../../common/constants';
+import { API_PATHS } from '../../../../common/constants';
 import { ServiceNames } from '../../../../configurations';
 import type { CreateUserDto, UpdateUserDto } from '../../../users/services/interfaces/users.service.interface';
 import type { DatabaseUser } from '../../../users/types';
@@ -11,7 +11,7 @@ export class UsersHttpAdapter implements IUsersAdapter {
   async createUser(data: CreateUserDto): Promise<DatabaseUser> {
     const response = await this.httpClient.post<DatabaseUser>({
       serviceName: ServiceNames.Users,
-      route: API_URLS.users,
+      route: API_PATHS.users,
       body: data,
     });
 
@@ -19,7 +19,7 @@ export class UsersHttpAdapter implements IUsersAdapter {
   }
 
   async getUserById(userId: string): Promise<DatabaseUser> {
-    const route = `${API_URLS.users}/${userId}`;
+    const route = `${API_PATHS.users}/${userId}`;
 
     const response = await this.httpClient.get<DatabaseUser>({ serviceName: ServiceNames.Users, route: route });
 
@@ -29,7 +29,7 @@ export class UsersHttpAdapter implements IUsersAdapter {
   async getUsers(query?: any): Promise<Array<DatabaseUser>> {
     const response = await this.httpClient.get<Array<DatabaseUser>>({
       serviceName: ServiceNames.Users,
-      route: API_URLS.users,
+      route: API_PATHS.users,
       options: { queryParams: query },
     });
 
@@ -39,7 +39,7 @@ export class UsersHttpAdapter implements IUsersAdapter {
   async getUserByEmail(email: string): Promise<DatabaseUser | null> {
     const response = await this.httpClient.post<DatabaseUser | null>({
       serviceName: ServiceNames.Users,
-      route: API_URLS.getUserByEmail,
+      route: API_PATHS.getUserByEmail,
       body: { email },
     });
 
@@ -47,7 +47,7 @@ export class UsersHttpAdapter implements IUsersAdapter {
   }
 
   async updateUserById(userId: string, data: UpdateUserDto): Promise<DatabaseUser> {
-    const route = `${API_URLS.users}/${userId}`;
+    const route = `${API_PATHS.users}/${userId}`;
 
     const response = await this.httpClient.patch<DatabaseUser>({
       serviceName: ServiceNames.Users,
@@ -59,7 +59,7 @@ export class UsersHttpAdapter implements IUsersAdapter {
   }
 
   async deleteUserById(userId: string): Promise<{ success: boolean }> {
-    const route = `${API_URLS.users}/${userId}`;
+    const route = `${API_PATHS.users}/${userId}`;
 
     const response = await this.httpClient.delete<{ success: boolean }>({
       serviceName: ServiceNames.Users,

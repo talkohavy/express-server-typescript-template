@@ -1,4 +1,4 @@
-import { API_URLS } from '../../../../common/constants';
+import { API_PATHS } from '../../../../common/constants';
 import { ServiceNames } from '../../../../configurations';
 import type { HttpClient } from '../../logic/http-client';
 import type { IAuthAdapter, Tokens, DecodedToken } from './auth.adapter.interface';
@@ -9,7 +9,7 @@ export class AuthHttpAdapter implements IAuthAdapter {
   async generateHashedPassword(rawPassword: string, salt: string): Promise<string> {
     const response = await this.httpClient.post<string>({
       serviceName: ServiceNames.Auth,
-      route: API_URLS.auth,
+      route: API_PATHS.auth,
       body: { rawPassword, salt },
     });
 
@@ -19,7 +19,7 @@ export class AuthHttpAdapter implements IAuthAdapter {
   async getIsPasswordValid(hashedPassword: string, password: string): Promise<boolean> {
     const response = await this.httpClient.post<boolean>({
       serviceName: ServiceNames.Auth,
-      route: API_URLS.isPasswordValid,
+      route: API_PATHS.isPasswordValid,
       body: { hashedPassword, password },
     });
 
@@ -29,7 +29,7 @@ export class AuthHttpAdapter implements IAuthAdapter {
   async createTokens(userId: string, role: string): Promise<Tokens> {
     const response = await this.httpClient.post<Tokens>({
       serviceName: ServiceNames.Auth,
-      route: API_URLS.createTokens,
+      route: API_PATHS.createTokens,
       body: { userId, role },
     });
 
@@ -39,7 +39,7 @@ export class AuthHttpAdapter implements IAuthAdapter {
   async verifyToken(token: string): Promise<DecodedToken> {
     const response = await this.httpClient.post<DecodedToken>({
       serviceName: ServiceNames.Auth,
-      route: API_URLS.verifyToken,
+      route: API_PATHS.verifyToken,
       body: { token },
     });
 

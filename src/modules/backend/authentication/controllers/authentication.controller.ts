@@ -1,4 +1,4 @@
-import { API_URLS, StatusCodes } from '../../../../common/constants';
+import { API_PATHS, StatusCodes } from '../../../../common/constants';
 import { ConfigKeys, type CookiesConfig, type Config } from '../../../../configurations';
 import { BadRequestError } from '../../../../lib/Errors';
 import { joiBodyMiddleware } from '../../../../middlewares/joi-body.middleware';
@@ -22,11 +22,11 @@ export class AuthenticationController implements ControllerFactory {
   }
 
   private login() {
-    this.app.post(API_URLS.authLogin, joiBodyMiddleware(loginSchema), async (req: Request, res: Response) => {
+    this.app.post(API_PATHS.authLogin, joiBodyMiddleware(loginSchema), async (req: Request, res: Response) => {
       const { body } = req;
 
       try {
-        this.app.logger.info(`POST ${API_URLS.authLogin} - user login endpoint`);
+        this.app.logger.info(`POST ${API_PATHS.authLogin} - user login endpoint`);
 
         const { email, password } = body;
 
@@ -76,8 +76,8 @@ export class AuthenticationController implements ControllerFactory {
   }
 
   private logout() {
-    this.app.post(API_URLS.authLogout, async (_req, res) => {
-      this.app.logger.info(`POST ${API_URLS.authLogout} - user logout`);
+    this.app.post(API_PATHS.authLogout, async (_req, res) => {
+      this.app.logger.info(`POST ${API_PATHS.authLogout} - user logout`);
 
       const { accessCookie, refreshCookie } = this.app.configService.get<CookiesConfig>(ConfigKeys.Cookies);
 

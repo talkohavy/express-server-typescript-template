@@ -1,4 +1,4 @@
-import { API_URLS } from '../../../common/constants';
+import { API_PATHS } from '../../../common/constants';
 import { ConfigKeys, type CookiesConfig } from '../../../configurations';
 import { UnauthorizedError } from '../../../lib/Errors';
 import type { ControllerFactory } from '../../../lib/lucky-server';
@@ -16,10 +16,10 @@ export class TokenVerificationController implements ControllerFactory {
   }
 
   private verifyToken() {
-    this.app.get(API_URLS.verifyToken, async (req: Request, res: Response) => {
+    this.app.get(API_PATHS.verifyToken, async (req: Request, res: Response) => {
       const { cookies } = req;
 
-      this.app.logger.info(`GET ${API_URLS.verifyToken} - verify tokens`);
+      this.app.logger.info(`GET ${API_PATHS.verifyToken} - verify tokens`);
 
       const encodedToken = this.extractAccessTokenFromCookies(cookies);
 

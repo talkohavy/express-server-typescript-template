@@ -1,6 +1,6 @@
 import express, { type Application } from 'express';
 import request from 'supertest';
-import { API_URLS, StatusCodes } from '../../../common/constants';
+import { API_PATHS, StatusCodes } from '../../../common/constants';
 import { TokenGenerationController } from './token-generation.controller';
 import type { TokenGenerationService } from '../services/token-generation.service';
 
@@ -40,12 +40,12 @@ describe('TokenGenerationController', () => {
 
       mockTokenGenerationService.createTokens.mockResolvedValue(mockTokens);
 
-      const response = await request(app).post(API_URLS.createTokens).send(requestBody);
+      const response = await request(app).post(API_PATHS.createTokens).send(requestBody);
 
       expect(response.status).toBe(StatusCodes.OK);
       expect(response.body).toEqual(mockTokens);
       expect(mockTokenGenerationService.createTokens).toHaveBeenCalledWith({ userId: 'user-123', role: 'user' });
-      expect(app.logger.info).toHaveBeenCalledWith(`POST ${API_URLS.createTokens} - create tokens`);
+      expect(app.logger.info).toHaveBeenCalledWith(`POST ${API_PATHS.createTokens} - create tokens`);
     });
   });
 });

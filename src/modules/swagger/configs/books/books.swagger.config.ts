@@ -5,7 +5,7 @@ import {
   createApiRoute,
   createSwaggerApiDocs,
 } from 'api-opener';
-import { API_URLS } from '../../../../common/constants';
+import { API_PATHS } from '../../../../common/constants';
 import { AbstractSwaggerConfig } from '../../logic/swagger.abstract.config';
 import { BOOK_REFS, definitions } from './books.ref';
 
@@ -23,7 +23,7 @@ export class BooksSwaggerConfig extends AbstractSwaggerConfig {
         // ##################
         createApiRoute({
           method: 'get',
-          route: API_URLS.books,
+          route: API_PATHS.books,
           summary: 'Find books with pagination (supports infinite scroll)',
           parameters: addPaginationParams({
             style: 'page-limit',
@@ -67,7 +67,7 @@ export class BooksSwaggerConfig extends AbstractSwaggerConfig {
         // ####################
         createApiRoute({
           method: 'post',
-          route: API_URLS.books,
+          route: API_PATHS.books,
           summary: 'Create new book in db',
           operationId: 'create-book',
           requestBody: addRequestBody({

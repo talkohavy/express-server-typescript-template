@@ -1,4 +1,4 @@
-import { API_URLS } from '@src/common/constants';
+import { API_PATHS } from '@src/common/constants';
 import { internalApiKeyMiddleware } from '../middleware/internal-api-key.middleware';
 import type { ControllerFactory } from '@src/lib/lucky-server';
 import type { Application, Response } from 'express';
@@ -11,10 +11,10 @@ export class WsStateController implements ControllerFactory {
   }
 
   private wsState(): void {
-    this.app.get(API_URLS.internalWsState, internalApiKeyMiddleware, async (_req, res: Response) => {
+    this.app.get(API_PATHS.internalWsState, internalApiKeyMiddleware, async (_req, res: Response) => {
       const { wsManager, logger } = this.app;
 
-      logger.debug(`GET ${API_URLS.internalWsState} - internal ws state`);
+      logger.debug(`GET ${API_PATHS.internalWsState} - internal ws state`);
 
       const [topicCount, topicNames] = await Promise.all([wsManager.getTopicCount(), wsManager.getTopicNames()]);
 

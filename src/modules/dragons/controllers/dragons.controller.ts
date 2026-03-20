@@ -1,4 +1,4 @@
-import { API_URLS, StatusCodes } from '../../../common/constants';
+import { API_PATHS, StatusCodes } from '../../../common/constants';
 import { joiBodyMiddleware } from '../../../middlewares/joi-body.middleware';
 import { createDragonSchema } from './dto/createDragon.dto';
 import { updateDragonSchema } from './dto/updateDragon.dto';
@@ -22,8 +22,8 @@ export class DragonsController implements ControllerFactory {
   }
 
   private getDragons() {
-    this.app.get(API_URLS.dragons, async (_req, res) => {
-      this.app.logger.info(`GET ${API_URLS.dragons} - fetching dragons`);
+    this.app.get(API_PATHS.dragons, async (_req, res) => {
+      this.app.logger.info(`GET ${API_PATHS.dragons} - fetching dragons`);
 
       const dragons = await this.dragonService.getDragons();
 
@@ -32,10 +32,10 @@ export class DragonsController implements ControllerFactory {
   }
 
   private getDragonById() {
-    this.app.get(API_URLS.dragonById, async (req, res) => {
+    this.app.get(API_PATHS.dragonById, async (req, res) => {
       const { params } = req;
 
-      this.app.logger.info(`GET ${API_URLS.dragonById} - fetching dragon by ID`);
+      this.app.logger.info(`GET ${API_PATHS.dragonById} - fetching dragon by ID`);
 
       const dragonId = params.dragonId as string;
 
@@ -52,10 +52,10 @@ export class DragonsController implements ControllerFactory {
   }
 
   private createDragon() {
-    this.app.post(API_URLS.dragons, joiBodyMiddleware(createDragonSchema), async (req, res) => {
+    this.app.post(API_PATHS.dragons, joiBodyMiddleware(createDragonSchema), async (req, res) => {
       const { body } = req;
 
-      this.app.logger.info(`POST ${API_URLS.dragons} - creating new dragon`);
+      this.app.logger.info(`POST ${API_PATHS.dragons} - creating new dragon`);
 
       const newDragon = await this.dragonService.createDragon(body);
 
@@ -64,10 +64,10 @@ export class DragonsController implements ControllerFactory {
   }
 
   private updateDragon() {
-    this.app.patch(API_URLS.dragonById, joiBodyMiddleware(updateDragonSchema), async (req, res) => {
+    this.app.patch(API_PATHS.dragonById, joiBodyMiddleware(updateDragonSchema), async (req, res) => {
       const { params, body } = req as any;
 
-      this.app.logger.info(`PATCH ${API_URLS.dragonById} - updating dragon by ID`);
+      this.app.logger.info(`PATCH ${API_PATHS.dragonById} - updating dragon by ID`);
 
       const dragonId = params.dragonId as string;
       const dragon = body as UpdateDragonDto;
@@ -86,10 +86,10 @@ export class DragonsController implements ControllerFactory {
   }
 
   private deleteDragon() {
-    this.app.delete(API_URLS.dragonById, async (req, res) => {
+    this.app.delete(API_PATHS.dragonById, async (req, res) => {
       const { params } = req as any;
 
-      this.app.logger.info(`DELETE ${API_URLS.dragonById} - deleting dragon by ID`);
+      this.app.logger.info(`DELETE ${API_PATHS.dragonById} - deleting dragon by ID`);
 
       const dragonId = params.dragonId as string;
 

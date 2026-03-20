@@ -1,4 +1,4 @@
-import { API_URLS } from '../../../common/constants';
+import { API_PATHS } from '../../../common/constants';
 import { UnauthorizedError } from '../../../lib/Errors';
 import { joiBodyMiddleware } from '../../../middlewares/joi-body.middleware';
 import { getIsPasswordValidSchema } from './dto/get-is-password-valid.dto';
@@ -18,13 +18,13 @@ export class PasswordManagementController implements ControllerFactory {
 
   private getIsPasswordValid() {
     this.app.post(
-      API_URLS.isPasswordValid,
+      API_PATHS.isPasswordValid,
       joiBodyMiddleware(getIsPasswordValidSchema),
       async (req: Request, res: Response) => {
         try {
           const { body } = req;
 
-          this.app.logger.info(`POST ${API_URLS.isPasswordValid} - check if password is valid`);
+          this.app.logger.info(`POST ${API_PATHS.isPasswordValid} - check if password is valid`);
 
           const { hashedPassword: saltAndHashedPassword, password } = body;
 

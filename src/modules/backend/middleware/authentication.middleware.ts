@@ -1,4 +1,4 @@
-import { API_URLS } from '@src/common/constants';
+import { API_PATHS } from '@src/common/constants';
 import { ConfigKeys, type CookiesConfig } from '@src/configurations';
 import type { IAuthAdapter } from '../authentication';
 import type { UserToken } from '@src/common/types';
@@ -12,7 +12,7 @@ export class AuthenticationMiddleware implements MiddlewareFactory {
   ) {}
 
   use() {
-    this.app.use(API_URLS.users, this.attachUserFromTokenMiddleware.bind(this));
+    this.app.use(API_PATHS.users, this.attachUserFromTokenMiddleware.bind(this));
   }
 
   private async attachUserFromTokenMiddleware(req: Request, _res: Response, next: NextFunction): Promise<void> {

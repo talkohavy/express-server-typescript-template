@@ -1,4 +1,4 @@
-import { API_URLS } from '../../common/constants';
+import { API_PATHS } from '../../common/constants';
 import type { ControllerFactory } from '../../lib/lucky-server';
 import type { Application } from 'express';
 
@@ -10,8 +10,8 @@ export class HealthCheckController implements ControllerFactory {
   }
 
   private healthCheck() {
-    this.app.get(API_URLS.healthCheck, async (_req, res) => {
-      this.app.logger.info(`GET ${API_URLS.healthCheck} - performing health check`);
+    this.app.get(API_PATHS.healthCheck, async (_req, res) => {
+      this.app.logger.info(`GET ${API_PATHS.healthCheck} - performing health check`);
 
       res.json({ status: 'OK' });
     });

@@ -1,4 +1,4 @@
-export const API_URLS = {
+export const API_PATHS = {
   healthCheck: '/api/health-check',
   apiDocs: '/api/docs',
   // authentication
@@ -30,4 +30,4 @@ export const API_URLS = {
 /**
  * Paths that should be excluded from certain middlewares
  */
-export const EXCLUDED_PATHS = [API_URLS.healthCheck] as string[];
+export const EXCLUDED_PATHS = [API_PATHS.healthCheck] as string[];

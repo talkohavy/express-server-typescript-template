@@ -1,4 +1,4 @@
-import { API_URLS, StatusCodes } from '../../../../common/constants';
+import { API_PATHS, StatusCodes } from '../../../../common/constants';
 import { joiBodyMiddleware } from '../../../../middlewares/joi-body.middleware';
 import { joiQueryMiddleware } from '../../../../middlewares/joi-query.middleware';
 import { createBookSchema } from './dto/createBookSchema.dto';
@@ -24,10 +24,10 @@ export class BooksController implements ControllerFactory {
   }
 
   private createBook() {
-    this.app.post(API_URLS.books, joiBodyMiddleware(createBookSchema), async (req: Request, res: Response) => {
+    this.app.post(API_PATHS.books, joiBodyMiddleware(createBookSchema), async (req: Request, res: Response) => {
       const { body } = req;
 
-      this.app.logger.info(`POST ${API_URLS.books} - creating new book`);
+      this.app.logger.info(`POST ${API_PATHS.books} - creating new book`);
 
       const newBook = await this.booksAdapter.createBook(body);
 
@@ -36,11 +36,11 @@ export class BooksController implements ControllerFactory {
   }
 
   private getBooks() {
-    this.app.get(API_URLS.books, joiQueryMiddleware(getBooksQuerySchema), async (req: Request, res: Response) => {
+    this.app.get(API_PATHS.books, joiQueryMiddleware(getBooksQuerySchema), async (req: Request, res: Response) => {
       const queryParsed = req.queryParsed as GetBooksParsedQuery;
 
       this.app.logger.info(
-        `GET ${API_URLS.books} - fetching books (page=${queryParsed.page}, limit=${queryParsed.limit})`,
+        `GET ${API_PATHS.books} - fetching books (page=${queryParsed.page}, limit=${queryParsed.limit})`,
       );
 
       const result = await this.booksAdapter.getBooks(queryParsed);
@@ -50,10 +50,10 @@ export class BooksController implements ControllerFactory {
   }
 
   private getBookById() {
-    this.app.get(API_URLS.bookById, async (req: Request, res: Response) => {
+    this.app.get(API_PATHS.bookById, async (req: Request, res: Response) => {
       const { params } = req;
 
-      this.app.logger.info(`GET ${API_URLS.bookById} - fetching book by ID`);
+      this.app.logger.info(`GET ${API_PATHS.bookById} - fetching book by ID`);
 
       const bookId = params.bookId!;
 
@@ -70,10 +70,10 @@ export class BooksController implements ControllerFactory {
   }
 
   private updateBook() {
-    this.app.patch(API_URLS.bookById, joiBodyMiddleware(updateBookSchema), async (req: Request, res: Response) => {
+    this.app.patch(API_PATHS.bookById, joiBodyMiddleware(updateBookSchema), async (req: Request, res: Response) => {
       const { body, params } = req;
 
-      this.app.logger.info(`PATCH ${API_URLS.bookById} - updating book by ID`);
+      this.app.logger.info(`PATCH ${API_PATHS.bookById} - updating book by ID`);
 
       const bookId = params.bookId!;
       const updatedBook = await this.booksAdapter.updateBook(bookId, body);
@@ -89,10 +89,10 @@ export class BooksController implements ControllerFactory {
   }
 
   private deleteBook() {
-    this.app.delete(API_URLS.bookById, async (req: Request, res: Response) => {
+    this.app.delete(API_PATHS.bookById, async (req: Request, res: Response) => {
       const { params } = req;
 
-      this.app.logger.info(`DELETE ${API_URLS.bookById} - deleting book by ID`);
+      this.app.logger.info(`DELETE ${API_PATHS.bookById} - deleting book by ID`);
 
       const bookId = params.bookId!;
       const deletedBook = await this.booksAdapter.deleteBook(bookId);

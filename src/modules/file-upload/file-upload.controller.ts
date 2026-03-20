@@ -1,4 +1,4 @@
-import { API_URLS, StatusCodes } from '../../common/constants';
+import { API_PATHS, StatusCodes } from '../../common/constants';
 import type { ControllerFactory } from '../../lib/lucky-server';
 import type { FileUploadService } from './services/file-upload.service';
 import type { Application, Request, Response } from 'express';
@@ -15,8 +15,8 @@ export class FileUploadController implements ControllerFactory {
   }
 
   private uploadFileMultipart() {
-    this.app.post(API_URLS.uploadFileMultipart, async (req: Request, res: Response) => {
-      this.app.logger.info(`POST ${API_URLS.uploadFileMultipart} - uploading file`);
+    this.app.post(API_PATHS.uploadFileMultipart, async (req: Request, res: Response) => {
+      this.app.logger.info(`POST ${API_PATHS.uploadFileMultipart} - uploading file`);
 
       const result = await this.fileUploadService.handleMultipartUpload(req);
 
@@ -25,8 +25,8 @@ export class FileUploadController implements ControllerFactory {
   }
 
   private uploadFileBinary() {
-    this.app.post(API_URLS.uploadFileBinary, async (req: Request, res: Response) => {
-      this.app.logger.info(`POST ${API_URLS.uploadFileBinary} - uploading file`);
+    this.app.post(API_PATHS.uploadFileBinary, async (req: Request, res: Response) => {
+      this.app.logger.info(`POST ${API_PATHS.uploadFileBinary} - uploading file`);
 
       const result = await this.fileUploadService.handleBinaryUpload(req);
 

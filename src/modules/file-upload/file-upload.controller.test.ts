@@ -1,6 +1,6 @@
 import express, { type Application } from 'express';
 import request from 'supertest';
-import { API_URLS, StatusCodes } from '../../common/constants';
+import { API_PATHS, StatusCodes } from '../../common/constants';
 import { FileUploadController } from './file-upload.controller';
 import type { FileUploadService } from './services/file-upload.service';
 
@@ -36,13 +36,13 @@ describe('FileUploadController', () => {
       mockFileUploadService.handleMultipartUpload.mockResolvedValue(mockResult);
 
       const response = await request(app)
-        .post(API_URLS.uploadFileMultipart)
+        .post(API_PATHS.uploadFileMultipart)
         .set('Content-Type', 'multipart/form-data; boundary=test');
 
       expect(response.status).toBe(StatusCodes.OK);
       expect(response.body).toEqual(mockResult);
       expect(mockFileUploadService.handleMultipartUpload).toHaveBeenCalledWith(expect.any(Object));
-      expect(app.logger.info).toHaveBeenCalledWith(`POST ${API_URLS.uploadFileMultipart} - uploading file`);
+      expect(app.logger.info).toHaveBeenCalledWith(`POST ${API_PATHS.uploadFileMultipart} - uploading file`);
     });
   });
 
@@ -61,14 +61,14 @@ describe('FileUploadController', () => {
       mockFileUploadService.handleBinaryUpload.mockResolvedValue(mockResult);
 
       const response = await request(app)
-        .post(API_URLS.uploadFileBinary)
+        .post(API_PATHS.uploadFileBinary)
         .set('Content-Type', 'application/pdf')
         .send('binary data');
 
       expect(response.status).toBe(StatusCodes.OK);
       expect(response.body).toEqual(mockResult);
       expect(mockFileUploadService.handleBinaryUpload).toHaveBeenCalledWith(expect.any(Object));
-      expect(app.logger.info).toHaveBeenCalledWith(`POST ${API_URLS.uploadFileBinary} - uploading file`);
+      expect(app.logger.info).toHaveBeenCalledWith(`POST ${API_PATHS.uploadFileBinary} - uploading file`);
     });
   });
 });

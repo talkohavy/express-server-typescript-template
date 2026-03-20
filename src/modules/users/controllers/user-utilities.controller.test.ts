@@ -1,6 +1,6 @@
 import express, { type Application } from 'express';
 import request from 'supertest';
-import { API_URLS, StatusCodes } from '../../../common/constants';
+import { API_PATHS, StatusCodes } from '../../../common/constants';
 import { errorHandler } from '../../../middlewares/errorHandler.middleware';
 import { UserNotFoundError } from '../logic/users.errors';
 import { UserUtilitiesController } from './user-utilities.controller';
@@ -38,7 +38,7 @@ describe('UserUtilitiesController', () => {
 
       (mockUserUtilitiesService.getUserByEmail as jest.Mock).mockResolvedValue(mockUser);
 
-      const response = await request(app).post(API_URLS.getUserByEmail).send({ email: 'test@example.com' });
+      const response = await request(app).post(API_PATHS.getUserByEmail).send({ email: 'test@example.com' });
 
       expect(response.status).toBe(StatusCodes.OK);
       expect(response.body).toEqual(mockUser);
@@ -51,7 +51,7 @@ describe('UserUtilitiesController', () => {
 
       (mockUserUtilitiesService.getUserByEmail as jest.Mock).mockRejectedValue(userNotFoundError);
 
-      const response = await request(app).post(API_URLS.getUserByEmail).send({ email: 'test@example.com' });
+      const response = await request(app).post(API_PATHS.getUserByEmail).send({ email: 'test@example.com' });
 
       expect(response.status).toBe(StatusCodes.NOT_FOUND);
       expect(mockUserUtilitiesService.getUserByEmail).toHaveBeenCalledWith('test@example.com');

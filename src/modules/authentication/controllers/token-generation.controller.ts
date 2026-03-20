@@ -1,4 +1,4 @@
-import { API_URLS } from '../../../common/constants';
+import { API_PATHS } from '../../../common/constants';
 import { joiBodyMiddleware } from '../../../middlewares/joi-body.middleware';
 import { createTokensSchema } from './dto/create-tokens.dto';
 import type { ControllerFactory } from '../../../lib/lucky-server';
@@ -16,16 +16,20 @@ export class TokenGenerationController implements ControllerFactory {
   }
 
   private createTokens() {
-    this.app.post(API_URLS.createTokens, joiBodyMiddleware(createTokensSchema), async (req: Request, res: Response) => {
-      const { body } = req;
+    this.app.post(
+      API_PATHS.createTokens,
+      joiBodyMiddleware(createTokensSchema),
+      async (req: Request, res: Response) => {
+        const { body } = req;
 
-      this.app.logger.info(`POST ${API_URLS.createTokens} - create tokens`);
+        this.app.logger.info(`POST ${API_PATHS.createTokens} - create tokens`);
 
-      const { userId, role } = body;
+        const { userId, role } = body;
 
-      const tokens = await this.tokenGenerationService.createTokens({ userId, role });
+        const tokens = await this.tokenGenerationService.createTokens({ userId, role });
 
-      res.json(tokens);
-    });
+        res.json(tokens);
+      },
+    );
   }
 }

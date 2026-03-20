@@ -71,10 +71,10 @@ Checks that `req.userPermissions` contains at least one of the required permissi
 import { requirePermissionMiddleware } from '@src/middlewares/require-permission.middleware';
 import { Permissions } from '@src/common/constants/permissions';
 
-app.post(API_URLS.users, requirePermissionMiddleware([Permissions.users.create]), handler);
-app.get(API_URLS.users, requirePermissionMiddleware([Permissions.users.read]), handler);
-app.patch(API_URLS.userById, requirePermissionMiddleware([Permissions.users.update]), handler);
-app.delete(API_URLS.userById, requirePermissionMiddleware([Permissions.users.delete]), handler);
+app.post(API_PATHS.users, requirePermissionMiddleware([Permissions.users.create]), handler);
+app.get(API_PATHS.users, requirePermissionMiddleware([Permissions.users.read]), handler);
+app.patch(API_PATHS.userById, requirePermissionMiddleware([Permissions.users.update]), handler);
+app.delete(API_PATHS.userById, requirePermissionMiddleware([Permissions.users.delete]), handler);
 ```
 
 ### 2. `requireUserAuthMiddleware`
@@ -116,7 +116,7 @@ The Users module demonstrates RBAC:
 
 1. **Permission constants** – `Permissions.users.*` in `permissions.ts`
 2. **Fetch plugin** – `fetchPermissionsPlugin` populates `req.userPermissions`
-3. **User from headers** – `UsersMiddleware` applies `attachUserFromHeadersMiddleware` on `API_URLS.users`
+3. **User from headers** – `UsersMiddleware` applies `attachUserFromHeadersMiddleware` on `API_PATHS.users`
 4. **Route protection** – Each CRUD route uses `requirePermissionMiddleware([Permissions.users.<action>])`
 
 ---

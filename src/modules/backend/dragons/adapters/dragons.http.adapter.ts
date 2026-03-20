@@ -1,4 +1,4 @@
-import { API_URLS } from '../../../../common/constants';
+import { API_PATHS } from '../../../../common/constants';
 import { ServiceNames } from '../../../../configurations';
 import type { CreateDragonDto, UpdateDragonDto } from '../../../dragons/services/interfaces/dragons.service.interface';
 import type { Dragon } from '../../../dragons/types';
@@ -11,12 +11,12 @@ export class DragonsHttpAdapter implements IDragonsAdapter {
   async getDragons(): Promise<Array<Dragon>> {
     return this.httpClient.get<Array<Dragon>>({
       serviceName: ServiceNames.Dragons,
-      route: API_URLS.dragons,
+      route: API_PATHS.dragons,
     });
   }
 
   async getDragonById(dragonId: string): Promise<Dragon | null> {
-    const route = `${API_URLS.dragons}/${dragonId}`;
+    const route = `${API_PATHS.dragons}/${dragonId}`;
     return this.httpClient.get<Dragon | null>({
       serviceName: ServiceNames.Dragons,
       route,
@@ -26,13 +26,13 @@ export class DragonsHttpAdapter implements IDragonsAdapter {
   async createDragon(data: CreateDragonDto): Promise<Dragon> {
     return this.httpClient.post<Dragon>({
       serviceName: ServiceNames.Dragons,
-      route: API_URLS.dragons,
+      route: API_PATHS.dragons,
       body: data,
     });
   }
 
   async updateDragon(dragonId: string, data: UpdateDragonDto): Promise<Dragon | null> {
-    const route = `${API_URLS.dragons}/${dragonId}`;
+    const route = `${API_PATHS.dragons}/${dragonId}`;
     return this.httpClient.patch<Dragon | null>({
       serviceName: ServiceNames.Dragons,
       route,
@@ -41,7 +41,7 @@ export class DragonsHttpAdapter implements IDragonsAdapter {
   }
 
   async deleteDragon(dragonId: string): Promise<{ message: string } | null> {
-    const route = `${API_URLS.dragons}/${dragonId}`;
+    const route = `${API_PATHS.dragons}/${dragonId}`;
     return this.httpClient.delete<{ message: string } | null>({
       serviceName: ServiceNames.Dragons,
       route,

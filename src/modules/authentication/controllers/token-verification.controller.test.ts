@@ -1,7 +1,7 @@
 import cookieParser from 'cookie-parser';
 import express, { type Application } from 'express';
 import request from 'supertest';
-import { API_URLS, StatusCodes } from '../../../common/constants';
+import { API_PATHS, StatusCodes } from '../../../common/constants';
 import { errorHandler } from '../../../middlewares/errorHandler.middleware';
 import { TokenVerificationController } from './token-verification.controller';
 import type { TokenVerificationService } from '../services/token-verification.service';
@@ -49,16 +49,16 @@ describe('TokenVerificationController', () => {
 
       mockTokenVerificationService.verifyToken.mockResolvedValue(mockDecodedToken);
 
-      const response = await request(app).get(API_URLS.verifyToken).set('Cookie', ['accessToken=valid-token']);
+      const response = await request(app).get(API_PATHS.verifyToken).set('Cookie', ['accessToken=valid-token']);
 
       expect(response.status).toBe(StatusCodes.OK);
       expect(response.body).toEqual(mockDecodedToken);
       expect(mockTokenVerificationService.verifyToken).toHaveBeenCalledWith('valid-token');
-      expect(app.logger.info).toHaveBeenCalledWith(`GET ${API_URLS.verifyToken} - verify tokens`);
+      expect(app.logger.info).toHaveBeenCalledWith(`GET ${API_PATHS.verifyToken} - verify tokens`);
     });
 
     it('should throw UnauthorizedError when no token in cookies', async () => {
-      const response = await request(app).get(API_URLS.verifyToken);
+      const response = await request(app).get(API_PATHS.verifyToken);
 
       expect(response.status).toBe(StatusCodes.UNAUTHORIZED);
       expect(response.body).toMatchObject({ message: 'No token provided' });

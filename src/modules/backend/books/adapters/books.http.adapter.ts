@@ -1,4 +1,4 @@
-import { API_URLS } from '../../../../common/constants';
+import { API_PATHS } from '../../../../common/constants';
 import { ServiceNames } from '../../../../configurations';
 import type { CreateBookDto, UpdateBookDto } from '../../../books/services/interfaces/books.service.interface';
 import type { Book, PaginatedBooksResponse } from '../../../books/types';
@@ -12,13 +12,13 @@ export class BooksHttpAdapter implements IBooksAdapter {
   async getBooks(queryParams: GetBooksParsedQuery): Promise<PaginatedBooksResponse> {
     return this.httpClient.get<PaginatedBooksResponse>({
       serviceName: ServiceNames.Books,
-      route: API_URLS.books,
+      route: API_PATHS.books,
       options: { queryParams },
     });
   }
 
   async getBookById(bookId: string): Promise<Book | null> {
-    const route = `${API_URLS.books}/${bookId}`;
+    const route = `${API_PATHS.books}/${bookId}`;
     return this.httpClient.get<Book | null>({
       serviceName: ServiceNames.Books,
       route,
@@ -28,13 +28,13 @@ export class BooksHttpAdapter implements IBooksAdapter {
   async createBook(data: CreateBookDto): Promise<Book> {
     return this.httpClient.post<Book>({
       serviceName: ServiceNames.Books,
-      route: API_URLS.books,
+      route: API_PATHS.books,
       body: data,
     });
   }
 
   async updateBook(bookId: string, data: UpdateBookDto): Promise<Book | null> {
-    const route = `${API_URLS.books}/${bookId}`;
+    const route = `${API_PATHS.books}/${bookId}`;
     return this.httpClient.patch<Book | null>({
       serviceName: ServiceNames.Books,
       route,
@@ -43,7 +43,7 @@ export class BooksHttpAdapter implements IBooksAdapter {
   }
 
   async deleteBook(bookId: string): Promise<{ message: string } | null> {
-    const route = `${API_URLS.books}/${bookId}`;
+    const route = `${API_PATHS.books}/${bookId}`;
     return this.httpClient.delete<{ message: string } | null>({
       serviceName: ServiceNames.Books,
       route,

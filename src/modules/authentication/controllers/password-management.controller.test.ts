@@ -1,6 +1,6 @@
 import express, { type Application } from 'express';
 import request from 'supertest';
-import { API_URLS, StatusCodes } from '@src/common/constants';
+import { API_PATHS, StatusCodes } from '@src/common/constants';
 import { errorHandler } from '@src/middlewares/errorHandler.middleware';
 import { PasswordManagementController } from './password-management.controller';
 import type { PasswordManagementService } from '../services/password-management.service';
@@ -41,7 +41,7 @@ describe('PasswordManagementController', () => {
 
       mockPasswordManagementService.getIsPasswordValid.mockResolvedValue(true);
 
-      const response = await request(app).post(API_URLS.isPasswordValid).send(requestBody);
+      const response = await request(app).post(API_PATHS.isPasswordValid).send(requestBody);
 
       expect(response.status).toBe(StatusCodes.OK);
       expect(response.body).toEqual({ isValid: true });
@@ -49,7 +49,7 @@ describe('PasswordManagementController', () => {
         'salt:hashedPassword',
         'correctPassword',
       );
-      expect(app.logger.info).toHaveBeenCalledWith(`POST ${API_URLS.isPasswordValid} - check if password is valid`);
+      expect(app.logger.info).toHaveBeenCalledWith(`POST ${API_PATHS.isPasswordValid} - check if password is valid`);
     });
 
     it('should return false when password is invalid', async () => {
@@ -60,7 +60,7 @@ describe('PasswordManagementController', () => {
 
       mockPasswordManagementService.getIsPasswordValid.mockResolvedValue(false);
 
-      const response = await request(app).post(API_URLS.isPasswordValid).send(requestBody);
+      const response = await request(app).post(API_PATHS.isPasswordValid).send(requestBody);
 
       expect(response.status).toBe(StatusCodes.OK);
       expect(response.body).toEqual({ isValid: false });
@@ -78,7 +78,7 @@ describe('PasswordManagementController', () => {
 
       mockPasswordManagementService.getIsPasswordValid.mockRejectedValue(new Error('Service error'));
 
-      const response = await request(app).post(API_URLS.isPasswordValid).send(requestBody);
+      const response = await request(app).post(API_PATHS.isPasswordValid).send(requestBody);
 
       expect(response.status).toBe(StatusCodes.UNAUTHORIZED);
       expect(response.body).toMatchObject({ message: 'Invalid credentials' });

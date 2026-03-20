@@ -1,7 +1,7 @@
 import path from 'path';
 import express, { type Application } from 'express';
 import swaggerUi from 'swagger-ui-express';
-import { API_URLS } from '../../../common/constants';
+import { API_PATHS } from '../../../common/constants';
 import type { SwaggerService } from '../services/swagger.service';
 
 export class SwaggerController {
@@ -21,7 +21,7 @@ export class SwaggerController {
     const swaggerSetup = swaggerUi.setup(null, topLevelSwaggerConfig); // <--- or, swaggerUi.setup(swaggerDocs, swaggerExtraOptions)
 
     // MUST be "use"! Not "get", not "all" - just "use"!
-    this.app.use(API_URLS.apiDocs, swaggerServe, swaggerSetup);
+    this.app.use(API_PATHS.apiDocs, swaggerServe, swaggerSetup);
   }
 
   private serveSwaggerConfigs() {

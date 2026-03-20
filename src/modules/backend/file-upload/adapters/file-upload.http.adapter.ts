@@ -1,4 +1,4 @@
-import { API_URLS } from '../../../../common/constants';
+import { API_PATHS } from '../../../../common/constants';
 import { ServiceNames } from '../../../../configurations';
 import type { UploadResult } from '../../../file-upload/types';
 import type { HttpClient } from '../../logic/http-client';
@@ -16,7 +16,7 @@ export class FileUploadHttpAdapter implements IFileUploadAdapter {
     // 2. Or buffer the file and re-send it
     return this.httpClient.post<UploadResult>({
       serviceName: ServiceNames.FileUpload,
-      route: API_URLS.uploadFileMultipart,
+      route: API_PATHS.uploadFileMultipart,
       body: {},
     });
   }
@@ -25,7 +25,7 @@ export class FileUploadHttpAdapter implements IFileUploadAdapter {
     // Note: Similar to multipart - binary upload streaming requires special handling.
     return this.httpClient.post<UploadResult>({
       serviceName: ServiceNames.FileUpload,
-      route: API_URLS.uploadFileBinary,
+      route: API_PATHS.uploadFileBinary,
       body: {},
     });
   }
