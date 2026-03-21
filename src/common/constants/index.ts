@@ -1,4 +1,4 @@
-export * from './apiUrls';
+export * from './api-paths';
 export * from './environment';
 export * from './headers';
 export * from './httpMethod';
