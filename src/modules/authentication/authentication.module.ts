@@ -33,16 +33,16 @@ export class AuthenticationModule {
 
     // Only attach routes if running as a standalone micro-service
     if (process.env.IS_STANDALONE_MICRO_SERVICES) {
-      this.attachControllers(this.app);
+      this.attachControllers();
     }
   }
 
-  private attachControllers(app: Application): void {
-    const authenticationMiddleware = new AuthenticationMiddleware(app);
-    const passwordManagementController = new PasswordManagementController(app, this.passwordManagementService);
-    const tokenGenerationController = new TokenGenerationController(app, this.tokenGenerationService);
-    const tokenVerificationController = new TokenVerificationController(app, this.tokenVerificationService);
-    const sessionManagementController = new SessionManagementController(app);
+  private attachControllers(): void {
+    const authenticationMiddleware = new AuthenticationMiddleware(this.app);
+    const passwordManagementController = new PasswordManagementController(this.app, this.passwordManagementService);
+    const tokenGenerationController = new TokenGenerationController(this.app, this.tokenGenerationService);
+    const tokenVerificationController = new TokenVerificationController(this.app, this.tokenVerificationService);
+    const sessionManagementController = new SessionManagementController(this.app);
 
     const authenticationController = new AuthenticationController(
       passwordManagementController,

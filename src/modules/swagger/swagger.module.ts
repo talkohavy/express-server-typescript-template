@@ -17,11 +17,11 @@ export class SwaggerModule {
   private initializeModule(): void {
     this.swaggerService = new SwaggerService([UsersSwaggerConfig, BooksSwaggerConfig]);
 
-    this.attachControllers(this.app);
+    this.attachControllers();
   }
 
-  private attachControllers(app: Application): void {
-    const swaggerController = new SwaggerController(app, this.swaggerService);
+  private attachControllers(): void {
+    const swaggerController = new SwaggerController(this.app, this.swaggerService);
 
     swaggerController.registerRoutes();
   }

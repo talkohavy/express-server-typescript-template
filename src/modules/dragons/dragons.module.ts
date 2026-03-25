@@ -14,12 +14,12 @@ export class DragonsModule {
 
     // Only attach routes if running as a standalone micro-service
     if (process.env.IS_STANDALONE_MICRO_SERVICES) {
-      this.attachControllers(this.app);
+      this.attachControllers();
     }
   }
 
-  private attachControllers(app: Application): void {
-    const dragonsController = new DragonsController(app, this.dragonsService);
+  private attachControllers(): void {
+    const dragonsController = new DragonsController(this.app, this.dragonsService);
 
     dragonsController.registerRoutes();
   }

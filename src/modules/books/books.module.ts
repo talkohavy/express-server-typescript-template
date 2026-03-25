@@ -15,13 +15,13 @@ export class BooksModule {
 
     // Only attach routes if running as a standalone micro-service
     if (process.env.IS_STANDALONE_MICRO_SERVICES) {
-      this.attachControllers(this.app);
+      this.attachControllers();
     }
   }
 
-  private attachControllers(app: Application): void {
-    const booksController = new BooksController(app, this.booksService);
-    const booksMiddleware = new BooksMiddleware(app);
+  private attachControllers(): void {
+    const booksController = new BooksController(this.app, this.booksService);
+    const booksMiddleware = new BooksMiddleware(this.app);
 
     booksMiddleware.use();
 
