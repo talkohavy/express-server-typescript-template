@@ -11,6 +11,11 @@ export class AppFactory {
     Object.assign(this.app, optimizedApp);
   }
 
+  /**
+   * Should be called after plugins are registered.
+   *
+   * @param modules - The modules to register.
+   */
   registerModules(modules: (ModuleConstructor | NullishFalsy)[]): void {
     modules.forEach((Module) => {
       if (!Module) return;
@@ -21,6 +26,11 @@ export class AppFactory {
     });
   }
 
+  /**
+   * Should be called before modules are registered.
+   *
+   * @param plugins - The plugins to register.
+   */
   async registerPlugins(plugins: (PluginFn | PluginAsyncFn | NullishFalsy)[]): Promise<void> {
     for (const plugin of plugins) {
       if (!plugin) continue;
@@ -30,10 +40,20 @@ export class AppFactory {
     }
   }
 
+  /**
+   * Should be called after modules are registered.
+   *
+   * @param errorHandler - The error handler to register.
+   */
   registerErrorHandler(errorHandler: PluginFn | PluginAsyncFn): void {
     errorHandler(this.app);
   }
 
+  /**
+   * Should be called after modules are registered.
+   *
+   * @param pathNotFoundHandler - The path not found handler to register.
+   */
   registerPathNotFoundHandler(pathNotFoundHandler: PluginFn): void {
     pathNotFoundHandler(this.app);
   }
