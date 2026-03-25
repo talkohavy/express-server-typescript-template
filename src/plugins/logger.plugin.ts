@@ -30,9 +30,9 @@ function initLoggerService(logSettings: LoggerServiceSettings, callContextServic
     environment: logSettings.logEnvironment,
   };
 
-  const loggerInstance = new Logger({ settings, fixedKeys });
+  const logger = new Logger({ settings, fixedKeys });
 
-  const logger = new LoggerService(loggerInstance, callContextService);
+  const loggerService = new LoggerService(logger, callContextService);
 
-  return logger;
+  return loggerService;
 }
