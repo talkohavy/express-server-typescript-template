@@ -5,7 +5,7 @@ export class AppFactory {
   private registeredPlugins: PluginFn[] = [];
 
   constructor(
-    public readonly app: any,
+    private readonly app: any,
     optimizedApp = {},
   ) {
     Object.assign(this.app, optimizedApp);
