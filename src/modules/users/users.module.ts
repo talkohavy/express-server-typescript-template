@@ -28,8 +28,8 @@ export class UsersModule {
     const fieldScreeningService = new FieldScreeningService(['hashed_password'], ['nickname']);
 
     // Initialize main services
-    this.userUtilitiesService = new UserUtilitiesService(this.usersRepository, fieldScreeningService);
     this.usersCrudService = new UsersCrudService(this.usersRepository);
+    this.userUtilitiesService = new UserUtilitiesService(this.usersRepository, fieldScreeningService);
 
     // Only attach routes if running as a standalone micro-service
     if (process.env.IS_STANDALONE_MICRO_SERVICES) {
