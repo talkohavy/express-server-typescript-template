@@ -11,7 +11,7 @@ import type { Application } from 'express';
 export async function postgresPlugin(app: Application) {
   const { connectionString } = app.configService.get<PostgresConfig>(ConfigKeys.Postgres);
 
-  const dbClient = PostgresConnection.getInstance(connectionString.substring(0, 10));
+  const dbClient = PostgresConnection.getInstance(connectionString);
 
   await dbClient.connect();
 
