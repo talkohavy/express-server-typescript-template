@@ -1,6 +1,5 @@
 import { UserUtilitiesController } from './controllers/user-utilities.controller';
 import { UsersCrudController } from './controllers/users-crud.controller';
-import { UsersController } from './controllers/users.controller';
 import { UsersMiddleware } from './middleware/users.middleware';
 import { UsersPostgresRepository } from './repositories/users.postgres.repository';
 import { FieldScreeningService } from './services/field-screening.service';
@@ -38,14 +37,13 @@ export class UsersModule {
   }
 
   private attachControllers(): void {
+    const usersMiddleware = new UsersMiddleware(this.app);
     const userUtilitiesController = new UserUtilitiesController(this.app, this.userUtilitiesService);
     const usersCrudController = new UsersCrudController(this.app, this.usersCrudService);
 
-    const usersController = new UsersController(userUtilitiesController, usersCrudController);
-    const usersMiddleware = new UsersMiddleware(this.app);
-
     usersMiddleware.use();
-    usersController.registerRoutes();
+    userUtilitiesController.registerRoutes();
+    usersCrudController.registerRoutes();
   }
 
   get services() {
