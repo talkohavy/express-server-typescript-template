@@ -20,8 +20,8 @@ export class BooksModule {
   }
 
   private attachControllers(): void {
-    const booksController = new BooksController(this.app, this.booksService);
     const booksMiddleware = new BooksMiddleware(this.app);
+    const booksController = new BooksController(this.app, this.booksService);
 
     booksMiddleware.use();
 
