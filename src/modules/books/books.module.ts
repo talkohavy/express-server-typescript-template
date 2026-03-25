@@ -24,7 +24,6 @@ export class BooksModule {
     const booksController = new BooksController(this.app, this.booksService);
 
     booksMiddleware.use();
-
     booksController.registerRoutes();
   }
 

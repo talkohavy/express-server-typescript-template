@@ -7,7 +7,7 @@ export class BooksMiddleware implements MiddlewareFactory {
 
   use() {
     this.app.use(API_PATHS.books, (_req: Request, _res: Response, next: NextFunction) => {
-      console.log('Books middleware');
+      this.app.logger.log('Books middleware');
 
       next();
     });
