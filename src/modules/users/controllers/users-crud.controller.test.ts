@@ -1,8 +1,8 @@
 import express, { type Application } from 'express';
 import request from 'supertest';
 import { API_PATHS, StatusCodes } from '@src/common/constants';
+import { giveAllPermissionsToUser } from '../../../../toolbox/tests/mocks/mockUserPermissions';
 import { errorHandler } from '../../../middlewares/errorHandler.middleware';
-import { giveAllPermissionsToUser } from '../../../tests/mocks/mockUserPermissions';
 import { UsersCrudController } from './users-crud.controller';
 import type { UsersCrudService } from '../services/users-crud.service';
 

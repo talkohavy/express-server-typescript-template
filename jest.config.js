@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { parse } from 'jsonc-parser';
-import { createDefaultPreset , pathsToModuleNameMapper } from 'ts-jest';
+import { createDefaultPreset, pathsToModuleNameMapper } from 'ts-jest';
 
 /** @type {any} */
 const errors = [];
@@ -29,7 +29,7 @@ const config = {
   testEnvironment: 'node',
 
   // A list of paths to modules that run some code to configure or set up the testing framework before each test
-  setupFilesAfterEnv: ['<rootDir>/src/tests/setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/toolbox/tests/setup.ts'],
 
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   moduleNameMapper: pathsToModuleNameMapper(tsconfig.compilerOptions.paths, {

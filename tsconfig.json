@@ -126,5 +126,5 @@
   },
   "compileOnSave": true,
   "exclude": ["node_modules", "**/node_modules/*", "<node_internals>/**", "bin/**"],
-  "include": ["src", "jest.config.js"]
+  "include": ["src", "jest.config.js", "toolbox/tests"]
 }
