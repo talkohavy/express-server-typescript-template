@@ -1,5 +1,5 @@
-import { API_PATHS } from '../../common/constants';
-import type { ControllerFactory } from '../../lib/lucky-server';
+import { API_PATHS } from '@src/common/constants';
+import type { ControllerFactory } from '@src/lib/lucky-server';
 import type { Application } from 'express';
 
 export class HealthCheckController implements ControllerFactory {

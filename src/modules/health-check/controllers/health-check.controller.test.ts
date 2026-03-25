@@ -1,6 +1,6 @@
 import express, { type Application } from 'express';
 import request from 'supertest';
-import { API_PATHS, StatusCodes } from '../../common/constants';
+import { API_PATHS, StatusCodes } from '../../../common/constants';
 import { HealthCheckController } from './health-check.controller';
 
 describe('HealthCheckController', () => {
