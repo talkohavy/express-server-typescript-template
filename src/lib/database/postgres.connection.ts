@@ -18,12 +18,16 @@ export class PostgresConnection implements ConnectionFactory {
     return PostgresConnection.instance;
   }
 
+  /**
+   * @throws Error if connection fails
+   */
   async connect() {
     try {
       await this.dbClient.connect();
       console.log('✅ Successfully Connected to Postgres!');
     } catch (error) {
       console.error('❌ Error connecting to PostgreSQL:', error);
+      throw error;
     }
   }
 
