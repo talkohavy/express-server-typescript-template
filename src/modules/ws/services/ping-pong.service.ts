@@ -1,16 +1,15 @@
-import { BUILT_IN_WEBSOCKET_EVENTS } from '@src/lib/websocket-manager/logic/constants';
 import type { WebSocket } from 'ws';
 
 export class PingPongService {
   private readonly isAliveBySocket = new WeakMap<WebSocket, boolean>();
   private readonly heartbeatIntervalMs = 30_000;
 
+  markSocketAlive(socket: WebSocket): void {
+    this.isAliveBySocket.set(socket, true);
+  }
+
   registerSocketToPingPong(socket: WebSocket): void {
     this.isAliveBySocket.set(socket, true);
-
-    socket.on(BUILT_IN_WEBSOCKET_EVENTS.Pong, () => {
-      this.isAliveBySocket.set(socket, true);
-    });
 
     this.startPingPongInterval(socket);
   }
