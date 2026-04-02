@@ -1,29 +1,24 @@
-import { BUILT_IN_WEBSOCKET_EVENTS } from '@src/lib/websocket-manager/logic/constants';
 import { StaticTopics } from '../logic/constants';
+import type { WsConnectionContext, IConnectionPipeline } from '../types';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { WebsocketManager } from '@src/lib/websocket-manager';
-import type { WebSocket, WebSocketServer } from 'ws';
 
-export class SubscribeSocketToRootTopicMiddleware {
+export class SubscribeSocketToRootTopicMiddleware implements IConnectionPipeline {
   constructor(
-    private readonly wsApp: WebSocketServer,
     private readonly wsManager: WebsocketManager,
     private readonly logger: LoggerService,
   ) {}
 
-  use() {
-    this.wsApp.on(BUILT_IN_WEBSOCKET_EVENTS.Connection, (socket) => {
-      this.subscribeSocketToRootTopic(socket);
-    });
-  }
+  async handleConnection(props: WsConnectionContext): Promise<void> {
+    const { socket } = props;
 
-  private async subscribeSocketToRootTopic(socket: WebSocket): Promise<void> {
     const topic = StaticTopics.Presence;
 
     const isSuccess = await this.wsManager.subscribeToTopic(socket, topic);
 
     if (!isSuccess) {
       this.logger.debug('Socket already in presence topic on connect', { socketId: socket.id });
+
       return;
     }
 

@@ -1,17 +1,10 @@
 import { randomUUID } from 'node:crypto';
-import { BUILT_IN_WEBSOCKET_EVENTS } from '../../../lib/websocket-manager';
-import type { WebSocket, WebSocketServer } from 'ws';
+import type { WsConnectionContext, IConnectionPipeline } from '../types';
 
-export class AttachSocketIdToConnectionMiddleware {
-  constructor(private readonly wsApp: WebSocketServer) {}
+export class AttachSocketIdToConnectionMiddleware implements IConnectionPipeline {
+  async handleConnection(props: WsConnectionContext): Promise<void> {
+    const { socket } = props;
 
-  private attachSocketIdToConnection(socket: WebSocket) {
     socket.id = randomUUID();
-  }
-
-  public use() {
-    this.wsApp.on(BUILT_IN_WEBSOCKET_EVENTS.Connection, (socket: WebSocket) => {
-      this.attachSocketIdToConnection(socket);
-    });
   }
 }

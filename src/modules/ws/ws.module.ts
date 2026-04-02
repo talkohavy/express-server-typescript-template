@@ -6,6 +6,7 @@ import { AttachErrorHandlerToSocketMiddleware } from './middleware/attach-error-
 import { AttachSocketIdToConnectionMiddleware } from './middleware/attach-socket-id-to-connection.middleware';
 import { SubscribeSocketToRootTopicMiddleware } from './middleware/subscribe-socket-to-root-topic.middleware';
 import { PublishMessageToTopicService, TopicRegistrationService, WebRtcSignalingService } from './services';
+import { WsConnectionPipelineService } from './services/ws-connection-pipeline';
 import type { TopicMessage } from '@src/lib/websocket-manager';
 import type { Application } from 'express';
 
@@ -40,21 +41,14 @@ export class WsModule {
   private registerEventHandlers(): void {
     const { wsApp, wsManager, logger } = this.app;
 
-    // middlewares:
-    const attachSocketIdToConnectionMiddleware = new AttachSocketIdToConnectionMiddleware(wsApp);
-    const subscribeSocketToRootTopicMiddleware = new SubscribeSocketToRootTopicMiddleware(wsApp, wsManager, logger);
-    const attachCloseHandlerToSocketMiddleware = new AttachCloseHandlerToSocketMiddleware(wsApp, wsManager, logger);
-    const attachErrorHandlerToSocketMiddleware = new AttachErrorHandlerToSocketMiddleware(wsApp, logger);
+    const wsConnectionPipelineService = new WsConnectionPipelineService(wsApp);
 
-    attachSocketIdToConnectionMiddleware.use();
-    subscribeSocketToRootTopicMiddleware.use();
-    attachCloseHandlerToSocketMiddleware.use();
-    attachErrorHandlerToSocketMiddleware.use();
-
-    // event handlers:
-    const pingPongEventHandler = new PingPongEventHandler(wsApp);
+    const attachSocketIdToConnectionMiddleware = new AttachSocketIdToConnectionMiddleware();
+    const subscribeSocketToRootTopicMiddleware = new SubscribeSocketToRootTopicMiddleware(wsManager, logger);
+    const attachCloseHandlerToSocketMiddleware = new AttachCloseHandlerToSocketMiddleware(wsManager, logger);
+    const attachErrorHandlerToSocketMiddleware = new AttachErrorHandlerToSocketMiddleware(logger);
+    const pingPongEventHandler = new PingPongEventHandler();
     const messageDispatcherByEventHandler = new MessageDispatcherByEventHandler(
-      wsApp,
       {
         ...this.topicRegistrationService.getActionHandlers(),
         ...this.publishMessageToTopicService.getActionHandlers(),
@@ -63,8 +57,14 @@ export class WsModule {
       logger,
     );
 
-    pingPongEventHandler.registerEventHandlers();
-    messageDispatcherByEventHandler.registerEventHandlers();
+    wsConnectionPipelineService.register([
+      attachSocketIdToConnectionMiddleware,
+      subscribeSocketToRootTopicMiddleware,
+      attachCloseHandlerToSocketMiddleware,
+      attachErrorHandlerToSocketMiddleware,
+      pingPongEventHandler,
+      messageDispatcherByEventHandler,
+    ]);
 
     if (process.env.SIMULATE_STREAMING_TO_TOPIC) {
       setInterval(() => {
