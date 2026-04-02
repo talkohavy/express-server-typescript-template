@@ -66,6 +66,8 @@ export class WsModule {
       messageDispatcherByEventHandler,
     ]);
 
+    // ---------------------------------------------
+
     if (process.env.SIMULATE_STREAMING_TO_TOPIC) {
       setInterval(() => {
         const payload: TopicMessage = {
