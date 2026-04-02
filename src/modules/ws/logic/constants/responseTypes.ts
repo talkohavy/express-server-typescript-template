@@ -1,4 +1,5 @@
 export const ResponseTypes = {
+  ConnectionAcknowledged: 'connection_acknowledged',
   Actions: {
     RegisterSuccess: 'register_success',
     RegisterError: 'register_error',

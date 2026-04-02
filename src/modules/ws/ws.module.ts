@@ -4,6 +4,7 @@ import { AttachErrorHandlerToSocketMiddleware } from './middleware/attach-error-
 import { AttachMessageHandlerToSocketMiddleware } from './middleware/attach-message-handler-to-socket.middleware';
 import { AttachPongHandlerToSocketMiddleware } from './middleware/attach-pong-handler-to-socket.middleware';
 import { AttachSocketIdToConnectionMiddleware } from './middleware/attach-socket-id-to-connection.middleware';
+import { ConnectionAcknowledgeMiddleware } from './middleware/connection-acknowledge.middleware';
 import { SubscribeSocketToRootTopicMiddleware } from './middleware/subscribe-socket-to-root-topic.middleware';
 import { MessageDispatcherByEventService } from './services/message-dispatcher-by-event';
 import { PingPongService } from './services/ping-pong';
@@ -62,6 +63,7 @@ export class WsModule {
     const attachMessageHandlerToSocketMiddleware = new AttachMessageHandlerToSocketMiddleware(
       this.messageDispatcherByEventService,
     );
+    const connectionAcknowledgeMiddleware = new ConnectionAcknowledgeMiddleware();
 
     wsConnectionPipelineService.register([
       attachSocketIdToConnectionMiddleware,
@@ -70,6 +72,7 @@ export class WsModule {
       attachErrorHandlerToSocketMiddleware,
       attachPongToSocketMiddleware,
       attachMessageHandlerToSocketMiddleware,
+      connectionAcknowledgeMiddleware,
     ]);
 
     // ---------------------------------------------
