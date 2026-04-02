@@ -1,11 +1,12 @@
 import { MessageDispatcherByEventHandler } from './event-handlers/message-dispatcher-by-event.event-handler';
-import { PingPongEventHandler } from './event-handlers/ping-pong.event-handler';
 import { StaticTopics } from './logic/constants';
 import { AttachCloseHandlerToSocketMiddleware } from './middleware/attach-close-handler-to-socket.middleware';
 import { AttachErrorHandlerToSocketMiddleware } from './middleware/attach-error-handler-to-socket.middleware';
+import { AttachPongHandlerToSocketMiddleware } from './middleware/attach-pong-handler-to-socket.middleware';
 import { AttachSocketIdToConnectionMiddleware } from './middleware/attach-socket-id-to-connection.middleware';
 import { SubscribeSocketToRootTopicMiddleware } from './middleware/subscribe-socket-to-root-topic.middleware';
 import { PublishMessageToTopicService, TopicRegistrationService, WebRtcSignalingService } from './services';
+import { PingPongService } from './services/ping-pong.service';
 import { WsConnectionPipelineService } from './services/ws-connection-pipeline';
 import type { TopicMessage } from '@src/lib/websocket-manager';
 import type { Application } from 'express';
@@ -20,17 +21,15 @@ import type { Application } from 'express';
  *   subscribed to that topic. See WebsocketManager for the receive/forward implementation.
  */
 export class WsModule {
-  topicRegistrationService!: TopicRegistrationService;
-  publishMessageToTopicService!: PublishMessageToTopicService;
-  webRtcSignalingService!: WebRtcSignalingService;
+  pingPongService: PingPongService;
+  topicRegistrationService: TopicRegistrationService;
+  publishMessageToTopicService: PublishMessageToTopicService;
+  webRtcSignalingService: WebRtcSignalingService;
 
   constructor(private readonly app: Application) {
-    this.initializeModule();
-  }
-
-  private initializeModule(): void {
     const { wsManager, logger } = this.app;
 
+    this.pingPongService = new PingPongService();
     this.topicRegistrationService = new TopicRegistrationService(wsManager, logger);
     this.publishMessageToTopicService = new PublishMessageToTopicService(wsManager, logger);
     this.webRtcSignalingService = new WebRtcSignalingService(wsManager, logger);
@@ -47,7 +46,7 @@ export class WsModule {
     const subscribeSocketToRootTopicMiddleware = new SubscribeSocketToRootTopicMiddleware(wsManager, logger);
     const attachCloseHandlerToSocketMiddleware = new AttachCloseHandlerToSocketMiddleware(wsManager, logger);
     const attachErrorHandlerToSocketMiddleware = new AttachErrorHandlerToSocketMiddleware(logger);
-    const pingPongEventHandler = new PingPongEventHandler();
+    const attachPongToSocketMiddleware = new AttachPongHandlerToSocketMiddleware(this.pingPongService);
     const messageDispatcherByEventHandler = new MessageDispatcherByEventHandler(
       {
         ...this.topicRegistrationService.getActionHandlers(),
@@ -62,7 +61,7 @@ export class WsModule {
       subscribeSocketToRootTopicMiddleware,
       attachCloseHandlerToSocketMiddleware,
       attachErrorHandlerToSocketMiddleware,
-      pingPongEventHandler,
+      attachPongToSocketMiddleware,
       messageDispatcherByEventHandler,
     ]);
 

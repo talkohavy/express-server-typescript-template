@@ -1,18 +1,11 @@
 import { BUILT_IN_WEBSOCKET_EVENTS } from '@src/lib/websocket-manager/logic/constants';
-import type { WsConnectionContext, IConnectionPipeline } from '../types';
 import type { WebSocket } from 'ws';
 
-export class PingPongEventHandler implements IConnectionPipeline {
+export class PingPongService {
   private readonly isAliveBySocket = new WeakMap<WebSocket, boolean>();
   private readonly heartbeatIntervalMs = 30_000;
 
-  async handleConnection(props: WsConnectionContext): Promise<void> {
-    const { socket } = props;
-
-    this.registerSocketToPingPong(socket);
-  }
-
-  private registerSocketToPingPong(socket: WebSocket): void {
+  registerSocketToPingPong(socket: WebSocket): void {
     this.isAliveBySocket.set(socket, true);
 
     socket.on(BUILT_IN_WEBSOCKET_EVENTS.Pong, () => {
