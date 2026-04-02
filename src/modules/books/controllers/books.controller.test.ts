@@ -3,6 +3,7 @@ import request from 'supertest';
 import { API_PATHS, StatusCodes } from '../../../common/constants';
 import { BooksController } from './books.controller';
 import type { BooksService } from '../services/books.service';
+import type { Book, PaginatedBooksResponse } from '../types';
 
 jest.mock('../../../middlewares/joi-body.middleware', () => ({
   joiBodyMiddleware: jest.fn(() => (_req: any, _res: any, next: any) => next()),
@@ -35,7 +36,7 @@ describe('BooksController', () => {
 
   describe('GET /api/books', () => {
     it('should return paginated books', async () => {
-      const mockPaginatedResponse = {
+      const mockPaginatedResponse: PaginatedBooksResponse = {
         data: [
           {
             id: 1,
@@ -68,10 +69,10 @@ describe('BooksController', () => {
             createdAt: '2021-01-01T00:00:00.000Z',
           },
         ],
-        total: 2,
+        totalItemsCount: 2,
         page: 1,
         limit: 20,
-        totalPages: 1,
+        totalPagesCount: 1,
         hasMore: false,
       };
 
@@ -88,10 +89,10 @@ describe('BooksController', () => {
     it('should pass page and limit query params to service', async () => {
       mockBooksService.getBooks.mockResolvedValue({
         data: [],
-        total: 0,
+        totalItemsCount: 0,
         page: 2,
         limit: 10,
-        totalPages: 0,
+        totalPagesCount: 0,
         hasMore: false,
       });
 
@@ -157,7 +158,21 @@ describe('BooksController', () => {
   describe('PATCH /api/books/:bookId', () => {
     it('should update an existing book', async () => {
       const updateData = { name: 'Updated Name' };
-      const mockUpdatedBook = { id: 1, name: 'Updated Name', author: 'Author', publishedYear: 2020 };
+      const mockUpdatedBook: Book = {
+        id: 1,
+        name: 'Updated Name',
+        author: 'Author',
+        publishedYear: 2020,
+        genre: 'Fiction',
+        isbn: '978-000000001-0',
+        coverImageUrl: '',
+        description: '',
+        pageCount: 200,
+        rating: 4,
+        language: 'English',
+        publisher: 'Test',
+        createdAt: '2020-01-01T00:00:00.000Z',
+      };
 
       mockBooksService.updateBook.mockResolvedValue(mockUpdatedBook);
 

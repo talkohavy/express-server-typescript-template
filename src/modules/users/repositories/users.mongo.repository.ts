@@ -18,7 +18,7 @@ export class UsersMongoRepository implements IUsersRepository {
   async getUserByEmail(email: string, options: GetUserByEmailOptions = {}): Promise<DatabaseUser | null> {
     const { options: optionsRaw = {} } = options; // , fields
 
-    const queryStatement: QueryFilter<any> = { email };
+    const queryStatement: QueryFilter<Record<string, any>> = { email };
     const fieldProjection = undefined; // getProjection(fields);
     const queryOptions = { lean: true, ...optionsRaw };
 
@@ -75,7 +75,7 @@ export class UsersMongoRepository implements IUsersRepository {
   }
 
   async updateUserById(userId: string, body: UpdateUserDto): Promise<DatabaseUser> {
-    const queryStatement: QueryFilter<any> = { _id: userId };
+    const queryStatement: QueryFilter<Record<string, any>> = { _id: userId };
     const updateStatement = [{ $addFields: body }];
     const updateOptions = { new: true, lean: true }; // As an alternative to the `new` option, you can also use the `returnOriginal` option. returnOriginal: false is equivalent to new: true. The returnOriginal option exists for consistency with the the MongoDB Node driver's findOneAndUpdate(), which has the same option.
 

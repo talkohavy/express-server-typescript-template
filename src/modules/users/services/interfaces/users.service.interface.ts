@@ -1,11 +1,9 @@
-import type { UserRole } from '../../types';
-
 export type CreateUserDto = {
   email: string;
   password: string;
   nickname: string;
   dateOfBirth: number | string;
-  role?: UserRole;
+  role?: any;
 };
 
 export type UpdateUserDto = {
@@ -13,5 +11,5 @@ export type UpdateUserDto = {
   password?: string;
   nickname?: string;
   dateOfBirth?: number | string;
-  role?: UserRole;
+  role?: any;
 };

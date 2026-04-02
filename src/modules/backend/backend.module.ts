@@ -1,6 +1,5 @@
 import { ChannelCredentials } from '@grpc/grpc-js';
 import { ConfigKeys, type ServicesConfig } from '../../configurations';
-import { HealthCheckController } from '../health-check/health-check.controller';
 import { AuthDirectAdapter, AuthHttpAdapter, AuthenticationController, type IAuthAdapter } from './authentication';
 import { BooksDirectAdapter, BooksGrpcAdapter, BooksHttpAdapter, BooksController, type IBooksAdapter } from './books';
 import { DragonsController } from './dragons';
@@ -62,7 +61,6 @@ export class BackendModule {
 
   private attachControllers(): void {
     // BackendModule ALWAYS attaches public routes (it's the BFF)
-    const healthCheckController = new HealthCheckController(this.app);
     const authController = new AuthenticationController(this.app, this.authAdapter, this.usersAdapter);
     const usersCrudController = new UsersCrudController(this.app, this.usersAdapter);
     const userUtilitiesController = new UserUtilitiesController(this.app, this.usersAdapter, this.authAdapter);
@@ -74,7 +72,6 @@ export class BackendModule {
 
     backendMiddleware.use(); // <--- Attach auth middleware before protected routes (for RBAC)
 
-    healthCheckController.registerRoutes();
     authController.registerRoutes();
     usersCrudController.registerRoutes();
     userUtilitiesController.registerRoutes();
