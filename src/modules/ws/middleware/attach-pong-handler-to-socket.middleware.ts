@@ -1,5 +1,5 @@
 import { BUILT_IN_WEBSOCKET_EVENTS } from '@src/lib/websocket-manager/logic/constants';
-import type { PingPongService } from '../services/ping-pong.service';
+import type { PingPongService } from '../services/ping-pong';
 import type { WsConnectionContext, IConnectionPipeline } from '../types';
 
 export class AttachPongHandlerToSocketMiddleware implements IConnectionPipeline {

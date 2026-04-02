@@ -1,6 +1,6 @@
 import { parseJson } from '@src/common/utils/parseJson';
-import { ResponseTypes, type SocketEventValues } from '../logic/constants';
-import type { ActionHandler, ClientMessage } from '../types';
+import { ResponseTypes, type SocketEventValues } from '../../logic/constants';
+import type { ActionHandler, ClientMessage } from '../../types';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { ServerSocketResponse } from '@src/lib/websocket-manager';
 import type { WebSocket } from 'ws';

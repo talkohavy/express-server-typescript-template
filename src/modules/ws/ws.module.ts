@@ -5,9 +5,11 @@ import { AttachMessageHandlerToSocketMiddleware } from './middleware/attach-mess
 import { AttachPongHandlerToSocketMiddleware } from './middleware/attach-pong-handler-to-socket.middleware';
 import { AttachSocketIdToConnectionMiddleware } from './middleware/attach-socket-id-to-connection.middleware';
 import { SubscribeSocketToRootTopicMiddleware } from './middleware/subscribe-socket-to-root-topic.middleware';
-import { PublishMessageToTopicService, TopicRegistrationService, WebRtcSignalingService } from './services';
-import { MessageDispatcherByEventService } from './services/message-dispatcher-by-event.service';
-import { PingPongService } from './services/ping-pong.service';
+import { MessageDispatcherByEventService } from './services/message-dispatcher-by-event';
+import { PingPongService } from './services/ping-pong';
+import { PublishMessageToTopicService } from './services/publish-message-to-topic';
+import { TopicRegistrationService } from './services/topic-registration';
+import { WebRtcSignalingService } from './services/webrtc-signaling';
 import { WsConnectionPipelineService } from './services/ws-connection-pipeline';
 import type { TopicMessage } from '@src/lib/websocket-manager';
 import type { Application } from 'express';

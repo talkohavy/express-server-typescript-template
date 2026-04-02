@@ -1,5 +1,5 @@
 import { BUILT_IN_WEBSOCKET_EVENTS } from '@src/lib/websocket-manager/logic/constants';
-import type { MessageDispatcherByEventService } from '../services/message-dispatcher-by-event.service';
+import type { MessageDispatcherByEventService } from '../services/message-dispatcher-by-event';
 import type { WsConnectionContext, IConnectionPipeline } from '../types';
 
 export class AttachMessageHandlerToSocketMiddleware implements IConnectionPipeline {
