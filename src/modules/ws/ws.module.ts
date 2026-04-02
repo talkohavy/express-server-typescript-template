@@ -1,11 +1,12 @@
-import { MessageDispatcherByEventHandler } from './event-handlers/message-dispatcher-by-event.event-handler';
 import { StaticTopics } from './logic/constants';
 import { AttachCloseHandlerToSocketMiddleware } from './middleware/attach-close-handler-to-socket.middleware';
 import { AttachErrorHandlerToSocketMiddleware } from './middleware/attach-error-handler-to-socket.middleware';
+import { AttachMessageHandlerToSocketMiddleware } from './middleware/attach-message-handler-to-socket.middleware';
 import { AttachPongHandlerToSocketMiddleware } from './middleware/attach-pong-handler-to-socket.middleware';
 import { AttachSocketIdToConnectionMiddleware } from './middleware/attach-socket-id-to-connection.middleware';
 import { SubscribeSocketToRootTopicMiddleware } from './middleware/subscribe-socket-to-root-topic.middleware';
 import { PublishMessageToTopicService, TopicRegistrationService, WebRtcSignalingService } from './services';
+import { MessageDispatcherByEventService } from './services/message-dispatcher-by-event.service';
 import { PingPongService } from './services/ping-pong.service';
 import { WsConnectionPipelineService } from './services/ws-connection-pipeline';
 import type { TopicMessage } from '@src/lib/websocket-manager';
@@ -25,6 +26,7 @@ export class WsModule {
   topicRegistrationService: TopicRegistrationService;
   publishMessageToTopicService: PublishMessageToTopicService;
   webRtcSignalingService: WebRtcSignalingService;
+  messageDispatcherByEventService: MessageDispatcherByEventService;
 
   constructor(private readonly app: Application) {
     const { wsManager, logger } = this.app;
@@ -33,6 +35,14 @@ export class WsModule {
     this.topicRegistrationService = new TopicRegistrationService(wsManager, logger);
     this.publishMessageToTopicService = new PublishMessageToTopicService(wsManager, logger);
     this.webRtcSignalingService = new WebRtcSignalingService(wsManager, logger);
+    this.messageDispatcherByEventService = new MessageDispatcherByEventService(
+      {
+        ...this.topicRegistrationService.getActionHandlers(),
+        ...this.publishMessageToTopicService.getActionHandlers(),
+        ...this.webRtcSignalingService.getActionHandlers(),
+      },
+      logger,
+    );
 
     this.registerEventHandlers();
   }
@@ -47,13 +57,8 @@ export class WsModule {
     const attachCloseHandlerToSocketMiddleware = new AttachCloseHandlerToSocketMiddleware(wsManager, logger);
     const attachErrorHandlerToSocketMiddleware = new AttachErrorHandlerToSocketMiddleware(logger);
     const attachPongToSocketMiddleware = new AttachPongHandlerToSocketMiddleware(this.pingPongService);
-    const messageDispatcherByEventHandler = new MessageDispatcherByEventHandler(
-      {
-        ...this.topicRegistrationService.getActionHandlers(),
-        ...this.publishMessageToTopicService.getActionHandlers(),
-        ...this.webRtcSignalingService.getActionHandlers(),
-      },
-      logger,
+    const attachMessageHandlerToSocketMiddleware = new AttachMessageHandlerToSocketMiddleware(
+      this.messageDispatcherByEventService,
     );
 
     wsConnectionPipelineService.register([
@@ -62,7 +67,7 @@ export class WsModule {
       attachCloseHandlerToSocketMiddleware,
       attachErrorHandlerToSocketMiddleware,
       attachPongToSocketMiddleware,
-      messageDispatcherByEventHandler,
+      attachMessageHandlerToSocketMiddleware,
     ]);
 
     // ---------------------------------------------

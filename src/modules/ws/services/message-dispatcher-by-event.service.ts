@@ -1,32 +1,21 @@
 import { parseJson } from '@src/common/utils/parseJson';
-import { BUILT_IN_WEBSOCKET_EVENTS, type ServerSocketResponse } from '@src/lib/websocket-manager';
 import { ResponseTypes, type SocketEventValues } from '../logic/constants';
-import type { ActionHandler, ClientMessage, WsConnectionContext, IConnectionPipeline } from '../types';
+import type { ActionHandler, ClientMessage } from '../types';
 import type { LoggerService } from '@src/lib/logger-service';
+import type { ServerSocketResponse } from '@src/lib/websocket-manager';
 import type { WebSocket } from 'ws';
 
 /**
- * Single place that listens to the WebSocket "message" event.
  * Parses JSON, validates the "event" key, and dispatches to the registered domain handler.
  * All client messages must be stringified JSON with an "event" key (Socket.IO-style).
  */
-export class MessageDispatcherByEventHandler implements IConnectionPipeline {
+export class MessageDispatcherByEventService {
   constructor(
     private readonly handlersByEvent: Record<SocketEventValues, ActionHandler>,
     private readonly logger: LoggerService,
   ) {}
 
-  async handleConnection(props: WsConnectionContext): Promise<void> {
-    const { socket } = props;
-
-    this.listenToMessageEvents(socket);
-  }
-
-  private listenToMessageEvents(socket: WebSocket): void {
-    socket.on(BUILT_IN_WEBSOCKET_EVENTS.Message, this.messageDispatcherByEvent.bind(this, socket)); // <--- socket is prepended to the function, which by nature has data as its first argument, so together it turns into (socket, data) => ...
-  }
-
-  private async messageDispatcherByEvent(socket: WebSocket, data: Buffer) {
+  async dispatchMessage(socket: WebSocket, data: Buffer): Promise<void> {
     const message = parseJson<ClientMessage>(data);
 
     if (!this.isValidClientMessage(message)) {
