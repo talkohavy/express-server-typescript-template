@@ -1,27 +1,8 @@
+export * from './staticTopics';
 export * from './socketEvents';
 export * from './webRtcSignals';
+export * from './responseTypes';
 
 // types
 export type * from './socketEvents';
 export type * from './webRtcSignals';
-
-export const StaticTopics = {
-  Data: 'data',
-  /**
-   * Every connected socket is auto-subscribed to this topic; use for broadcastToAll.
-   */
-  Presence: 'presence',
-};
-
-export const ResponseTypes = {
-  Actions: {
-    RegisterSuccess: 'register_success',
-    RegisterError: 'register_error',
-    UnregisterSuccess: 'unregister_success',
-    UnregisterError: 'unregister_error',
-    SendSuccess: 'send_success',
-    SendError: 'send_error',
-  },
-  ValidationError: 'validation_error',
-  ServerError: 'server_error',
-};
