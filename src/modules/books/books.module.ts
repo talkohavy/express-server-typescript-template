@@ -4,13 +4,9 @@ import { BooksService } from './services/books.service';
 import type { Application } from 'express';
 
 export class BooksModule {
-  private booksService!: BooksService;
+  private booksService: BooksService;
 
   constructor(private readonly app: Application) {
-    this.initializeModule();
-  }
-
-  private initializeModule(): void {
     this.booksService = new BooksService();
 
     // Only attach routes if running as a standalone micro-service

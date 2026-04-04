@@ -4,13 +4,9 @@ import { BooksGrpcController } from './controllers/books.grpc.controller';
 import type { Server } from '@grpc/grpc-js';
 
 export class BooksGrpcModule {
-  private booksService!: BooksService;
+  private booksService: BooksService;
 
   constructor(private readonly app: Server) {
-    this.initializeModule();
-  }
-
-  private initializeModule(): void {
     this.booksService = new BooksService();
 
     // Only attach routes if running as a standalone micro-service

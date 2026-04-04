@@ -28,14 +28,11 @@ A typical module has:
 
 ```typescript
 export class BooksModule {
-  private booksService!: BooksService;
+  private booksService: BooksService;
 
   constructor(private readonly app: Application) {
-    this.initializeModule();
-  }
-
-  private initializeModule(): void {
     this.booksService = new BooksService();
+
     if (process.env.IS_STANDALONE_MICRO_SERVICES) {
       this.attachControllers(this.app);
     }

@@ -8,8 +8,7 @@ alwaysApply: false
 - a module class always accepts `private readonly app: Application` as its first and only argument.
 - a module file should sit under the `src/modules/[name]` directory.
 - a modules should encapsulate domain logic and route providers.
-- a module always calls `this.initializeModule();` in its constructor.
-- within `initializeModule`, instantiate all the services of that module's domain. Those instantiated services should be stored a private readonly field of that Module's class.
+- within this module's constructor, instantiate all the services of that module's domain. Those instantiated services should be stored a private readonly field of that Module's class.
 - a module should expose its services via a `services` getter, for others to consume.
 - within `initializeModule`, you can destruct parts from `this.app`, which you attached using plugins, and send them as arguments to service classes, as per demand.
 - a module directory can include the following sub-folders (all or some): `controllers`, `services`, `repositories`, `middlewares`, and `logic`.

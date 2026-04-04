@@ -10,15 +10,11 @@ import type { Application } from 'express';
 // import { UsersMongoRepository } from './repositories/users.mongo.repository';
 
 export class UsersModule {
-  private usersRepository!: IUsersRepository;
-  private usersCrudService!: UsersCrudService;
-  private userUtilitiesService!: UserUtilitiesService;
+  private usersRepository: IUsersRepository;
+  private usersCrudService: UsersCrudService;
+  private userUtilitiesService: UserUtilitiesService;
 
   constructor(private readonly app: Application) {
-    this.initializeModule();
-  }
-
-  private initializeModule(): void {
     // Initialize repositories
     // this.usersRepository = new UsersMongoRepository(this.app.mongo);
     this.usersRepository = new UsersPostgresRepository(this.app.pg);

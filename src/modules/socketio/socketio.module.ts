@@ -8,10 +8,6 @@ import type { Server as SocketIOServer } from 'socket.io';
 
 export class SocketIOModule {
   constructor(private readonly app: Application) {
-    this.initializeModule();
-  }
-
-  private initializeModule(): void {
     this.attachEventHandlers();
   }
 

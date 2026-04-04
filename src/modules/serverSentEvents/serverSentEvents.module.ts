@@ -8,13 +8,9 @@ import type { Application } from 'express';
  * - logger plugin
  */
 export class ServerSentEventModule {
-  private serverSentEventsService!: ServerSentEventsService;
+  private serverSentEventsService: ServerSentEventsService;
 
   constructor(private readonly app: Application) {
-    this.initializeModule();
-  }
-
-  private initializeModule(): void {
     const { pub: redisPubClient, sub: redisSubClient } = this.app.redis;
 
     this.serverSentEventsService = new ServerSentEventsService(this.app.logger, redisPubClient, redisSubClient);

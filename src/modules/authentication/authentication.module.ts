@@ -11,15 +11,11 @@ import { TokenVerificationService } from './services/token-verification.service'
 import type { Application } from 'express';
 
 export class AuthenticationModule {
-  private passwordManagementService!: PasswordManagementService;
-  private tokenGenerationService!: TokenGenerationService;
-  private tokenVerificationService!: TokenVerificationService;
+  private passwordManagementService: PasswordManagementService;
+  private tokenGenerationService: TokenGenerationService;
+  private tokenVerificationService: TokenVerificationService;
 
   constructor(private readonly app: Application) {
-    this.initializeModule();
-  }
-
-  private initializeModule(): void {
     const jwtConfig = this.app.configService.get<JwtConfig>(ConfigKeys.Jwt);
 
     if (!jwtConfig) {

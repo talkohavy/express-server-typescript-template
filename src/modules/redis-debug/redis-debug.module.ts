@@ -3,10 +3,6 @@ import type { Application } from 'express';
 
 export class RedisDebugModule {
   constructor(private readonly app: Application) {
-    this.initializeModule();
-  }
-
-  private initializeModule(): void {
     this.attachControllers();
   }
 

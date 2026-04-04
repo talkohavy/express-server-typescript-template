@@ -8,13 +8,9 @@ import type { Application } from 'express';
  * Docs can be found under the `/api/docs` route.
  */
 export class SwaggerModule {
-  private swaggerService!: SwaggerService;
+  private swaggerService: SwaggerService;
 
   constructor(private readonly app: Application) {
-    this.initializeModule();
-  }
-
-  private initializeModule(): void {
     this.swaggerService = new SwaggerService([UsersSwaggerConfig, BooksSwaggerConfig]);
 
     this.attachControllers();
