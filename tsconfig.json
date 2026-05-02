@@ -32,11 +32,10 @@
     "module": "preserve", // <--- defaults to `commonjs`. Specify what module code is generated.
     "moduleResolution": "bundler", // <--- defaults to classic if `module` is (ES2015|ES06|AMD|UMD). Defaults to node16|nodenext when module value is same. Otherwise, defaults to 'node'. This field specify how TypeScript looks up a file from a given module specifier.
     // "allowImportingTsExtensions": true,
-    "baseUrl": "./", // Specify the base directory to resolve non-relative module names.
     "typeRoots": ["node_modules/@types"], // Specify multiple folders that act like './node_modules/@types'.
     "paths": {
-      "/*": ["src/public/*"],
-      "@src/*": ["src/*"]
+      "/*": ["./src/public/*"],
+      "@src/*": ["./src/*"]
     },
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     // "types": [],                                      /* Specify type package names to be included without being referenced in a source file. */
@@ -103,7 +102,7 @@
     // "strictBindCallApply": true,                      // <--- Check that the arguments for 'bind', 'call', and 'apply' methods match the original function.
     // "strictPropertyInitialization": true,             // <--- Check for class properties that are declared but not set in the constructor.
     "strict": true, // <--- Enable all strict type-checking options.
-    "noImplicitAny": true, // <--- Enable error reporting for expressions and declarations with an implied 'any' type.
+    "noImplicitAny": false, // <--- Enable error reporting for expressions and declarations with an implied 'any' type.
     "noImplicitThis": true, // <---Enable error reporting when 'this' is given the type 'any'.
     "useUnknownInCatchVariables": true, // <--- Default catch clause variables as 'unknown' instead of 'any'.
     "alwaysStrict": true, // <--- Ensure 'use strict' is always emitted.
@@ -114,7 +113,7 @@
     "noFallthroughCasesInSwitch": true, // <--- Enable error reporting for fallthrough cases in switch statements.
     "noUncheckedIndexedAccess": true, // <--- Add 'undefined' to a type when accessed using an index.
     "noImplicitOverride": false, // <--- Ensure overriding members in derived classes are marked with an override modifier.
-    "noPropertyAccessFromIndexSignature": false, // <--- Enforces using indexed accessors for keys declared using an indexed type.
+    "noPropertyAccessFromIndexSignature": false, // <--- when true, this is wrong "styles.hello", and this is right "styles['hello']".
     "allowUnusedLabels": false, // <--- Disable error reporting for unused labels.
     // "allowUnreachableCode": true,                     // <--- Disable error reporting for unreachable code.
 
