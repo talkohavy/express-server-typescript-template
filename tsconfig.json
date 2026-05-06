@@ -61,6 +61,7 @@
     // ---------------
     "sourceMap": true, // defaults to `false`. Create source map files for emitted JavaScript files.
     "noEmit": true, // Disable emitting files from a compilation.
+    "rootDir": ".", // Explicit root covering src/, toolbox/tests/, and jest.config.js.
     // "removeComments": true, // <--- defaults to false. Disable emitting comments.
     // "outDir": "./dist", // no need to have this! all the microservices are being used just as they are, and the only thing being bundled is the app-frontend, which gets bundled using vite, which already has an outDir set in its config file.
     // "declaration": true, // <--- defaults to true if composite is true, and false otherwise. Generate .d.ts files from TypeScript and JavaScript files in your project.

@@ -36,9 +36,20 @@ const config = {
     prefix: '<rootDir>/',
   }),
 
+  /**
+   * ts-jest does not support `"moduleResolution": "Bundler"` (the value used in tsconfig.json, which
+   * is correct for Vite). When ts-jest encounters it, it silently falls back to `"node"` (a.k.a.
+   * `node10`), which TypeScript 6+ flags as deprecated (TS5107), causing all test suites to fail.
+   *
+   * The fix: override `moduleResolution` to `"node16"` specifically for ts-jest (the right value for
+   * a Node.js/Jest environment), and add `ignoreDeprecations: "6.0"` to silence any remaining
+   * deprecation noise from the ts-jest tsconfig override.
+   *
+   * The main tsconfig.json is untouched and continues to use `"Bundler"` as intended.
+   */
   // A map from regular expressions to paths to transformers
   transform: {
-    '^.+.tsx?$': ['ts-jest', {}],
+    '^.+\\.[jt]sx?$': ['ts-jest', { tsconfig: { moduleResolution: 'node16', ignoreDeprecations: '6.0' } }],
   },
 
   // All imported modules in your tests should be mocked automatically
@@ -197,11 +208,12 @@ const config = {
   // This option allows use of a custom test runner
   // testRunner: "jest-circus/runner",
 
-  // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
-  // transformIgnorePatterns: [
-  //   "/node_modules/",
-  //   "\\.pnp\\.[^\\/]+$"
-  // ],
+  // Transform ESM-only packages (e.g. @faker-js/faker).
+  // Two patterns are needed for pnpm's nested layout:
+  //   node_modules/.pnpm/<pkg@ver>/node_modules/<pkg>/...
+  // Pattern 1 ignores non-.pnpm and non-faker flat paths.
+  // Pattern 2 ignores non-faker packages inside .pnpm.
+  transformIgnorePatterns: ['/node_modules/(?!\\.pnpm|@faker-js/faker)', '/node_modules/\\.pnpm/(?!@faker-js\\+faker)'],
 
   // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them
   // unmockedModulePathPatterns: undefined,
