@@ -1,7 +1,14 @@
 import { optimizedApp } from './common/constants';
 import { AppFactory } from './lib/lucky-server/app-factory';
+import { registerBodyLimitMiddleware } from './middlewares/bodyLimit.middleware';
+import { registerCookieParserMiddleware } from './middlewares/cookieParser.middleware';
+import { registerCorsMiddleware } from './middlewares/cors/cors.middleware';
 import { errorHandler } from './middlewares/errorHandler.middleware';
+import { registerFetchPermissionsMiddleware } from './middlewares/fetch-permissions.middleware';
+import { registerHelmetMiddleware } from './middlewares/helmet.middleware';
 import { pathNotFoundHandler } from './middlewares/pathNotFoundHandler.middleware';
+import { registerAddRequestIdHeaderMiddleware } from './middlewares/request-id.middleware';
+import { registerUrlEncodedMiddleware } from './middlewares/urlEncoded.middleware';
 import { AuthenticationModule } from './modules/authentication';
 import { BackendModule } from './modules/backend';
 import { BooksModule } from './modules/books';
@@ -14,19 +21,12 @@ import { SocketIOModule } from './modules/socketio';
 import { SwaggerModule } from './modules/swagger';
 import { UsersModule } from './modules/users';
 import { WsModule } from './modules/ws';
-import { bodyLimitPlugin } from './plugins/bodyLimit.plugin';
 import { callContextPlugin } from './plugins/call-context.plugin';
 import { configServicePlugin } from './plugins/config-service.plugin';
-import { cookieParserPlugin } from './plugins/cookieParser.plugin';
-import { corsPlugin } from './plugins/cors/cors.plugin';
-import { fetchPermissionsPlugin } from './plugins/fetch-permissions.plugin';
-import { helmetPlugin } from './plugins/helmet.plugin';
 import { loggerPlugin } from './plugins/logger.plugin';
 import { postgresPlugin } from './plugins/postgres.plugin';
 import { redisPlugin } from './plugins/redis.plugin';
-import { addRequestIdHeaderPlugin } from './plugins/request-id.plugin';
 import { socketIOPlugin } from './plugins/socket.io.plugin';
-import { urlEncodedPlugin } from './plugins/urlEncoded.plugin';
 import { wsPlugin } from './plugins/ws.plugin';
 import type { Application } from 'express';
 
@@ -38,7 +38,6 @@ export async function buildApp(app: Application) {
   const appModule = new AppFactory(app, optimizedApp);
 
   await appModule.registerPlugins([
-    // infrastructure plugins:
     configServicePlugin,
     callContextPlugin,
     loggerPlugin, // <--- dependencies: config-service plugin, call-context plugin
@@ -46,14 +45,16 @@ export async function buildApp(app: Application) {
     redisPlugin, // <--- dependencies: config-service plugin
     isSocketIOModuleEnabled && socketIOPlugin,
     isWsModuleEnabled && wsPlugin,
-    // middleware plugins:
-    addRequestIdHeaderPlugin,
-    corsPlugin,
-    helmetPlugin,
-    bodyLimitPlugin,
-    urlEncodedPlugin,
-    cookieParserPlugin,
-    fetchPermissionsPlugin,
+  ]);
+
+  await appModule.registerMiddleware([
+    registerAddRequestIdHeaderMiddleware,
+    registerCorsMiddleware,
+    registerHelmetMiddleware,
+    registerBodyLimitMiddleware,
+    registerUrlEncodedMiddleware,
+    registerCookieParserMiddleware,
+    registerFetchPermissionsMiddleware,
   ]);
 
   appModule.registerModules([

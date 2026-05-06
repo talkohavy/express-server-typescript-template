@@ -4,6 +4,6 @@ import type { Application } from 'express';
 /**
  * @express
  */
-export function cookieParserPlugin(app: Application) {
+export function registerCookieParserMiddleware(app: Application) {
   app.use(cookieParser());
 }

@@ -1,8 +1,16 @@
-import type { ModuleConstructor, NullishFalsy, PluginAsyncFn, PluginFn } from './types';
+import type {
+  MiddlewareAsyncFn,
+  MiddlewareFn,
+  ModuleConstructor,
+  NullishFalsy,
+  PluginAsyncFn,
+  PluginFn,
+} from './types';
 
 export class AppFactory {
-  private registeredModules: any[] = [];
   private registeredPlugins: PluginFn[] = [];
+  private registeredMiddleware: PluginFn[] = [];
+  private registeredModules: any[] = [];
 
   constructor(
     private readonly app: any,
@@ -12,7 +20,7 @@ export class AppFactory {
   }
 
   /**
-   * Should be called after plugins are registered.
+   * Should be called after middlewares are registered.
    *
    * @param modules - The modules to register.
    */
@@ -27,7 +35,7 @@ export class AppFactory {
   }
 
   /**
-   * Should be called before modules are registered.
+   * Should be called before middlewares are registered.
    *
    * @param plugins - The plugins to register.
    */
@@ -37,6 +45,20 @@ export class AppFactory {
 
       this.registeredPlugins.push(plugin);
       await plugin(this.app);
+    }
+  }
+
+  /**
+   * Should be called before modules are registered.
+   *
+   * @param middlewares - The middlewares to register.
+   */
+  async registerMiddleware(middlewares: (MiddlewareFn | MiddlewareAsyncFn | NullishFalsy)[]): Promise<void> {
+    for (const middleware of middlewares) {
+      if (!middleware) continue;
+
+      this.registeredMiddleware.push(middleware);
+      await middleware(this.app);
     }
   }
 

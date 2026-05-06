@@ -4,7 +4,7 @@ import type { Application, NextFunction, Request, Response } from 'express';
 /**
  * @express
  */
-export function addRequestIdHeaderPlugin(app: Application): void {
+export function registerAddRequestIdHeaderMiddleware(app: Application): void {
   app.use(addRequestIdHeaderMiddleware);
 }
 

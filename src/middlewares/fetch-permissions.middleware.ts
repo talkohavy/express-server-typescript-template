@@ -4,7 +4,7 @@ import type { Request, Response, NextFunction, Application } from 'express';
 /**
  * @express
  */
-export function fetchPermissionsPlugin(app: Application) {
+export function registerFetchPermissionsMiddleware(app: Application) {
   app.use(fetchPermissionsMiddleware);
 }
 

@@ -18,7 +18,7 @@ import type { Application } from 'express';
 /**
  * @express
  */
-export function helmetPlugin(app: Application) {
+export function registerHelmetMiddleware(app: Application) {
   app.use(contentSecurityPolicy());
   app.use(crossOriginEmbedderPolicy({ policy: 'require-corp' }));
   app.use(crossOriginOpenerPolicy({ policy: 'same-origin' }));

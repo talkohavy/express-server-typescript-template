@@ -4,7 +4,7 @@ import { EXCLUDED_PATHS } from '../common/constants';
 /**
  * @express
  */
-export function bodyLimitPlugin(app: Application) {
+export function registerBodyLimitMiddleware(app: Application) {
   app.use(bodyLimitMiddleware);
 }
 

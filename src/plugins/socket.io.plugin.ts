@@ -2,7 +2,7 @@ import { createServer } from 'http';
 import { instrument } from '@socket.io/admin-ui';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { Server as SocketIOServer } from 'socket.io';
-import { ALLOWED_DOMAINS } from './cors';
+import { ALLOWED_DOMAINS } from '../middlewares/cors';
 import type { Application } from 'express';
 
 /**

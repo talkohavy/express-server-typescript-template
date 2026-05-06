@@ -6,7 +6,7 @@ import type { Application } from 'express';
 /**
  * @express
  */
-export function corsPlugin(app: Application) {
+export function registerCorsMiddleware(app: Application) {
   app.use(corsMiddleware());
 }
 

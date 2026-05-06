@@ -4,7 +4,7 @@ import { EXCLUDED_PATHS } from '../common/constants';
 /**
  * @express
  */
-export function urlEncodedPlugin(app: Application) {
+export function registerUrlEncodedMiddleware(app: Application) {
   app.use(urlEncodedMiddleware);
 }
 
