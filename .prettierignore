@@ -19,6 +19,7 @@ pnpm-lock.yaml
 **/.env.*
 **/.git
 
-
 .gitignore
 .idea/
+generated/
+servables/
