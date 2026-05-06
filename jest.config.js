@@ -214,6 +214,9 @@ const config = {
 
   // Whether to use watchman for file crawling
   // watchman: true,
+
+  // Exit with code 0 even if no test files are found
+  passWithNoTests: true,
 };
 
 export default config;
