@@ -5,12 +5,15 @@ alwaysApply: false
 
 - a module file must be named: `[name].module.ts`
 - never create a module as a function. always as a class.
-- a module class always accepts `private readonly app: Application` as its first and only argument.
+- a module class must implement the `ModuleFactory` interface (imported from `@src/lib/lucky-server`).
+- a module class always accepts `private readonly app: Application` as its first and only constructor argument.
+- the constructor body must be **empty** (zero lines of code). all initialization logic goes inside `init`.
+- a module must have an `async init(): Promise<void>` method. this is where all setup happens: instantiating services, attaching controllers, etc. this design allows async operations that are not possible in a constructor.
 - a module file should sit under the `src/modules/[name]` directory.
-- a modules should encapsulate domain logic and route providers.
-- within this module's constructor, instantiate all the services of that module's domain. Those instantiated services should be stored a private readonly field of that Module's class.
+- a module should encapsulate domain logic and route providers.
+- within `init`, instantiate all the services of that module's domain. store them as private (non-readonly, since they are assigned after construction) fields of the class, declared with the definite-assignment assertion (`!`), e.g. `private booksService!: BooksService`.
 - a module should expose its services via a `services` getter, for others to consume.
-- within `initializeModule`, you can destruct parts from `this.app`, which you attached using plugins, and send them as arguments to service classes, as per demand.
+- within `init`, you can destruct parts from `this.app`, which you attached using plugins, and send them as arguments to service classes, as per demand.
 - a module directory can include the following sub-folders (all or some): `controllers`, `services`, `repositories`, `middlewares`, and `logic`.
 - Use plugin-attached resources: `this.app.pg`, `this.app.redis`, `this.app.configService`, etc.
 - the root of a module named "banana" (for example) should include the following files:
