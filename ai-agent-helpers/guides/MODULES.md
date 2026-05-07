@@ -27,7 +27,7 @@ A typical module has:
 3. **services** getter (optional) – Exposes internal services for other modules to use
 
 ```typescript
-export class BooksModule {
+export class BooksModule implements ModuleFactory {
   private booksService: BooksService;
 
   constructor(private readonly app: Application) {

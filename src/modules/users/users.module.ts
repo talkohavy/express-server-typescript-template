@@ -6,15 +6,18 @@ import { FieldScreeningService } from './services/field-screening.service';
 import { UserUtilitiesService } from './services/user-utilities.service';
 import { UsersCrudService } from './services/users-crud.service';
 import type { IUsersRepository } from './repositories/interfaces/users.repository.base';
+import type { ModuleFactory } from '@src/lib/lucky-server';
 import type { Application } from 'express';
 // import { UsersMongoRepository } from './repositories/users.mongo.repository';
 
-export class UsersModule {
-  private usersRepository: IUsersRepository;
-  private usersCrudService: UsersCrudService;
-  private userUtilitiesService: UserUtilitiesService;
+export class UsersModule implements ModuleFactory {
+  private usersRepository!: IUsersRepository;
+  private usersCrudService!: UsersCrudService;
+  private userUtilitiesService!: UserUtilitiesService;
 
-  constructor(private readonly app: Application) {
+  constructor(private readonly app: Application) {}
+
+  async init(): Promise<void> {
     // Initialize repositories
     // this.usersRepository = new UsersMongoRepository(this.app.mongo);
     this.usersRepository = new UsersPostgresRepository(this.app.pg);

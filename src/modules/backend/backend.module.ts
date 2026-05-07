@@ -1,5 +1,5 @@
 import { ChannelCredentials } from '@grpc/grpc-js';
-import { ConfigKeys, type ServicesConfig } from '../../configurations';
+import { ConfigKeys, type ServicesConfig } from '@src/configurations';
 import { AuthDirectAdapter, AuthHttpAdapter, AuthenticationController, type IAuthAdapter } from './authentication';
 import { BooksDirectAdapter, BooksGrpcAdapter, BooksHttpAdapter, BooksController, type IBooksAdapter } from './books';
 import { DragonsController } from './dragons';
@@ -20,6 +20,7 @@ import {
   UserUtilitiesController,
   type IUsersAdapter,
 } from './users';
+import type { ModuleFactory } from '@src/lib/lucky-server';
 import type { Application } from 'express';
 
 /**
@@ -29,14 +30,16 @@ import type { Application } from 'express';
  * In monolith mode: Uses direct adapters that call module services directly.
  * In micro-services mode: Uses HTTP adapters that make HTTP calls to other services.
  */
-export class BackendModule {
+export class BackendModule implements ModuleFactory {
   private usersAdapter!: IUsersAdapter;
   private authAdapter!: IAuthAdapter;
   private booksAdapter!: IBooksAdapter;
   private dragonsAdapter!: IDragonsAdapter;
   private fileUploadAdapter!: IFileUploadAdapter;
 
-  constructor(private readonly app: Application) {
+  constructor(private readonly app: Application) {}
+
+  async init(): Promise<void> {
     this.initializeAdapters();
     this.attachControllers();
   }

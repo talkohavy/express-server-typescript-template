@@ -1,5 +1,6 @@
 import { ServerSentEventsController } from './controllers/serverSentEvents.controller';
 import { ServerSentEventsService } from './services/serverSentEvents.service';
+import type { ModuleFactory } from '@src/lib/lucky-server';
 import type { Application } from 'express';
 
 /**
@@ -7,10 +8,12 @@ import type { Application } from 'express';
  * - redis plugin
  * - logger plugin
  */
-export class ServerSentEventModule {
-  private serverSentEventsService: ServerSentEventsService;
+export class ServerSentEventModule implements ModuleFactory {
+  private serverSentEventsService!: ServerSentEventsService;
 
-  constructor(private readonly app: Application) {
+  constructor(private readonly app: Application) {}
+
+  async init(): Promise<void> {
     const { pub: redisPubClient, sub: redisSubClient } = this.app.redis;
 
     this.serverSentEventsService = new ServerSentEventsService(this.app.logger, redisPubClient, redisSubClient);

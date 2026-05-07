@@ -2,11 +2,14 @@ import { BooksServiceService } from '../backend/proto/generated/backend/books/v1
 import { BooksService } from '../books/services/books.service';
 import { BooksGrpcController } from './controllers/books.grpc.controller';
 import type { Server } from '@grpc/grpc-js';
+import type { ModuleFactory } from '@src/lib/lucky-server';
 
-export class BooksGrpcModule {
-  private booksService: BooksService;
+export class BooksGrpcModule implements ModuleFactory {
+  private booksService!: BooksService;
 
-  constructor(private readonly app: Server) {
+  constructor(private readonly app: Server) {}
+
+  async init(): Promise<void> {
     this.booksService = new BooksService();
 
     // Only attach routes if running as a standalone micro-service

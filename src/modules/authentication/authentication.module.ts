@@ -1,4 +1,4 @@
-import { ConfigKeys, type JwtConfig } from '../../configurations';
+import { ConfigKeys, type JwtConfig } from '@src/configurations';
 import { AuthenticationController } from './controllers';
 import { PasswordManagementController } from './controllers/password-management.controller';
 import { SessionManagementController } from './controllers/session-management.controller';
@@ -8,14 +8,17 @@ import { AuthenticationMiddleware } from './middleware/authentication.middleware
 import { PasswordManagementService } from './services/password-management.service';
 import { TokenGenerationService } from './services/token-generation.service';
 import { TokenVerificationService } from './services/token-verification.service';
+import type { ModuleFactory } from '@src/lib/lucky-server';
 import type { Application } from 'express';
 
-export class AuthenticationModule {
-  private passwordManagementService: PasswordManagementService;
-  private tokenGenerationService: TokenGenerationService;
-  private tokenVerificationService: TokenVerificationService;
+export class AuthenticationModule implements ModuleFactory {
+  private passwordManagementService!: PasswordManagementService;
+  private tokenGenerationService!: TokenGenerationService;
+  private tokenVerificationService!: TokenVerificationService;
 
-  constructor(private readonly app: Application) {
+  constructor(private readonly app: Application) {}
+
+  async init(): Promise<void> {
     const jwtConfig = this.app.configService.get<JwtConfig>(ConfigKeys.Jwt);
 
     if (!jwtConfig) {

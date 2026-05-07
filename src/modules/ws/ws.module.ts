@@ -14,6 +14,7 @@ import { WebRtcSignalingService } from './services/event-message-handlers/webrtc
 import { MessageDispatcherByEventService } from './services/message-dispatcher-by-event';
 import { PingPongService } from './services/ping-pong';
 import { WsConnectionPipelineService } from './services/ws-connection-pipeline';
+import type { ModuleFactory } from '@src/lib/lucky-server';
 import type { TopicMessage } from '@src/lib/websocket-manager';
 import type { Application } from 'express';
 
@@ -25,15 +26,17 @@ import type { Application } from 'express';
  * - Messages are published to Redis channel "ws:topic:pubsub".
  * - Each node receives them in ConsumeMessageFromTopicService and forwards to its local clients subscribed to that topic.
  */
-export class WsModule {
-  private pingPongService: PingPongService;
-  private topicRegistrationService: TopicRegistrationService;
-  private publishMessageToTopicService: PublishMessageToTopicService;
-  private consumeMessageFromTopicService: ConsumeMessageFromTopicService;
-  private webRtcSignalingService: WebRtcSignalingService;
-  private messageDispatcherByEventService: MessageDispatcherByEventService;
+export class WsModule implements ModuleFactory {
+  private pingPongService!: PingPongService;
+  private topicRegistrationService!: TopicRegistrationService;
+  private publishMessageToTopicService!: PublishMessageToTopicService;
+  private consumeMessageFromTopicService!: ConsumeMessageFromTopicService;
+  private webRtcSignalingService!: WebRtcSignalingService;
+  private messageDispatcherByEventService!: MessageDispatcherByEventService;
 
-  constructor(private readonly app: Application) {
+  constructor(private readonly app: Application) {}
+
+  async init(): Promise<void> {
     const { wsManager, logger, redis } = this.app;
 
     this.pingPongService = new PingPongService();
@@ -55,7 +58,7 @@ export class WsModule {
       ...dataInterceptorService.getInterceptors(),
     });
 
-    this.consumeMessageFromTopicService.subscribeToPubSub();
+    await this.consumeMessageFromTopicService.subscribeToPubSub();
 
     this.registerEventHandlers();
   }

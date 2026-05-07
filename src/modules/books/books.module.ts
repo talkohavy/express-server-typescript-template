@@ -1,12 +1,15 @@
 import { BooksController } from './controllers/books.controller';
 import { BooksMiddleware } from './middleware/books.middleware';
 import { BooksService } from './services/books.service';
+import type { ModuleFactory } from '@src/lib/lucky-server';
 import type { Application } from 'express';
 
-export class BooksModule {
-  private booksService: BooksService;
+export class BooksModule implements ModuleFactory {
+  private booksService!: BooksService;
 
-  constructor(private readonly app: Application) {
+  constructor(private readonly app: Application) {}
+
+  async init(): Promise<void> {
     this.booksService = new BooksService();
 
     // Only attach routes if running as a standalone micro-service

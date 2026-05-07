@@ -1,8 +1,11 @@
 import { WsStateController } from './controllers/ws-state.controller';
+import type { ModuleFactory } from '@src/lib/lucky-server';
 import type { Application } from 'express';
 
-export class RedisDebugModule {
-  constructor(private readonly app: Application) {
+export class RedisDebugModule implements ModuleFactory {
+  constructor(private readonly app: Application) {}
+
+  async init(): Promise<void> {
     this.attachControllers();
   }
 

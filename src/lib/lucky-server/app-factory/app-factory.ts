@@ -24,14 +24,17 @@ export class AppFactory {
    *
    * @param modules - The modules to register.
    */
-  registerModules(modules: (ModuleConstructor | NullishFalsy)[]): void {
-    modules.forEach((Module) => {
-      if (!Module) return;
+  async registerModules(modules: (ModuleConstructor | NullishFalsy)[]): Promise<void> {
+    for (const Module of modules) {
+      if (!Module) continue;
 
       const moduleInstance = new Module(this.app);
+
+      await moduleInstance.init();
+
       this.registeredModules.push(moduleInstance);
       this.app.modules[Module.name] = moduleInstance;
-    });
+    }
   }
 
   /**
