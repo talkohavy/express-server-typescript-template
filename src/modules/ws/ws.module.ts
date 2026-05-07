@@ -26,12 +26,12 @@ import type { Application } from 'express';
  * - Each node receives them in ConsumeMessageFromTopicService and forwards to its local clients subscribed to that topic.
  */
 export class WsModule {
-  pingPongService: PingPongService;
-  topicRegistrationService: TopicRegistrationService;
-  publishMessageToTopicService: PublishMessageToTopicService;
-  consumeMessageFromTopicService: ConsumeMessageFromTopicService;
-  webRtcSignalingService: WebRtcSignalingService;
-  messageDispatcherByEventService: MessageDispatcherByEventService;
+  private pingPongService: PingPongService;
+  private topicRegistrationService: TopicRegistrationService;
+  private publishMessageToTopicService: PublishMessageToTopicService;
+  private consumeMessageFromTopicService: ConsumeMessageFromTopicService;
+  private webRtcSignalingService: WebRtcSignalingService;
+  private messageDispatcherByEventService: MessageDispatcherByEventService;
 
   constructor(private readonly app: Application) {
     const { wsManager, logger, redis } = this.app;
