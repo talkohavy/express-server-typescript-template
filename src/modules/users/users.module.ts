@@ -37,10 +37,12 @@ export class UsersModule implements ModuleFactory {
 
   private attachControllers(): void {
     const usersMiddleware = new UsersMiddleware(this.app);
+
     const userUtilitiesController = new UserUtilitiesController(this.app, this.userUtilitiesService);
     const usersCrudController = new UsersCrudController(this.app, this.usersCrudService);
 
     usersMiddleware.use();
+
     userUtilitiesController.registerRoutes();
     usersCrudController.registerRoutes();
   }
