@@ -1,4 +1,4 @@
-import type { SocketEvents } from '../../logic/constants';
+import type { SocketEvents } from '../../../logic/constants';
 import type WebSocket from 'ws';
 
 export type TopicRegistrationPayload = {

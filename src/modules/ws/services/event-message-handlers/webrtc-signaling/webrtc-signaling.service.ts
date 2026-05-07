@@ -6,9 +6,9 @@ import {
   WebRtcSignals,
   getWebRtcToReceiversTopic,
   getWebRtcToSenderTopic,
-} from '../../logic/constants';
-import type { ActionHandler } from '../../types';
-import type { WebRtcSignalingPayload } from '../interfaces/webrtc-signaling.service.interface';
+} from '../../../logic/constants';
+import type { ActionHandler } from '../../../types';
+import type { WebRtcSignalingPayload } from './types';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { WebSocket } from 'ws';
 

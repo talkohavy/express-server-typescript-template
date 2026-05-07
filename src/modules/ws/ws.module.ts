@@ -7,11 +7,12 @@ import { AttachSocketIdToConnectionMiddleware } from './middleware/attach-socket
 import { ConnectionAcknowledgeMiddleware } from './middleware/connection-acknowledge.middleware';
 import { SubscribeSocketToRootTopicMiddleware } from './middleware/subscribe-socket-to-root-topic.middleware';
 import { ConsumeMessageFromTopicService } from './services/consume-message-from-topic';
+import { DataInterceptorService } from './services/consume-message-interceptors/data.interceptor.service';
+import { PublishMessageToTopicService } from './services/event-message-handlers/publish-message-to-topic';
+import { TopicRegistrationService } from './services/event-message-handlers/topic-registration';
+import { WebRtcSignalingService } from './services/event-message-handlers/webrtc-signaling';
 import { MessageDispatcherByEventService } from './services/message-dispatcher-by-event';
 import { PingPongService } from './services/ping-pong';
-import { PublishMessageToTopicService } from './services/publish-message-to-topic';
-import { TopicRegistrationService } from './services/topic-registration';
-import { WebRtcSignalingService } from './services/webrtc-signaling';
 import { WsConnectionPipelineService } from './services/ws-connection-pipeline';
 import type { TopicMessage } from '@src/lib/websocket-manager';
 import type { Application } from 'express';
@@ -38,7 +39,6 @@ export class WsModule {
     this.pingPongService = new PingPongService();
     this.topicRegistrationService = new TopicRegistrationService(wsManager, logger);
     this.publishMessageToTopicService = new PublishMessageToTopicService(wsManager, logger);
-    this.consumeMessageFromTopicService = new ConsumeMessageFromTopicService(wsManager, logger, redis.sub);
     this.webRtcSignalingService = new WebRtcSignalingService(wsManager, logger);
     this.messageDispatcherByEventService = new MessageDispatcherByEventService(
       {
@@ -49,7 +49,14 @@ export class WsModule {
       logger,
     );
 
+    const dataInterceptorService = new DataInterceptorService();
+
+    this.consumeMessageFromTopicService = new ConsumeMessageFromTopicService(wsManager, logger, redis.sub, {
+      ...dataInterceptorService.getInterceptors(),
+    });
+
     this.consumeMessageFromTopicService.subscribeToPubSub();
+
     this.registerEventHandlers();
   }
 

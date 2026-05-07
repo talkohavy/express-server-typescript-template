@@ -1,6 +1,6 @@
-import { ResponseTypes, type SendEventValues, SocketEvents } from '../../logic/constants';
-import type { ActionHandler } from '../../types';
-import type { HandleSendMessagePayload, SendResponseProps } from '../interfaces/send-message.service.interface';
+import { ResponseTypes, type SendEventValues, SocketEvents } from '../../../logic/constants';
+import type { ActionHandler } from '../../../types';
+import type { HandleSendMessagePayload, SendResponseProps } from './types';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { ServerSocketResponse, WebsocketManager } from '@src/lib/websocket-manager';
 import type { WebSocket } from 'ws';

@@ -1,6 +1,7 @@
 import { WebSocket } from 'ws';
 import { parseJson } from '@src/common/utils/parseJson';
 import { WS_TOPIC_PUBSUB_CHANNEL } from '@src/lib/websocket-manager';
+import type { InterceptorFunc } from './types';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { TopicMessage, WebsocketManager } from '@src/lib/websocket-manager';
 import type { RedisClientType } from 'redis';
@@ -10,7 +11,7 @@ export class ConsumeMessageFromTopicService {
     private readonly wsManager: WebsocketManager,
     private readonly logger: LoggerService,
     private readonly redisSub: RedisClientType,
-    private readonly topicInterceptors: Record<string, (message: TopicMessage) => any> = {},
+    private readonly topicInterceptors: Record<string, InterceptorFunc> = {},
   ) {}
 
   /**
@@ -37,12 +38,12 @@ export class ConsumeMessageFromTopicService {
 
     const topicSubscribers = await this.wsManager.getTopicSubscribers(topic);
 
-    topicSubscribers.forEach((socket) => {
+    for (const socket of topicSubscribers) {
       if (socket.readyState !== WebSocket.OPEN) return;
 
       const interceptor = this.topicInterceptors[topic];
 
-      const payloadToSend = interceptor ? interceptor(parsedPayload) : parsedPayload;
+      const payloadToSend = interceptor ? await interceptor(parsedPayload) : parsedPayload;
 
       if (payloadToSend === null) return;
 
@@ -52,7 +53,7 @@ export class ConsumeMessageFromTopicService {
       } catch (error) {
         console.error(`Failed to send topic message to client in topic "${topic}":`, error);
       }
-    });
+    }
   }
 
   async cleanup(): Promise<void> {
