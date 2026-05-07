@@ -1,3 +1,7 @@
+import { WS_TOPIC_PUBSUB_CHANNEL, type TopicMessage } from '@src/lib/websocket-manager';
+import { PublishController } from './controllers/publish.controller';
+import { TopicRegistrationController } from './controllers/topic-registration';
+import { WebRtcSignalingController } from './controllers/webrtc-signaling';
 import { StaticTopics } from './logic/constants';
 import { AttachCloseHandlerToSocketMiddleware } from './middleware/attach-close-handler-to-socket.middleware';
 import { AttachErrorHandlerToSocketMiddleware } from './middleware/attach-error-handler-to-socket.middleware';
@@ -8,14 +12,10 @@ import { ConnectionAcknowledgeMiddleware } from './middleware/connection-acknowl
 import { SubscribeSocketToRootTopicMiddleware } from './middleware/subscribe-socket-to-root-topic.middleware';
 import { ConsumeMessageFromTopicService } from './services/consume-message-from-topic';
 import { DataInterceptorService } from './services/consume-message-interceptors/data.interceptor.service';
-import { PublishMessageToTopicService } from './services/event-message-handlers/publish-message-to-topic';
-import { TopicRegistrationService } from './services/event-message-handlers/topic-registration';
-import { WebRtcSignalingService } from './services/event-message-handlers/webrtc-signaling';
 import { MessageDispatcherByEventService } from './services/message-dispatcher-by-event';
 import { PingPongService } from './services/ping-pong';
 import { WsConnectionPipelineService } from './services/ws-connection-pipeline';
 import type { ModuleFactory } from '@src/lib/lucky-server';
-import type { TopicMessage } from '@src/lib/websocket-manager';
 import type { Application } from 'express';
 
 /**
@@ -27,32 +27,18 @@ import type { Application } from 'express';
  * - Each node receives them in ConsumeMessageFromTopicService and forwards to its local clients subscribed to that topic.
  */
 export class WsModule implements ModuleFactory {
-  private pingPongService!: PingPongService;
-  private topicRegistrationService!: TopicRegistrationService;
-  private publishMessageToTopicService!: PublishMessageToTopicService;
+  private messageDispatcherService!: MessageDispatcherByEventService;
   private consumeMessageFromTopicService!: ConsumeMessageFromTopicService;
-  private webRtcSignalingService!: WebRtcSignalingService;
-  private messageDispatcherByEventService!: MessageDispatcherByEventService;
+  private pingPongService!: PingPongService;
 
   constructor(private readonly app: Application) {}
 
   async init(): Promise<void> {
     const { wsManager, logger, redis } = this.app;
 
+    // Services
     this.pingPongService = new PingPongService();
-
-    this.publishMessageToTopicService = new PublishMessageToTopicService(wsManager, logger);
-    this.topicRegistrationService = new TopicRegistrationService(wsManager, logger);
-    this.webRtcSignalingService = new WebRtcSignalingService(wsManager, logger);
-
-    this.messageDispatcherByEventService = new MessageDispatcherByEventService(
-      {
-        ...this.publishMessageToTopicService.getActionHandlers(),
-        ...this.topicRegistrationService.getActionHandlers(),
-        ...this.webRtcSignalingService.getActionHandlers(),
-      },
-      logger,
-    );
+    this.messageDispatcherService = new MessageDispatcherByEventService(logger);
 
     const dataInterceptorService = new DataInterceptorService();
 
@@ -60,38 +46,44 @@ export class WsModule implements ModuleFactory {
       ...dataInterceptorService.getInterceptors(),
     });
 
-    await this.consumeMessageFromTopicService.subscribeToPubSub();
+    await this.consumeMessageFromTopicService.subscribeToPubSub(WS_TOPIC_PUBSUB_CHANNEL);
 
-    this.registerEventHandlers();
+    // Controllers
+    this.attachControllers();
+
+    // Connection pipeline
+    this.attachConnectionPipeline();
   }
 
-  async cleanup(): Promise<void> {
-    await this.consumeMessageFromTopicService.cleanup();
+  private attachControllers(): void {
+    const { wsManager, logger } = this.app;
+
+    const publishController = new PublishController(wsManager, logger, this.messageDispatcherService);
+    const topicRegistrationController = new TopicRegistrationController(
+      wsManager,
+      logger,
+      this.messageDispatcherService,
+    );
+    const webRtcSignalingController = new WebRtcSignalingController(wsManager, logger, this.messageDispatcherService);
+
+    publishController.attachEventHandlers();
+    topicRegistrationController.attachEventHandlers();
+    webRtcSignalingController.attachEventHandlers();
   }
 
-  private registerEventHandlers(): void {
+  private attachConnectionPipeline(): void {
     const { wsApp, wsManager, logger } = this.app;
 
     const wsConnectionPipelineService = new WsConnectionPipelineService(wsApp);
 
-    const attachSocketIdToConnectionMiddleware = new AttachSocketIdToConnectionMiddleware();
-    const subscribeSocketToRootTopicMiddleware = new SubscribeSocketToRootTopicMiddleware(wsManager, logger);
-    const attachCloseHandlerToSocketMiddleware = new AttachCloseHandlerToSocketMiddleware(wsManager, logger);
-    const attachErrorHandlerToSocketMiddleware = new AttachErrorHandlerToSocketMiddleware(logger);
-    const attachPongToSocketMiddleware = new AttachPongHandlerToSocketMiddleware(this.pingPongService);
-    const attachMessageHandlerToSocketMiddleware = new AttachMessageHandlerToSocketMiddleware(
-      this.messageDispatcherByEventService,
-    );
-    const connectionAcknowledgeMiddleware = new ConnectionAcknowledgeMiddleware();
-
     wsConnectionPipelineService.register([
-      attachSocketIdToConnectionMiddleware,
-      subscribeSocketToRootTopicMiddleware,
-      attachCloseHandlerToSocketMiddleware,
-      attachErrorHandlerToSocketMiddleware,
-      attachPongToSocketMiddleware,
-      attachMessageHandlerToSocketMiddleware,
-      connectionAcknowledgeMiddleware,
+      new AttachSocketIdToConnectionMiddleware(),
+      new SubscribeSocketToRootTopicMiddleware(wsManager, logger),
+      new AttachCloseHandlerToSocketMiddleware(wsManager, logger),
+      new AttachErrorHandlerToSocketMiddleware(logger),
+      new AttachPongHandlerToSocketMiddleware(this.pingPongService),
+      new AttachMessageHandlerToSocketMiddleware(this.messageDispatcherService),
+      new ConnectionAcknowledgeMiddleware(),
     ]);
 
     // ---------------------------------------------
@@ -107,5 +99,13 @@ export class WsModule implements ModuleFactory {
         this.app.wsManager.publishToTopic(payload);
       }, 4000);
     }
+  }
+
+  get services() {
+    return {
+      messageDispatcherService: this.messageDispatcherService,
+      consumeMessageFromTopicService: this.consumeMessageFromTopicService,
+      pingPongService: this.pingPongService,
+    };
   }
 }

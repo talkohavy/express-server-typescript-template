@@ -1,8 +1,9 @@
 import { parseJson } from '@src/common/utils/parseJson';
 import { ResponseTypes, type SocketEventValues } from '../../logic/constants';
+import { sendResponse } from '../../logic/utils/sendResponse';
 import type { ActionHandler, ClientMessage } from '../../types';
+import type { RegisterProps } from './types';
 import type { LoggerService } from '@src/lib/logger-service';
-import type { ServerSocketResponse } from '@src/lib/websocket-manager';
 import type { WebSocket } from 'ws';
 
 /**
@@ -10,10 +11,14 @@ import type { WebSocket } from 'ws';
  * All client messages must be stringified JSON with an "event" key (Socket.IO-style).
  */
 export class MessageDispatcherByEventService {
-  constructor(
-    private readonly handlersByEvent: Record<SocketEventValues, ActionHandler>,
-    private readonly logger: LoggerService,
-  ) {}
+  private readonly handlersByEvent: Partial<Record<SocketEventValues, ActionHandler>> = {};
+
+  constructor(private readonly logger: LoggerService) {}
+
+  register(props: RegisterProps): void {
+    const { event, handler } = props;
+    this.handlersByEvent[event] = handler;
+  }
 
   async dispatchMessage(socket: WebSocket, data: Buffer): Promise<void> {
     const message = parseJson<ClientMessage>(data);
@@ -21,12 +26,11 @@ export class MessageDispatcherByEventService {
     if (!this.isValidClientMessage(message)) {
       this.logger.debug('Received invalid message: missing or invalid JSON / event key', { raw: data?.toString?.() });
 
-      this.sendResponse(socket, {
-        type: 'validation_error',
+      return void sendResponse({
+        socket,
+        type: ResponseTypes.ValidationError,
         message: 'Invalid message: must be stringified JSON with an "event" key',
       });
-
-      return;
     }
 
     const { event, payload } = message;
@@ -35,8 +39,7 @@ export class MessageDispatcherByEventService {
 
     if (!eventHandler) {
       this.logger.debug('Received unknown event', { event });
-      this.sendResponse(socket, { type: ResponseTypes.ValidationError, message: 'Unknown event' });
-      return;
+      return void sendResponse({ socket, type: ResponseTypes.ValidationError, message: 'Unknown event' });
     }
 
     try {
@@ -44,19 +47,11 @@ export class MessageDispatcherByEventService {
     } catch (error) {
       this.logger.error('Error in event handler', { event, error });
 
-      const response: ServerSocketResponse = { type: ResponseTypes.ServerError, message: 'Internal server error' };
-
-      this.sendResponse(socket, response);
+      sendResponse({ socket, type: ResponseTypes.ServerError, message: 'Internal server error' });
     }
   }
 
-  private isValidClientMessage(message: ClientMessage | null): message is ClientMessage {
-    return message !== null && typeof message.event === 'string';
-  }
-
-  private sendResponse(socket: WebSocket, response: ServerSocketResponse): void {
-    if (socket.readyState !== socket.OPEN) return;
-
-    socket.send(JSON.stringify(response));
+  private isValidClientMessage(message: any): message is ClientMessage {
+    return Boolean(message) && typeof message.event === 'string';
   }
 }

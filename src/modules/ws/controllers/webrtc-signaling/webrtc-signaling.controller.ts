@@ -1,40 +1,40 @@
 import { BUILT_IN_WEBSOCKET_EVENTS, type WebsocketManager } from '@src/lib/websocket-manager';
 import {
   SocketEvents,
-  type WebRtcEventValues,
   type WebRtcSignalValues,
   WebRtcSignals,
   getWebRtcToReceiversTopic,
   getWebRtcToSenderTopic,
-} from '../../../logic/constants';
-import type { ActionHandler } from '../../../types';
+} from '../../logic/constants';
+import type { MessageDispatcherByEventService } from '../../services/message-dispatcher-by-event';
+import type { ActionHandler } from '../../types';
 import type { WebRtcSignalingPayload } from './types';
 import type { LoggerService } from '@src/lib/logger-service';
+import type { EventHandlerFactory } from '@src/lib/lucky-server';
 import type { WebSocket } from 'ws';
 
 /**
- * WebRTC signaling service: uses topic pub/sub so one sender can have multiple receivers
+ * WebRTC signaling controller: uses topic pub/sub so one sender can have multiple receivers
  * and receivers can live on any server instance. Sender and receivers register with a socketId;
  * offers/answers and ICE are published to session-specific topics and delivered via Redis.
  */
-export class WebRtcSignalingService {
+export class WebRtcSignalingController implements EventHandlerFactory {
   private readonly senderSocketsBySessionId = new Map<string, WebSocket>();
   private readonly handlersByType: Record<WebRtcSignalValues, ActionHandler>;
 
   constructor(
     private readonly wsManager: WebsocketManager,
     private readonly logger: LoggerService,
+    private readonly messageDispatcher: MessageDispatcherByEventService,
   ) {
-    this.handlersByType = this.getHandlersByType();
+    this.handlersByType = this.buildHandlersByType();
   }
 
-  getActionHandlers(): Record<WebRtcEventValues, ActionHandler> {
-    return {
-      [SocketEvents.WebRtc]: this.handleWebRtcMessage.bind(this),
-    };
+  attachEventHandlers(): void {
+    this.messageDispatcher.register({ event: SocketEvents.WebRtc, handler: this.handleWebRtcMessage.bind(this) });
   }
 
-  private getHandlersByType(): Record<WebRtcSignalValues, ActionHandler> {
+  private buildHandlersByType(): Record<WebRtcSignalValues, ActionHandler> {
     return {
       [WebRtcSignals.Sender]: this.handleSenderSignal.bind(this),
       [WebRtcSignals.Receiver]: this.handleReceiverSignal.bind(this),
@@ -42,19 +42,6 @@ export class WebRtcSignalingService {
       [WebRtcSignals.CreateAnswer]: this.handleCreateAnswerSignal.bind(this),
       [WebRtcSignals.IceCandidate]: this.handleIceCandidateSignal.bind(this),
     };
-  }
-
-  private clearSender(socket: WebSocket): void {
-    this.senderSocketsBySessionId.delete(socket.id);
-
-    this.logger.log('WebRTC sender disconnected', { socketId: socket.id });
-    return;
-  }
-
-  private attachCloseListener(socket: WebSocket): void {
-    socket.on(BUILT_IN_WEBSOCKET_EVENTS.Close, () => {
-      this.clearSender(socket);
-    });
   }
 
   private async handleWebRtcMessage(socket: WebSocket, data: WebRtcSignalingPayload): Promise<void> {
@@ -164,5 +151,17 @@ export class WebRtcSignalingService {
     this.logger.debug(`WebRTC: relayed ICE to ${isSender ? 'receivers' : 'sender'}`, { sessionId });
 
     await this.wsManager.publishToTopic({ topic, data });
+  }
+
+  private clearSender(socket: WebSocket): void {
+    this.senderSocketsBySessionId.delete(socket.id);
+
+    this.logger.log('WebRTC sender disconnected', { socketId: socket.id });
+  }
+
+  private attachCloseListener(socket: WebSocket): void {
+    socket.on(BUILT_IN_WEBSOCKET_EVENTS.Close, () => {
+      this.clearSender(socket);
+    });
   }
 }

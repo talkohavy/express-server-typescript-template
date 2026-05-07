@@ -17,8 +17,8 @@ export class ConsumeMessageFromTopicService {
   /**
    * Start listening on the Redis pub/sub channel. Call once on startup.
    */
-  async subscribeToPubSub(): Promise<void> {
-    await this.redisSub.subscribe(WS_TOPIC_PUBSUB_CHANNEL, this.onTopicMessage.bind(this));
+  async subscribeToPubSub(channelName: string): Promise<void> {
+    await this.redisSub.subscribe(channelName, this.onTopicMessage.bind(this));
   }
 
   private async onTopicMessage(payloadAsString: string): Promise<void> {
