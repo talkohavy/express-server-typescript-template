@@ -40,13 +40,15 @@ export class WsModule implements ModuleFactory {
     const { wsManager, logger, redis } = this.app;
 
     this.pingPongService = new PingPongService();
-    this.topicRegistrationService = new TopicRegistrationService(wsManager, logger);
+
     this.publishMessageToTopicService = new PublishMessageToTopicService(wsManager, logger);
+    this.topicRegistrationService = new TopicRegistrationService(wsManager, logger);
     this.webRtcSignalingService = new WebRtcSignalingService(wsManager, logger);
+
     this.messageDispatcherByEventService = new MessageDispatcherByEventService(
       {
-        ...this.topicRegistrationService.getActionHandlers(),
         ...this.publishMessageToTopicService.getActionHandlers(),
+        ...this.topicRegistrationService.getActionHandlers(),
         ...this.webRtcSignalingService.getActionHandlers(),
       },
       logger,
