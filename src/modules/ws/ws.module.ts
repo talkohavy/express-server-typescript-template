@@ -23,7 +23,6 @@ import type { Application } from 'express';
  * - Producers call `app.wsManager.publishToTopic({ topic, data })` (e.g. from routes, jobs, or the sample below).
  * - Messages are published to Redis channel "ws:topic:pubsub".
  * - Each node receives them in ConsumeMessageFromTopicService and forwards to its local clients subscribed to that topic.
- * - Interceptors can be registered on `consumeMessageFromTopicService` to modify or filter messages per-socket.
  */
 export class WsModule {
   pingPongService: PingPongService;
@@ -50,7 +49,7 @@ export class WsModule {
       logger,
     );
 
-    this.consumeMessageFromTopicService.listen();
+    this.consumeMessageFromTopicService.subscribeToPubSub();
     this.registerEventHandlers();
   }
 
