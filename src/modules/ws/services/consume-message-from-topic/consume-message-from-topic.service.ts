@@ -39,13 +39,13 @@ export class ConsumeMessageFromTopicService {
     const topicSubscribers = await this.wsManager.getTopicSubscribers(topic);
 
     for (const socket of topicSubscribers) {
-      if (socket.readyState !== WebSocket.OPEN) return;
+      if (socket.readyState !== WebSocket.OPEN) continue;
 
       const interceptor = this.topicInterceptors[topic];
 
       const payloadToSend = interceptor ? await interceptor(parsedPayload) : parsedPayload;
 
-      if (payloadToSend === null) return;
+      if (payloadToSend === null) continue;
 
       try {
         const serialized = JSON.stringify(payloadToSend);
