@@ -10,6 +10,7 @@ export class ConsumeMessageFromTopicService {
     private readonly wsManager: WebsocketManager,
     private readonly logger: LoggerService,
     private readonly redisSub: RedisClientType,
+    private readonly topicInterceptors: Record<string, (message: TopicMessage) => any> = {},
   ) {}
 
   /**
@@ -39,8 +40,14 @@ export class ConsumeMessageFromTopicService {
     topicSubscribers.forEach((socket) => {
       if (socket.readyState !== WebSocket.OPEN) return;
 
+      const interceptor = this.topicInterceptors[topic];
+
+      const payloadToSend = interceptor ? interceptor(parsedPayload) : parsedPayload;
+
+      if (payloadToSend === null) return;
+
       try {
-        const serialized = JSON.stringify(parsedPayload);
+        const serialized = JSON.stringify(payloadToSend);
         socket.send(serialized, { binary: false });
       } catch (error) {
         console.error(`Failed to send topic message to client in topic "${topic}":`, error);
