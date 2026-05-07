@@ -1,25 +1,18 @@
-import { WebSocket } from 'ws';
-import { parseJson } from '@src/common/utils/parseJson';
 import { WS_TOPIC_PUBSUB_CHANNEL } from './logic/constants';
-import type { LoggerService } from '../logger-service';
 import type { TopicManager } from './logic/topic-manager';
 import type { TopicMessage } from './types';
 import type { PublishToTopicProps } from './websocket-manager.interface';
 import type { RedisClientType } from 'redis';
+import type { WebSocket } from 'ws';
 
 export class WebsocketManager {
   /**
    * @param redisPub Used to PUBLISH topic messages to the shared channel (and for TopicManager: subscription state).
-   * @param redisSub Used only to SUBSCRIBE to that channel so this node receives messages and can forward them to local clients.
    */
   constructor(
     private readonly topicManager: TopicManager,
     private readonly redisPub: RedisClientType,
-    private readonly redisSub: RedisClientType,
-    private readonly logger: LoggerService,
-  ) {
-    this.subscribeToPubSubTopicsChannel();
-  }
+  ) {}
 
   /**
    * Publishes a message to a topic via Redis pub/sub. Every node (including this one) receives it
@@ -29,7 +22,7 @@ export class WebsocketManager {
   async publishToTopic(props: PublishToTopicProps): Promise<number> {
     const { topic, data } = props;
 
-    const messageRaw: TopicMessage = { topic, data, timestamp: Date.now() };
+    const messageRaw: TopicMessage = { topic, data };
     const messageStringified = JSON.stringify(messageRaw);
 
     const subscriberCount = await this.redisPub.publish(WS_TOPIC_PUBSUB_CHANNEL, messageStringified);
@@ -73,59 +66,23 @@ export class WebsocketManager {
   }
 
   /**
-   * Remove from Redis all keys created by this server's WebSocket connections, unsubscribe from topic pub/sub,
-   * and stop the heartbeat interval. Should be called on shutdown (graceful or unexpected).
+   * Returns only the local WebSocket clients that are subscribed to the topic.
+   * Used by ConsumeMessageFromTopicService to forward messages to this node's clients.
+   */
+  async getTopicSubscribers(topic: string): Promise<Set<WebSocket>> {
+    return this.topicManager.getTopicSubscribers(topic);
+  }
+
+  /**
+   * Remove from Redis all keys created by this server's WebSocket connections.
+   * Should be called on shutdown (graceful or unexpected).
    */
   async cleanup(): Promise<void> {
     try {
-      await this.redisSub.unsubscribe(WS_TOPIC_PUBSUB_CHANNEL);
       await this.topicManager.removeAllLocalConnectionsFromRedis();
     } catch (error) {
       console.log('Redis WS cleanup failed during graceful shutdown');
       console.error(error);
     }
-  }
-
-  /**
-   * Subscribes to the Redis topic channel. When a message is published by any node (even this one),
-   * this node receives it and forwards to its local WebSocket clients subscribed to that topic.
-   */
-  private async subscribeToPubSubTopicsChannel(): Promise<void> {
-    await this.redisSub.subscribe(WS_TOPIC_PUBSUB_CHANNEL, (message) => {
-      this.forwardTopicMessageToLocalClients(message);
-    });
-  }
-
-  /**
-   * Called when a topic message is received from Redis. Forwards the message to local clients subscribed to the topic.
-   */
-  private async forwardTopicMessageToLocalClients(payloadAsString: string) {
-    const parsedPayload = parseJson<TopicMessage>(payloadAsString);
-
-    if (!parsedPayload) {
-      console.error('WS topic pub/sub: invalid JSON received on channel', WS_TOPIC_PUBSUB_CHANNEL);
-      return;
-    }
-
-    const { topic, data } = parsedPayload;
-
-    if (typeof data !== 'object' || data === null) {
-      this.logger.error('WS topic pub/sub: invalid data received on channel', WS_TOPIC_PUBSUB_CHANNEL);
-      return;
-    }
-
-    const dataAsString = JSON.stringify(data);
-
-    const topicSubscribers = await this.topicManager.getTopicSubscribers(topic);
-
-    topicSubscribers.forEach((socket) => {
-      if (socket.readyState !== WebSocket.OPEN) return;
-
-      try {
-        socket.send(dataAsString, { binary: false });
-      } catch (error) {
-        console.error(`Failed to send topic message to client in topic "${topic}":`, error);
-      }
-    });
   }
 }

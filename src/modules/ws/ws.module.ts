@@ -6,6 +6,7 @@ import { AttachPongHandlerToSocketMiddleware } from './middleware/attach-pong-ha
 import { AttachSocketIdToConnectionMiddleware } from './middleware/attach-socket-id-to-connection.middleware';
 import { ConnectionAcknowledgeMiddleware } from './middleware/connection-acknowledge.middleware';
 import { SubscribeSocketToRootTopicMiddleware } from './middleware/subscribe-socket-to-root-topic.middleware';
+import { ConsumeMessageFromTopicService } from './services/consume-message-from-topic';
 import { MessageDispatcherByEventService } from './services/message-dispatcher-by-event';
 import { PingPongService } from './services/ping-pong';
 import { PublishMessageToTopicService } from './services/publish-message-to-topic';
@@ -19,24 +20,26 @@ import type { Application } from 'express';
  * WebSocket module: connection lifecycle, message dispatch, and topic pub/sub.
  *
  * **Sending messages to clients (by topic):**
- * - Producers call `app.wsManager.publishToTopic({ topic, payload })` (e.g. from routes, jobs, or the sample below).
+ * - Producers call `app.wsManager.publishToTopic({ topic, data })` (e.g. from routes, jobs, or the sample below).
  * - Messages are published to Redis channel "ws:topic:pubsub".
- * - Each node receives them in WebsocketManager (subscribeToPubSubTopicsChannel) and forwards to its local clients
- *   subscribed to that topic. See WebsocketManager for the receive/forward implementation.
+ * - Each node receives them in ConsumeMessageFromTopicService and forwards to its local clients subscribed to that topic.
+ * - Interceptors can be registered on `consumeMessageFromTopicService` to modify or filter messages per-socket.
  */
 export class WsModule {
   pingPongService: PingPongService;
   topicRegistrationService: TopicRegistrationService;
   publishMessageToTopicService: PublishMessageToTopicService;
+  consumeMessageFromTopicService: ConsumeMessageFromTopicService;
   webRtcSignalingService: WebRtcSignalingService;
   messageDispatcherByEventService: MessageDispatcherByEventService;
 
   constructor(private readonly app: Application) {
-    const { wsManager, logger } = this.app;
+    const { wsManager, logger, redis } = this.app;
 
     this.pingPongService = new PingPongService();
     this.topicRegistrationService = new TopicRegistrationService(wsManager, logger);
     this.publishMessageToTopicService = new PublishMessageToTopicService(wsManager, logger);
+    this.consumeMessageFromTopicService = new ConsumeMessageFromTopicService(wsManager, logger, redis.sub);
     this.webRtcSignalingService = new WebRtcSignalingService(wsManager, logger);
     this.messageDispatcherByEventService = new MessageDispatcherByEventService(
       {
@@ -47,7 +50,12 @@ export class WsModule {
       logger,
     );
 
+    this.consumeMessageFromTopicService.listen();
     this.registerEventHandlers();
+  }
+
+  async cleanup(): Promise<void> {
+    await this.consumeMessageFromTopicService.cleanup();
   }
 
   private registerEventHandlers(): void {
