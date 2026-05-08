@@ -1,3 +1,3 @@
-import type { TopicMessage } from '@src/lib/websocket-manager';
+import type { TopicPayload } from '@src/lib/websocket-manager';
 
-export type InterceptorFunc = (message: TopicMessage) => any;
+export type InterceptorFunc = (message: TopicPayload) => any;

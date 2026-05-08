@@ -3,7 +3,7 @@ import { parseJson } from '@src/common/utils/parseJson';
 import { WS_TOPIC_PUBSUB_CHANNEL } from '@src/lib/websocket-manager';
 import type { InterceptorFunc } from './types';
 import type { LoggerService } from '@src/lib/logger-service';
-import type { TopicMessage, WebsocketManager } from '@src/lib/websocket-manager';
+import type { TopicPayload, WebsocketManager } from '@src/lib/websocket-manager';
 import type { RedisClientType } from 'redis';
 
 export class ConsumeMessageFromTopicService {
@@ -22,7 +22,7 @@ export class ConsumeMessageFromTopicService {
   }
 
   private async onTopicMessage(payloadAsString: string): Promise<void> {
-    const parsedPayload = parseJson<TopicMessage>(payloadAsString);
+    const parsedPayload = parseJson<TopicPayload>(payloadAsString);
 
     if (!parsedPayload) {
       console.error('WS topic pub/sub: invalid JSON received on channel', WS_TOPIC_PUBSUB_CHANNEL);

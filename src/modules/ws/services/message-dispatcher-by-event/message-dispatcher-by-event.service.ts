@@ -24,7 +24,7 @@ export class MessageDispatcherByEventService {
   }
 
   async dispatchMessage(socket: WebSocket, data: Buffer): Promise<void> {
-    const message = parseJson<ClientMessage>(data);
+    const message = parseJson<unknown>(data);
 
     if (!this.isValidClientMessage(message)) {
       this.logger.debug('Received invalid message: missing or invalid JSON / event key', { raw: data?.toString?.() });
@@ -36,7 +36,7 @@ export class MessageDispatcherByEventService {
       });
     }
 
-    const { event, payload } = message;
+    const { event } = message;
 
     const eventHandler = this.handlersByEvent[event];
 
@@ -46,7 +46,7 @@ export class MessageDispatcherByEventService {
     }
 
     try {
-      await eventHandler(socket, payload);
+      await eventHandler(socket, message);
     } catch (error) {
       this.logger.error('Error in event handler', { event, error });
 

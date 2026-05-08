@@ -1,3 +1,4 @@
-import type { TopicMessage } from '@src/lib/websocket-manager';
+import type { ClientMessage } from '../../types';
+import type { TopicPayload } from '@src/lib/websocket-manager';
 
-export type HandleSendMessagePayload<T = any> = TopicMessage<T>;
+export type TopicMessage = Required<ClientMessage<TopicPayload>>;

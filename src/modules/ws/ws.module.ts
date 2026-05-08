@@ -1,4 +1,4 @@
-import { WS_TOPIC_PUBSUB_CHANNEL, type TopicMessage } from '@src/lib/websocket-manager';
+import { WS_TOPIC_PUBSUB_CHANNEL, type TopicPayload } from '@src/lib/websocket-manager';
 import { PublishToTopicController } from './controllers/publish-to-topic';
 import { TopicRegistrationController } from './controllers/topic-registration';
 import { WebRtcSignalingController } from './controllers/webrtc-signaling';
@@ -90,7 +90,7 @@ export class WsModule implements ModuleFactory {
 
     if (process.env.SIMULATE_STREAMING_TO_TOPIC) {
       setInterval(() => {
-        const payload: TopicMessage = {
+        const payload: TopicPayload = {
           topic: StaticTopics.Data,
           data: { message: 'Hello, world!' },
           timestamp: Date.now(),

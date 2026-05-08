@@ -1,7 +1,7 @@
 import { StaticTopics } from '../../logic/constants';
 import type { InterceptorFunc } from '../consume-message-from-topic';
 import type { InterceptorService } from './types';
-import type { TopicMessage } from '@src/lib/websocket-manager';
+import type { TopicPayload } from '@src/lib/websocket-manager';
 
 export class DataInterceptorService implements InterceptorService {
   constructor() {}
@@ -12,7 +12,7 @@ export class DataInterceptorService implements InterceptorService {
     };
   }
 
-  private async interceptDataTopic(message: TopicMessage): Promise<TopicMessage> {
-    return message;
+  private async interceptDataTopic(topicPayload: TopicPayload): Promise<TopicPayload> {
+    return topicPayload;
   }
 }

@@ -3,7 +3,10 @@ export type ServerSocketResponse = {
   message?: string;
 };
 
-export type TopicMessage<T = any> = {
+/**
+ * The payload of a message published to a topic.
+ */
+export type TopicPayload<T = any> = {
   topic: string;
   data: T;
   timestamp?: number;

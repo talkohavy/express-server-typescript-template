@@ -1,12 +1,11 @@
 import { ResponseTypes, SocketEvents } from '../../logic/constants';
 import { sendResponse } from '../../logic/utils/sendResponse';
-import { requireWsPermissionMiddleware } from '../../middleware/require-ws-permission.middleware';
-import { ValidateActionMiddleware } from '../../middleware/validate-action.middleware';
+import { RequireTopicPermissionMiddleware } from '../../middleware/require-topic-permission.middleware';
+import { ValidateTopicMessageMiddleware } from '../../middleware/validate-topic-message.middleware';
 import type { MessageDispatcherByEventService } from '../../services/message-dispatcher-by-event';
-import type { HandleSendMessagePayload } from './types';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { EventHandlerFactory } from '@src/lib/lucky-server';
-import type { WebsocketManager } from '@src/lib/websocket-manager';
+import type { TopicPayload, WebsocketManager } from '@src/lib/websocket-manager';
 import type { WebSocket } from 'ws';
 
 /**
@@ -21,16 +20,17 @@ export class PublishToTopicController implements EventHandlerFactory {
   ) {}
 
   attachEventHandlers(): void {
-    const validateActionMiddleware = new ValidateActionMiddleware(this.logger).use();
+    const validateTopicMessageMiddleware = new ValidateTopicMessageMiddleware(this.logger).use();
+    const requireTopicPermissionMiddleware = new RequireTopicPermissionMiddleware(this.logger).use();
 
     this.messageDispatcher.register({
       event: SocketEvents.Publish,
-      middlewares: [validateActionMiddleware, requireWsPermissionMiddleware],
+      middlewares: [validateTopicMessageMiddleware, requireTopicPermissionMiddleware],
       handler: this.handlePublishMessageToTopic.bind(this),
     });
   }
 
-  private async handlePublishMessageToTopic(socket: WebSocket, payload: HandleSendMessagePayload): Promise<void> {
+  private async handlePublishMessageToTopic(socket: WebSocket, payload: TopicPayload): Promise<void> {
     const { topic, data } = payload;
 
     try {

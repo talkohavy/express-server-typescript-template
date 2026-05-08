@@ -18,12 +18,16 @@ export interface IConnectionPipeline {
 }
 
 /**
- * Contract for all client WebSocket messages.
- * Messages must be stringified JSON and include an "event" key (Socket.IO-style).
+ * Contract between the client and the server.
+ *
+ * Two important notes when publishing a message to a topic:
+ *
+ * 1. The payload must be a TopicPayload.
+ * 2. Only the payload property is sent to the server. The event property is stripped from the message.
  */
-export type ClientMessage = {
+export type ClientMessage<T = any> = {
   event: SocketEventValues;
-  payload?: unknown;
+  payload?: T;
 };
 
 export type ActionHandler = (socket: WebSocket, payload: any) => Promise<void>;

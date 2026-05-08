@@ -1,7 +1,6 @@
 import { WS_TOPIC_PUBSUB_CHANNEL } from './logic/constants';
 import type { TopicManager } from './logic/topic-manager';
-import type { TopicMessage } from './types';
-import type { PublishToTopicProps } from './websocket-manager.interface';
+import type { TopicPayload } from './types';
 import type { RedisClientType } from 'redis';
 import type { WebSocket } from 'ws';
 
@@ -19,13 +18,10 @@ export class WebsocketManager {
    * and forwards to its local WebSocket clients subscribed to the topic.
    * @returns The number of Redis subscriber nodes that received the message.
    */
-  async publishToTopic(props: PublishToTopicProps): Promise<number> {
-    const { topic, data } = props;
+  async publishToTopic(topicPayload: TopicPayload): Promise<number> {
+    const payloadStringified = JSON.stringify(topicPayload);
 
-    const messageRaw: TopicMessage = { topic, data };
-    const messageStringified = JSON.stringify(messageRaw);
-
-    const subscriberCount = await this.redisPub.publish(WS_TOPIC_PUBSUB_CHANNEL, messageStringified);
+    const subscriberCount = await this.redisPub.publish(WS_TOPIC_PUBSUB_CHANNEL, payloadStringified);
 
     return subscriberCount;
   }
