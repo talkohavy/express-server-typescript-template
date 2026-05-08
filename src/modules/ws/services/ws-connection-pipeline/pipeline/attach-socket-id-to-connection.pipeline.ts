@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import type { WsConnectionContext, IConnectionPipeline } from '../types';
+import type { WsConnectionContext, IConnectionPipeline } from '../../../types';
 
-export class AttachSocketIdToConnectionMiddleware implements IConnectionPipeline {
+export class AttachSocketIdToConnectionPipeline implements IConnectionPipeline {
   async handleConnection(props: WsConnectionContext): Promise<void> {
     const { socket } = props;
 

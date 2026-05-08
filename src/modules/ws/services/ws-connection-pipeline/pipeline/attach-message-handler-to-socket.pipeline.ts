@@ -1,8 +1,8 @@
 import { BUILT_IN_WEBSOCKET_EVENTS } from '@src/lib/websocket-manager/logic/constants';
-import type { MessageDispatcherByEventService } from '../services/message-dispatcher-by-event';
-import type { WsConnectionContext, IConnectionPipeline } from '../types';
+import type { WsConnectionContext, IConnectionPipeline } from '../../../types';
+import type { MessageDispatcherByEventService } from '../../message-dispatcher-by-event/message-dispatcher-by-event.service';
 
-export class AttachMessageHandlerToSocketMiddleware implements IConnectionPipeline {
+export class AttachMessageHandlerToSocketPipeline implements IConnectionPipeline {
   constructor(private readonly messageDispatcherByEventService: MessageDispatcherByEventService) {}
 
   async handleConnection(props: WsConnectionContext): Promise<void> {

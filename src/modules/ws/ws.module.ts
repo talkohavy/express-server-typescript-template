@@ -3,18 +3,18 @@ import { PublishToTopicController } from './controllers/publish-to-topic';
 import { TopicRegistrationController } from './controllers/topic-registration';
 import { WebRtcSignalingController } from './controllers/webrtc-signaling';
 import { StaticTopics } from './logic/constants';
-import { AttachCloseHandlerToSocketMiddleware } from './middleware/attach-close-handler-to-socket.middleware';
-import { AttachErrorHandlerToSocketMiddleware } from './middleware/attach-error-handler-to-socket.middleware';
-import { AttachMessageHandlerToSocketMiddleware } from './middleware/attach-message-handler-to-socket.middleware';
-import { AttachPongHandlerToSocketMiddleware } from './middleware/attach-pong-handler-to-socket.middleware';
-import { AttachSocketIdToConnectionMiddleware } from './middleware/attach-socket-id-to-connection.middleware';
-import { ConnectionAcknowledgeMiddleware } from './middleware/connection-acknowledge.middleware';
-import { SubscribeSocketToRootTopicMiddleware } from './middleware/subscribe-socket-to-root-topic.middleware';
 import { ConsumeMessageFromTopicService } from './services/consume-message-from-topic';
 import { DataInterceptorService } from './services/consume-message-interceptors/data.interceptor.service';
 import { MessageDispatcherByEventService } from './services/message-dispatcher-by-event';
 import { PingPongService } from './services/ping-pong';
 import { WsConnectionPipelineService } from './services/ws-connection-pipeline';
+import { AttachCloseHandlerToSocketPipeline } from './services/ws-connection-pipeline/pipeline/attach-close-handler-to-socket.pipeline';
+import { AttachErrorHandlerToSocketPipeline } from './services/ws-connection-pipeline/pipeline/attach-error-handler-to-socket.pipeline';
+import { AttachMessageHandlerToSocketPipeline } from './services/ws-connection-pipeline/pipeline/attach-message-handler-to-socket.pipeline';
+import { AttachPongHandlerToSocketPipeline } from './services/ws-connection-pipeline/pipeline/attach-pong-handler-to-socket.pipeline';
+import { AttachSocketIdToConnectionPipeline } from './services/ws-connection-pipeline/pipeline/attach-socket-id-to-connection.pipeline';
+import { ConnectionAcknowledgePipeline } from './services/ws-connection-pipeline/pipeline/connection-acknowledge.pipeline';
+import { SubscribeSocketToRootTopicPipeline } from './services/ws-connection-pipeline/pipeline/subscribe-socket-to-root-topic.pipeline';
 import type { ModuleFactory } from '@src/lib/lucky-server';
 import type { Application } from 'express';
 
@@ -77,13 +77,13 @@ export class WsModule implements ModuleFactory {
     const wsConnectionPipelineService = new WsConnectionPipelineService(wsApp);
 
     wsConnectionPipelineService.register([
-      new AttachSocketIdToConnectionMiddleware(),
-      new SubscribeSocketToRootTopicMiddleware(wsManager, logger),
-      new AttachCloseHandlerToSocketMiddleware(wsManager, logger),
-      new AttachErrorHandlerToSocketMiddleware(logger),
-      new AttachPongHandlerToSocketMiddleware(this.pingPongService),
-      new AttachMessageHandlerToSocketMiddleware(this.messageDispatcherService),
-      new ConnectionAcknowledgeMiddleware(),
+      new AttachSocketIdToConnectionPipeline(),
+      new SubscribeSocketToRootTopicPipeline(wsManager, logger),
+      new AttachCloseHandlerToSocketPipeline(wsManager, logger),
+      new AttachErrorHandlerToSocketPipeline(logger),
+      new AttachPongHandlerToSocketPipeline(this.pingPongService),
+      new AttachMessageHandlerToSocketPipeline(this.messageDispatcherService),
+      new ConnectionAcknowledgePipeline(),
     ]);
 
     // ---------------------------------------------
