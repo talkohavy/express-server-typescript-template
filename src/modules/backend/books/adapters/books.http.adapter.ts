@@ -1,5 +1,5 @@
-import { API_PATHS } from '../../../../common/constants';
-import { ServiceNames } from '../../../../configurations';
+import { API_PATHS } from '@src/common/constants';
+import { ServiceNames } from '@src/configurations';
 import type { CreateBookDto, UpdateBookDto } from '../../../books/services/interfaces/books.service.interface';
 import type { Book, PaginatedBooksResponse } from '../../../books/types';
 import type { HttpClient } from '../../logic/http-client';

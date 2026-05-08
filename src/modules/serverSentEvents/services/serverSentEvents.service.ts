@@ -1,5 +1,5 @@
 import { createEventMessage } from '../utils/createEventMessage';
-import type { LoggerService } from '../../../lib/logger-service';
+import type { LoggerService } from '@src/lib/logger-service';
 import type { RedisClientType } from 'redis';
 
 export class ServerSentEventsService {

@@ -1,10 +1,10 @@
-import { API_PATHS } from '../../../common/constants';
-import { NotFoundError } from '../../../lib/Errors';
-import { joiBodyMiddleware } from '../../../middlewares/joi-body.middleware';
+import { API_PATHS } from '@src/common/constants';
+import { NotFoundError } from '@src/lib/Errors';
+import { joiBodyMiddleware } from '@src/middlewares/joi-body.middleware';
 import { UserNotFoundError } from '../logic/users.errors';
 import { getUserByEmailSchema } from './dto/get-user-by-email.dto';
-import type { ControllerFactory } from '../../../lib/lucky-server';
 import type { UserUtilitiesService } from '../services/user-utilities.service';
+import type { ControllerFactory } from '@src/lib/lucky-server';
 import type { Application, Request, Response } from 'express';
 
 export class UserUtilitiesController implements ControllerFactory {

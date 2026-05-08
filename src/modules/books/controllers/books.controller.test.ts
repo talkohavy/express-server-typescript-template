@@ -1,11 +1,11 @@
 import express, { type Application } from 'express';
 import request from 'supertest';
-import { API_PATHS, StatusCodes } from '../../../common/constants';
+import { API_PATHS, StatusCodes } from '@src/common/constants';
 import { BooksController } from './books.controller';
 import type { BooksService } from '../services/books.service';
 import type { Book, PaginatedBooksResponse } from '../types';
 
-jest.mock('../../../middlewares/joi-body.middleware', () => ({
+jest.mock('@src/middlewares/joi-body.middleware', () => ({
   joiBodyMiddleware: jest.fn(() => (_req: any, _res: any, next: any) => next()),
 }));
 

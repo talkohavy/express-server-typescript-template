@@ -1,4 +1,4 @@
-import { Headers } from '../common/constants';
+import { Headers } from '@src/common/constants';
 import type { Application, NextFunction, Request, Response } from 'express';
 
 /**

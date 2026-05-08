@@ -1,12 +1,12 @@
-import { API_PATHS, StatusCodes } from '../../../../common/constants';
-import { ConfigKeys, type CookiesConfig, type Config } from '../../../../configurations';
-import { BadRequestError } from '../../../../lib/Errors';
-import { joiBodyMiddleware } from '../../../../middlewares/joi-body.middleware';
+import { API_PATHS, StatusCodes } from '@src/common/constants';
+import { ConfigKeys, type CookiesConfig, type Config } from '@src/configurations';
+import { BadRequestError } from '@src/lib/Errors';
+import { joiBodyMiddleware } from '@src/middlewares/joi-body.middleware';
 import { UserNotFoundError } from '../../../users/logic/users.errors';
 import { loginSchema } from './dto/loginSchema.dto';
-import type { ControllerFactory } from '../../../../lib/lucky-server';
 import type { IUsersAdapter } from '../../users/adapters/users.adapter.interface';
 import type { IAuthAdapter } from '../adapters/auth.adapter.interface';
+import type { ControllerFactory } from '@src/lib/lucky-server';
 import type { Application, CookieOptions, Request, Response } from 'express';
 
 export class AuthenticationController implements ControllerFactory {

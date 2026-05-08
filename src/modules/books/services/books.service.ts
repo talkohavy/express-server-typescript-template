@@ -1,5 +1,5 @@
-import { getBoundedLimit, getBoundedPage } from '../../../common/utils/pagination';
-import { InternalServerError } from '../../../lib/Errors';
+import { getBoundedLimit, getBoundedPage } from '@src/common/utils/pagination';
+import { InternalServerError } from '@src/lib/Errors';
 import { DEFAULT_MOCK_BOOKS_COUNT, generateMockBooks } from './mock-books.generator';
 import type { Book, GetBooksParsedQuery, PaginatedBooksResponse } from '../types';
 import type { CreateBookDto, UpdateBookDto } from './interfaces/books.service.interface';

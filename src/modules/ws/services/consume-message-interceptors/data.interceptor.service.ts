@@ -1,7 +1,7 @@
 import { StaticTopics } from '../../logic/constants';
-import type { TopicMessage } from '../../../../lib/websocket-manager';
 import type { InterceptorFunc } from '../consume-message-from-topic';
 import type { InterceptorService } from './types';
+import type { TopicMessage } from '@src/lib/websocket-manager';
 
 export class DataInterceptorService implements InterceptorService {
   constructor() {}

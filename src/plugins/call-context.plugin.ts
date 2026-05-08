@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from 'async_hooks';
-import { CallContextService } from '../lib/call-context';
+import { CallContextService } from '@src/lib/call-context';
 import type { Application } from 'express';
 
 export async function callContextPlugin(app: Application) {

@@ -1,4 +1,4 @@
-import { UnauthorizedError } from '../lib/Errors';
+import { UnauthorizedError } from '@src/lib/Errors';
 import type { Request, Response, NextFunction } from 'express';
 
 export function requireUserAuthMiddleware(req: Request, _res: Response, next: NextFunction) {

@@ -1,8 +1,8 @@
-import { API_PATHS, StatusCodes } from '../../../../common/constants';
-import { ConfigKeys, type CookiesConfig } from '../../../../configurations';
-import type { ControllerFactory } from '../../../../lib/lucky-server';
+import { API_PATHS, StatusCodes } from '@src/common/constants';
+import { ConfigKeys, type CookiesConfig } from '@src/configurations';
 import type { IAuthAdapter } from '../../authentication/adapters/auth.adapter.interface';
 import type { IUsersAdapter } from '../adapters/users.adapter.interface';
+import type { ControllerFactory } from '@src/lib/lucky-server';
 import type { Application, Request, Response } from 'express';
 
 export class UserUtilitiesController implements ControllerFactory {

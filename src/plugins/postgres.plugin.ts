@@ -1,7 +1,7 @@
+import { PostgresConnection } from '@src/lib/database/postgres.connection';
 import { ConfigKeys, type PostgresConfig } from '../configurations';
 import { runAllMigrations } from '../databases/postgres/migrations';
 import { runAllSeeds } from '../databases/postgres/seeds';
-import { PostgresConnection } from '../lib/database/postgres.connection';
 import type { Application } from 'express';
 
 /**

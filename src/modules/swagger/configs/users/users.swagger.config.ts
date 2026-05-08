@@ -5,7 +5,7 @@ import {
   createApiRoute,
   createSwaggerApiDocs,
 } from 'api-opener';
-import { API_PATHS } from '../../../../common/constants';
+import { API_PATHS } from '@src/common/constants';
 import { AbstractSwaggerConfig } from '../../logic/swagger.abstract.config';
 import { definitions, USER_REFS } from './user.refs';
 

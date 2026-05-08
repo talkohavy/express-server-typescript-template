@@ -1,5 +1,5 @@
 import cors from 'cors';
-import { Environment } from '../../common/constants';
+import { Environment } from '@src/common/constants';
 import { handleCors } from './logic/utils/handleCors';
 import type { Application } from 'express';
 

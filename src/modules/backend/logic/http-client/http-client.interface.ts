@@ -1,5 +1,5 @@
-import type { HttpMethodValues } from '../../../../common/constants';
-import type { ServiceNameValues } from '../../../../configurations';
+import type { HttpMethodValues } from '@src/common/constants';
+import type { ServiceNameValues } from '@src/configurations';
 import type { IncomingHttpHeaders } from 'node:http';
 
 export type HttpClientRequestOptions = {

@@ -1,4 +1,4 @@
-import { Environment, type EnvironmentValues } from '../../../../common/constants';
+import { Environment, type EnvironmentValues } from '@src/common/constants';
 import { ALLOWED_DOMAINS, DOMAIN_REGEX } from '../constants';
 
 /**

@@ -5,7 +5,7 @@ import { errorHandler } from '@src/middlewares/errorHandler.middleware';
 import { PasswordManagementController } from './password-management.controller';
 import type { PasswordManagementService } from '../services/password-management.service';
 
-jest.mock('../../../middlewares/joi-body.middleware', () => ({
+jest.mock('@src/middlewares/joi-body.middleware', () => ({
   joiBodyMiddleware: jest.fn(() => (_req: any, _res: any, next: any) => next()),
 }));
 

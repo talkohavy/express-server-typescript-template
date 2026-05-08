@@ -1,5 +1,5 @@
-import { Environment } from '../common/constants';
-import { LogLevel, type LogLevelValues } from '../lib/logger';
+import { Environment } from '@src/common/constants';
+import { LogLevel, type LogLevelValues } from '@src/lib/logger';
 import type { Config } from './constants';
 
 export function configuration(): Config {

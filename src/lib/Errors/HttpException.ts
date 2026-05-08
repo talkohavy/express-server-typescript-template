@@ -1,4 +1,4 @@
-import { StatusCodes } from '../../common/constants';
+import { StatusCodes } from '@src/common/constants';
 import { BaseError } from './BaseError';
 
 type HttpExceptionConstructorProps = {

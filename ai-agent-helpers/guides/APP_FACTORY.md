@@ -2,7 +2,7 @@
 
 The `AppFactory` is the central class that composes the Express application. It attaches plugins, modules, and error handlers to the app in the correct order.
 
-**Location:** `src/lib/lucky-server/app-factory/`
+**Location:** `src/lib/lucky-server`
 
 ---
 

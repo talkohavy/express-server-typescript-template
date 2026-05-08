@@ -1,5 +1,5 @@
 import { API_PATHS } from '@src/common/constants';
-import { internalApiKeyMiddleware } from '../middleware/internal-api-key.middleware';
+import { internalApiKeyMiddleware } from '@src/modules/redis-debug/middleware/internal-api-key.middleware';
 import type { ControllerFactory } from '@src/lib/lucky-server';
 import type { Application, Response } from 'express';
 

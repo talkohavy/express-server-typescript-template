@@ -1,4 +1,4 @@
-import { API_PATHS } from '../../../common/constants';
+import { API_PATHS } from '@src/common/constants';
 import type { MiddlewareFactory } from '@src/lib/lucky-server';
 import type { Application, NextFunction, Request, Response } from 'express';
 

@@ -1,5 +1,5 @@
-import { optimizedApp } from './common/constants';
-import { AppFactory } from './lib/lucky-server/app-factory';
+import { optimizedApp } from '@src/common/constants';
+import { AppFactory } from '@src/lib/lucky-server';
 import { registerBodyLimitMiddleware } from './middlewares/bodyLimit.middleware';
 import { registerCookieParserMiddleware } from './middlewares/cookieParser.middleware';
 import { registerCorsMiddleware } from './middlewares/cors';

@@ -1,6 +1,6 @@
 import express, { type Application } from 'express';
 import request from 'supertest';
-import { API_PATHS, StatusCodes } from '../../common/constants';
+import { API_PATHS, StatusCodes } from '@src/common/constants';
 import { FileUploadController } from './file-upload.controller';
 import type { FileUploadService } from './services/file-upload.service';
 

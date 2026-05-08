@@ -1,4 +1,4 @@
-import { Permissions } from '../common/constants/permissions';
+import { Permissions } from '@src/common/constants/permissions';
 import type { Request, Response, NextFunction, Application } from 'express';
 
 /**

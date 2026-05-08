@@ -1,5 +1,5 @@
 import express, { type Application, type NextFunction, type Request, type Response } from 'express';
-import { EXCLUDED_PATHS } from '../common/constants';
+import { EXCLUDED_PATHS } from '@src/common/constants';
 
 /**
  * @express

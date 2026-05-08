@@ -1,4 +1,4 @@
-import { StatusCodes } from '../common/constants';
+import { StatusCodes } from '@src/common/constants';
 import type { Application, Request, Response } from 'express';
 
 export function errorHandler(app: Application) {

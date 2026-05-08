@@ -1,5 +1,5 @@
-import { API_PATHS } from '../../../../common/constants';
-import { ServiceNames } from '../../../../configurations';
+import { API_PATHS } from '@src/common/constants';
+import { ServiceNames } from '@src/configurations';
 import type { HttpClient } from '../../logic/http-client';
 import type { IAuthAdapter, Tokens, DecodedToken } from './auth.adapter.interface';
 

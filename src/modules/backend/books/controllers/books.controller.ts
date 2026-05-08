@@ -1,12 +1,12 @@
-import { API_PATHS, StatusCodes } from '../../../../common/constants';
-import { joiBodyMiddleware } from '../../../../middlewares/joi-body.middleware';
-import { joiQueryMiddleware } from '../../../../middlewares/joi-query.middleware';
+import { API_PATHS, StatusCodes } from '@src/common/constants';
+import { joiBodyMiddleware } from '@src/middlewares/joi-body.middleware';
+import { joiQueryMiddleware } from '@src/middlewares/joi-query.middleware';
 import { createBookSchema } from './dto/createBookSchema.dto';
 import { getBooksQuerySchema } from './dto/getBooksSchema.dto';
 import { updateBookSchema } from './dto/updateBookSchema.dto';
-import type { ControllerFactory } from '../../../../lib/lucky-server';
 import type { IBooksAdapter } from '../adapters/books.adapter.interface';
 import type { GetBooksParsedQuery } from '../types';
+import type { ControllerFactory } from '@src/lib/lucky-server';
 import type { Application, Request, Response } from 'express';
 
 export class BooksController implements ControllerFactory {

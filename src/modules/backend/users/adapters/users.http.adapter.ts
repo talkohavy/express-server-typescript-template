@@ -1,5 +1,5 @@
-import { API_PATHS } from '../../../../common/constants';
-import { ServiceNames } from '../../../../configurations';
+import { API_PATHS } from '@src/common/constants';
+import { ServiceNames } from '@src/configurations';
 import type { CreateUserDto, UpdateUserDto } from '../../../users/services/interfaces/users.service.interface';
 import type { DatabaseUser } from '../../../users/types';
 import type { HttpClient } from '../../logic/http-client';

@@ -1,7 +1,7 @@
 import path from 'path';
 import express, { type Application } from 'express';
 import swaggerUi from 'swagger-ui-express';
-import { API_PATHS } from '../../../common/constants';
+import { API_PATHS } from '@src/common/constants';
 import type { SwaggerService } from '../services/swagger.service';
 
 export class SwaggerController {

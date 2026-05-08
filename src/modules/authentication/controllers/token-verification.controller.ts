@@ -1,8 +1,8 @@
-import { API_PATHS } from '../../../common/constants';
-import { ConfigKeys, type CookiesConfig } from '../../../configurations';
-import { UnauthorizedError } from '../../../lib/Errors';
-import type { ControllerFactory } from '../../../lib/lucky-server';
+import { API_PATHS } from '@src/common/constants';
+import { ConfigKeys, type CookiesConfig } from '@src/configurations';
+import { UnauthorizedError } from '@src/lib/Errors';
 import type { TokenVerificationService } from '../services/token-verification.service';
+import type { ControllerFactory } from '@src/lib/lucky-server';
 import type { Application, Request, Response } from 'express';
 
 export class TokenVerificationController implements ControllerFactory {

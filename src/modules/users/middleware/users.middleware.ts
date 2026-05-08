@@ -1,5 +1,5 @@
 import { API_PATHS } from '@src/common/constants';
-import { attachUserFromHeadersMiddleware } from '../../../middlewares/attach-user-from-headers.middleware';
+import { attachUserFromHeadersMiddleware } from '@src/middlewares/attach-user-from-headers.middleware';
 import type { MiddlewareFactory } from '@src/lib/lucky-server';
 import type { Application } from 'express';
 

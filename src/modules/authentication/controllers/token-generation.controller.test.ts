@@ -1,10 +1,10 @@
 import express, { type Application } from 'express';
 import request from 'supertest';
-import { API_PATHS, StatusCodes } from '../../../common/constants';
+import { API_PATHS, StatusCodes } from '@src/common/constants';
 import { TokenGenerationController } from './token-generation.controller';
 import type { TokenGenerationService } from '../services/token-generation.service';
 
-jest.mock('../../../middlewares/joi-body.middleware', () => ({
+jest.mock('@src/middlewares/joi-body.middleware', () => ({
   joiBodyMiddleware: jest.fn(() => (_req: any, _res: any, next: any) => next()),
 }));
 

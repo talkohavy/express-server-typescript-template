@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { RoleTypes } from '../../../../common/constants';
+import { RoleTypes } from '@src/common/constants';
 
 export const createUserSchema = Joi.object({
   email: Joi.string()

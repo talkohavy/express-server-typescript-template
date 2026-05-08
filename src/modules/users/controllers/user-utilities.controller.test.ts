@@ -1,12 +1,12 @@
 import express, { type Application } from 'express';
 import request from 'supertest';
-import { API_PATHS, StatusCodes } from '../../../common/constants';
-import { errorHandler } from '../../../middlewares/errorHandler.middleware';
+import { API_PATHS, StatusCodes } from '@src/common/constants';
+import { errorHandler } from '@src/middlewares/errorHandler.middleware';
 import { UserNotFoundError } from '../logic/users.errors';
 import { UserUtilitiesController } from './user-utilities.controller';
 import type { UserUtilitiesService } from '../services/user-utilities.service';
 
-jest.mock('../../../middlewares/joi-body.middleware', () => ({
+jest.mock('@src/middlewares/joi-body.middleware', () => ({
   joiBodyMiddleware: jest.fn(() => (_req: any, _res: any, next: any) => next()),
 }));
 
