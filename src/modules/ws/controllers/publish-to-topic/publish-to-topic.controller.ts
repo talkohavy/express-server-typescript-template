@@ -21,13 +21,13 @@ export class PublishToTopicController implements EventHandlerFactory {
 
   attachEventHandlers(): void {
     this.messageDispatcher.register({
-      event: SocketEvents.Send,
+      event: SocketEvents.Publish,
       middlewares: [requireWsPermissionMiddleware],
-      handler: this.handleSendMessage.bind(this),
+      handler: this.handlePublishMessageToTopic.bind(this),
     });
   }
 
-  private async handleSendMessage(socket: WebSocket, payload: HandleSendMessagePayload): Promise<void> {
+  private async handlePublishMessageToTopic(socket: WebSocket, payload: HandleSendMessagePayload): Promise<void> {
     const { topic, data } = payload;
 
     const validatedData = this.validateMessageData(data);

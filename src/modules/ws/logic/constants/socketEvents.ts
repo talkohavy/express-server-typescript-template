@@ -6,12 +6,12 @@ const RegistrationEvents = {
 
 export type RegistrationEventValues = (typeof RegistrationEvents)[keyof typeof RegistrationEvents];
 
-// Send events
-const SendEvents = {
-  Send: 'send',
+// Publish events
+const PublishEvents = {
+  Publish: 'send',
 } as const;
 
-export type SendEventValues = (typeof SendEvents)[keyof typeof SendEvents];
+export type PublishEventValues = (typeof PublishEvents)[keyof typeof PublishEvents];
 
 // WebRTC signaling events (single event; payload.type distinguishes role/message type)
 const WebRtcEvents = {
@@ -23,7 +23,7 @@ export type WebRtcEventValues = (typeof WebRtcEvents)[keyof typeof WebRtcEvents]
 // All socket events
 export const SocketEvents = {
   ...RegistrationEvents,
-  ...SendEvents,
+  ...PublishEvents,
   ...WebRtcEvents,
 } as const;
 
