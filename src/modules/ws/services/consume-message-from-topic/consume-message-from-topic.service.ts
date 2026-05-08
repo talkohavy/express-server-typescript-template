@@ -21,6 +21,11 @@ export class ConsumeMessageFromTopicService {
     await this.redisSub.subscribe(channelName, this.onTopicMessage.bind(this));
   }
 
+  /**
+   * `onTopicMessage` is the last step in the Rocket-Staging analogy.
+   * We do here a stage separation, where we shed the topic from the payload (TopicPayload),
+   * and send just the data to the appropriate clients.
+   */
   private async onTopicMessage(payloadAsString: string): Promise<void> {
     const parsedPayload = parseJson<TopicPayload>(payloadAsString);
 
@@ -43,12 +48,12 @@ export class ConsumeMessageFromTopicService {
 
       const interceptor = this.topicInterceptors[topic];
 
-      const payloadToSend = interceptor ? await interceptor(parsedPayload) : parsedPayload;
+      const dataToSend = interceptor ? await interceptor(parsedPayload) : data;
 
-      if (payloadToSend === null) continue;
+      if (dataToSend === null) continue;
 
       try {
-        const serialized = JSON.stringify(payloadToSend);
+        const serialized = JSON.stringify(dataToSend);
         socket.send(serialized, { binary: false });
       } catch (error) {
         console.error(`Failed to send topic message to client in topic "${topic}":`, error);

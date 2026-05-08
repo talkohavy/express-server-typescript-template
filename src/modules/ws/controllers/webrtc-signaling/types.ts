@@ -1,3 +1,5 @@
+import type { ClientMessage } from '../../types';
+
 export type WebRtcSignalingPayload = {
   sessionId: string;
 } & (
@@ -7,3 +9,5 @@ export type WebRtcSignalingPayload = {
   | { type: 'createAnswer'; sdp: RTCSessionDescriptionInit }
   | { type: 'iceCandidate'; candidate: RTCIceCandidateInit }
 );
+
+export type WebRtcSignalingMessage = Required<ClientMessage<WebRtcSignalingPayload>>;
