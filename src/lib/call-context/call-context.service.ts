@@ -54,6 +54,23 @@ export class CallContextService<K = string, V = string | object | boolean> imple
     return this.getStore()![Symbol.iterator]();
   }
 
+  public getOrInsert(key: K, value: V): V {
+    const store = this.getStore();
+    if (!store.has(key)) {
+      store.set(key, value);
+    }
+    return store.get(key)!;
+  }
+
+  public getOrInsertComputed(key: K, callbackfn: (key: K) => V): V {
+    const store = this.getStore();
+    if (!store.has(key)) {
+      const computed = callbackfn(key);
+      store.set(key, computed);
+    }
+    return store.get(key)!;
+  }
+
   public [Symbol.toStringTag] = '[object AsyncContext]';
 
   public register(): void {
