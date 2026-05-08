@@ -2,7 +2,7 @@ import { optimizedApp } from './common/constants';
 import { AppFactory } from './lib/lucky-server/app-factory';
 import { registerBodyLimitMiddleware } from './middlewares/bodyLimit.middleware';
 import { registerCookieParserMiddleware } from './middlewares/cookieParser.middleware';
-import { registerCorsMiddleware } from './middlewares/cors/cors.middleware';
+import { registerCorsMiddleware } from './middlewares/cors';
 import { errorHandler } from './middlewares/errorHandler.middleware';
 import { registerFetchPermissionsMiddleware } from './middlewares/fetch-permissions.middleware';
 import { registerHelmetMiddleware } from './middlewares/helmet.middleware';
