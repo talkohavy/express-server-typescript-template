@@ -1,6 +1,7 @@
 import { ResponseTypes, SocketEvents } from '../../logic/constants';
 import { sendResponse } from '../../logic/utils/sendResponse';
 import { requireWsPermissionMiddleware } from '../../middleware/require-ws-permission.middleware';
+import { ValidateActionMiddleware } from '../../middleware/validate-action.middleware';
 import type { MessageDispatcherByEventService } from '../../services/message-dispatcher-by-event';
 import type { HandleSendMessagePayload } from './types';
 import type { LoggerService } from '@src/lib/logger-service';
@@ -20,23 +21,17 @@ export class PublishToTopicController implements EventHandlerFactory {
   ) {}
 
   attachEventHandlers(): void {
+    const validateActionMiddleware = new ValidateActionMiddleware(this.logger).use();
+
     this.messageDispatcher.register({
       event: SocketEvents.Publish,
-      middlewares: [requireWsPermissionMiddleware],
+      middlewares: [validateActionMiddleware, requireWsPermissionMiddleware],
       handler: this.handlePublishMessageToTopic.bind(this),
     });
   }
 
   private async handlePublishMessageToTopic(socket: WebSocket, payload: HandleSendMessagePayload): Promise<void> {
     const { topic, data } = payload;
-
-    const validatedData = this.validateMessageData(data);
-
-    if (!validatedData) {
-      this.logger.debug('Send action: invalid message data', { payload });
-      sendResponse({ socket, type: ResponseTypes.ValidationError, message: 'data must be an object' });
-      return;
-    }
 
     try {
       await this.wsManager.publishToTopic({ topic, data });
@@ -49,11 +44,5 @@ export class PublishToTopicController implements EventHandlerFactory {
 
       sendResponse({ socket, type: ResponseTypes.Actions.SendError, message: 'Failed to publish' });
     }
-  }
-
-  private validateMessageData(data: unknown): Record<string, unknown> | null {
-    if (data === null || typeof data !== 'object') return null;
-
-    return data as Record<string, unknown>;
   }
 }
