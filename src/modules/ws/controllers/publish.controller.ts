@@ -23,10 +23,8 @@ export class PublishController implements EventHandlerFactory {
   attachEventHandlers(): void {
     this.messageDispatcher.register({
       event: SocketEvents.Send,
-      handler: requireWsPermissionMiddleware({
-        requiredPermissions: ['allow_publish_to_topic'],
-        handler: this.handleSendMessage.bind(this),
-      }),
+      middlewares: [requireWsPermissionMiddleware],
+      handler: this.handleSendMessage.bind(this),
     });
   }
 

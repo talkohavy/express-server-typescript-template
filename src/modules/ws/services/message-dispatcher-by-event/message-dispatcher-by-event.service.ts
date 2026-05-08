@@ -1,7 +1,7 @@
 import { parseJson } from '@src/common/utils/parseJson';
 import { ResponseTypes, type SocketEventValues } from '../../logic/constants';
 import { sendResponse } from '../../logic/utils/sendResponse';
-import type { ActionHandler, ClientMessage } from '../../types';
+import type { ActionHandler, ClientMessage, WsMiddleware } from '../../types';
 import type { RegisterProps } from './types';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { WebSocket } from 'ws';
@@ -16,8 +16,11 @@ export class MessageDispatcherByEventService {
   constructor(private readonly logger: LoggerService) {}
 
   register(props: RegisterProps): void {
-    const { event, handler } = props;
-    this.handlersByEvent[event] = handler;
+    const { event, handler, middlewares = [] } = props;
+
+    const composedHandler = this.composeHandler(middlewares, handler);
+
+    this.handlersByEvent[event] = composedHandler;
   }
 
   async dispatchMessage(socket: WebSocket, data: Buffer): Promise<void> {
@@ -53,5 +56,29 @@ export class MessageDispatcherByEventService {
 
   private isValidClientMessage(message: any): message is ClientMessage {
     return Boolean(message) && typeof message.event === 'string';
+  }
+
+  private composeHandler(middlewares: WsMiddleware[], handler: ActionHandler): ActionHandler {
+    let composedHandler: ActionHandler = handler;
+
+    for (let i = middlewares.length - 1; i >= 0; i--) {
+      const middleware = middlewares[i]!;
+
+      const next = composedHandler;
+
+      composedHandler = async (socket, payload) => {
+        let nextPromise: Promise<void> | undefined;
+
+        await middleware(socket, payload, () => {
+          nextPromise = next(socket, payload);
+        });
+
+        if (nextPromise !== undefined) {
+          await nextPromise;
+        }
+      };
+    }
+
+    return composedHandler;
   }
 }

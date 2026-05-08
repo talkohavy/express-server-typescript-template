@@ -1,25 +1,15 @@
 import { sendPermissionDeniedResponse } from '../logic/utils/sendPermissionDeniedResponse';
-import type { ActionHandler } from '../types';
 import type { WebSocket } from 'ws';
 
-type RequireWsPermissionMiddlewareProps = {
-  requiredPermissions: string[];
-  handler: ActionHandler;
-};
+export async function requireWsPermissionMiddleware(socket: WebSocket, _payload: unknown, next: () => void) {
+  const isAllowed = await checkPermission({ socket, requiredPermissions: ['allow_publish_to_topic'] });
 
-export function requireWsPermissionMiddleware(props: RequireWsPermissionMiddlewareProps): ActionHandler {
-  const { handler, requiredPermissions } = props;
+  if (!isAllowed) {
+    sendPermissionDeniedResponse(socket);
+    return;
+  }
 
-  return async (socket: WebSocket, payload: unknown) => {
-    const isAllowed = await checkPermission({ socket, requiredPermissions });
-
-    if (!isAllowed) {
-      sendPermissionDeniedResponse(socket);
-      return;
-    }
-
-    await handler(socket, payload);
-  };
+  next();
 }
 
 type CheckPermissionProps = {
