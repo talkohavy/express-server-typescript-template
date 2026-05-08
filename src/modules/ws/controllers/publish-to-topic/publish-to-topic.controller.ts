@@ -1,19 +1,18 @@
-import { ResponseTypes, SocketEvents } from '../logic/constants';
-import { sendResponse } from '../logic/utils/sendResponse';
-import { requireWsPermissionMiddleware } from '../middleware/require-ws-permission.middleware';
-import type { MessageDispatcherByEventService } from '../services/message-dispatcher-by-event';
+import { ResponseTypes, SocketEvents } from '../../logic/constants';
+import { sendResponse } from '../../logic/utils/sendResponse';
+import { requireWsPermissionMiddleware } from '../../middleware/require-ws-permission.middleware';
+import type { MessageDispatcherByEventService } from '../../services/message-dispatcher-by-event';
+import type { HandleSendMessagePayload } from './types';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { EventHandlerFactory } from '@src/lib/lucky-server';
-import type { TopicMessage, WebsocketManager } from '@src/lib/websocket-manager';
+import type { WebsocketManager } from '@src/lib/websocket-manager';
 import type { WebSocket } from 'ws';
-
-type HandleSendMessagePayload<T = any> = TopicMessage<T>;
 
 /**
  * Handles the "send" event: client publishes a message to a topic.
  * All subscribers of that topic (including other clients) receive the message.
  */
-export class PublishController implements EventHandlerFactory {
+export class PublishToTopicController implements EventHandlerFactory {
   constructor(
     private readonly wsManager: WebsocketManager,
     private readonly logger: LoggerService,

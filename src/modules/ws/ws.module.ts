@@ -1,5 +1,5 @@
 import { WS_TOPIC_PUBSUB_CHANNEL, type TopicMessage } from '@src/lib/websocket-manager';
-import { PublishController } from './controllers/publish.controller';
+import { PublishToTopicController } from './controllers/publish-to-topic';
 import { TopicRegistrationController } from './controllers/topic-registration';
 import { WebRtcSignalingController } from './controllers/webrtc-signaling';
 import { StaticTopics } from './logic/constants';
@@ -58,7 +58,7 @@ export class WsModule implements ModuleFactory {
   private attachControllers(): void {
     const { wsManager, logger } = this.app;
 
-    const publishController = new PublishController(wsManager, logger, this.messageDispatcherService);
+    const publishToTopicController = new PublishToTopicController(wsManager, logger, this.messageDispatcherService);
     const topicRegistrationController = new TopicRegistrationController(
       wsManager,
       logger,
@@ -66,7 +66,7 @@ export class WsModule implements ModuleFactory {
     );
     const webRtcSignalingController = new WebRtcSignalingController(wsManager, logger, this.messageDispatcherService);
 
-    publishController.attachEventHandlers();
+    publishToTopicController.attachEventHandlers();
     topicRegistrationController.attachEventHandlers();
     webRtcSignalingController.attachEventHandlers();
   }
