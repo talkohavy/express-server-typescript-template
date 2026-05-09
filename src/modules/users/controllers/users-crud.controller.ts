@@ -4,9 +4,9 @@ import { joiBodyMiddleware } from '@src/middlewares/joi-body.middleware';
 import { requirePermissionMiddleware } from '@src/middlewares/require-permission.middleware';
 import { createUserSchema } from './dto/createUserSchema.dto';
 import { updateUserSchema } from './dto/updateUserSchema.dto';
-import type { UsersCrudService } from '../services/users-crud.service';
-import type { ControllerFactory } from '@src/lib/lucky-server';
 import type { Application, Request, Response } from 'express';
+import type { ControllerFactory } from '@src/lib/lucky-server';
+import type { UsersCrudService } from '../services/users-crud.service';
 
 export class UsersCrudController implements ControllerFactory {
   constructor(

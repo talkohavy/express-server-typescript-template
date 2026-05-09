@@ -1,7 +1,7 @@
 import { BUILT_IN_WEBSOCKET_EVENTS } from '@src/lib/websocket-manager';
-import type { WsConnectionContext, IConnectionPipeline } from '../../../types';
-import type { LoggerService } from '@src/lib/logger-service';
 import type { WebSocket } from 'ws';
+import type { LoggerService } from '@src/lib/logger-service';
+import type { WsConnectionContext, IConnectionPipeline } from '../../../types';
 
 export class AttachErrorHandlerToSocketPipeline implements IConnectionPipeline {
   constructor(private readonly logger: LoggerService) {}

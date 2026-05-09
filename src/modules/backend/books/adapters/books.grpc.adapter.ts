@@ -1,6 +1,4 @@
 import { status } from '@grpc/grpc-js';
-import type { GetBooksParsedQuery } from '../types';
-import type { IBooksAdapter } from './books.adapter.interface';
 import type {
   BooksServiceClient,
   CreateBookRequest,
@@ -16,6 +14,8 @@ import type {
 } from '@src/modules/backend/proto/generated/backend/books/v1/books';
 import type { CreateBookDto, UpdateBookDto } from '@src/modules/books/services/interfaces/books.service.interface';
 import type { Book, PaginatedBooksResponse } from '@src/modules/books/types';
+import type { GetBooksParsedQuery } from '../types';
+import type { IBooksAdapter } from './books.adapter.interface';
 
 export class BooksGrpcAdapter implements IBooksAdapter {
   constructor(private readonly booksGrpcClient: BooksServiceClient) {}

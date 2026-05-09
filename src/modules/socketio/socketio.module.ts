@@ -3,9 +3,9 @@ import { TopicsRegistererEventHandler } from './event-handlers/topics-registerer
 import { SOCKET_EVENTS, StaticTopics } from './logic/constants';
 import { AuthenticationMiddleware } from './middleware/authentication.middleware';
 import { JoinPrivateMasterRoomMiddleware } from './middleware/join-private-master-room.middleware';
-import type { ModuleFactory } from '@src/lib/lucky-server';
 import type { Application } from 'express';
 import type { Server as SocketIOServer } from 'socket.io';
+import type { ModuleFactory } from '@src/lib/lucky-server';
 
 export class SocketIOModule implements ModuleFactory {
   constructor(private readonly app: Application) {}

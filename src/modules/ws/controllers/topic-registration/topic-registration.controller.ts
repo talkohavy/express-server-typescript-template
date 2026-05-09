@@ -1,12 +1,12 @@
 import { ResponseTypes, SocketEvents } from '../../logic/constants';
 import { sendResponse } from '../../logic/utils/sendResponse';
 import { ValidateTopicNameMiddleware } from '../../middleware/validate-topic-name.middleware';
-import type { MessageDispatcherByEventService } from '../../services/message-dispatcher-by-event';
-import type { TopicRegistrationMessage } from './types';
+import type { WebSocket } from 'ws';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { EventHandlerFactory } from '@src/lib/lucky-server';
 import type { WebsocketManager } from '@src/lib/websocket-manager';
-import type { WebSocket } from 'ws';
+import type { MessageDispatcherByEventService } from '../../services/message-dispatcher-by-event';
+import type { TopicRegistrationMessage } from './types';
 
 export class TopicRegistrationController implements EventHandlerFactory {
   constructor(

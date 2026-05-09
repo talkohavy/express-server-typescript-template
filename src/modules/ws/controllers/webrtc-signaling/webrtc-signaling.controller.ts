@@ -7,12 +7,12 @@ import {
   getWebRtcToSenderTopic,
 } from '../../logic/constants';
 import { ValidateWebRtcMessageMiddleware } from '../../middleware/validate-webrtc-message.middleware';
+import type { WebSocket } from 'ws';
+import type { LoggerService } from '@src/lib/logger-service';
+import type { EventHandlerFactory } from '@src/lib/lucky-server';
 import type { MessageDispatcherByEventService } from '../../services/message-dispatcher-by-event';
 import type { ActionHandler } from '../../types';
 import type { WebRtcSignalingMessage, WebRtcSignalingPayload } from './types';
-import type { LoggerService } from '@src/lib/logger-service';
-import type { EventHandlerFactory } from '@src/lib/lucky-server';
-import type { WebSocket } from 'ws';
 
 /**
  * WebRTC signaling controller: uses topic pub/sub so one sender can have multiple receivers

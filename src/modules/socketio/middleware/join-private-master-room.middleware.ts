@@ -1,7 +1,7 @@
 import { getMasterRoomByUserId } from '../logic/utils/getMasterRoomByUserId';
-import type { SocketType } from '../types';
-import type { LoggerService } from '@src/lib/logger-service';
 import type { Server as SocketIOServer } from 'socket.io';
+import type { LoggerService } from '@src/lib/logger-service';
+import type { SocketType } from '../types';
 
 export class JoinPrivateMasterRoomMiddleware {
   constructor(

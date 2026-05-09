@@ -5,9 +5,9 @@ import { UsersPostgresRepository } from './repositories/users.postgres.repositor
 import { FieldScreeningService } from './services/field-screening.service';
 import { UserUtilitiesService } from './services/user-utilities.service';
 import { UsersCrudService } from './services/users-crud.service';
-import type { IUsersRepository } from './repositories/interfaces/users.repository.base';
-import type { ModuleFactory } from '@src/lib/lucky-server';
 import type { Application } from 'express';
+import type { ModuleFactory } from '@src/lib/lucky-server';
+import type { IUsersRepository } from './repositories/interfaces/users.repository.base';
 // import { UsersMongoRepository } from './repositories/users.mongo.repository';
 
 export class UsersModule implements ModuleFactory {

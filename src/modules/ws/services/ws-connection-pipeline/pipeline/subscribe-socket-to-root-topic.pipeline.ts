@@ -1,7 +1,7 @@
 import { StaticTopics } from '../../../logic/constants';
-import type { WsConnectionContext, IConnectionPipeline } from '../../../types';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { WebsocketManager } from '@src/lib/websocket-manager';
+import type { WsConnectionContext, IConnectionPipeline } from '../../../types';
 
 export class SubscribeSocketToRootTopicPipeline implements IConnectionPipeline {
   constructor(

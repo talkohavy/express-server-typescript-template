@@ -1,6 +1,6 @@
 import { HealthCheckController } from './controllers/health-check.controller';
-import type { ModuleFactory } from '@src/lib/lucky-server';
 import type { Application } from 'express';
+import type { ModuleFactory } from '@src/lib/lucky-server';
 
 export class HealthCheckModule implements ModuleFactory {
   constructor(private readonly app: Application) {}

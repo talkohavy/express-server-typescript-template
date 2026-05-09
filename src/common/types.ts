@@ -1,3 +1,8 @@
+import type { Server as HttpServer } from 'http';
+import type { Client as PgClient } from 'pg';
+import type { RedisClientType } from 'redis';
+import type { Server as SocketIOServer } from 'socket.io';
+import type { WebSocketServer } from 'ws';
 import type { CallContextService } from '@src/lib/call-context';
 import type { ConfigService } from '@src/lib/config-service';
 import type { LoggerService } from '@src/lib/logger-service';
@@ -11,11 +16,6 @@ import type { RedisDebugModule } from '@src/modules/redis-debug';
 import type { SwaggerModule } from '@src/modules/swagger';
 import type { UsersModule } from '@src/modules/users';
 import type { WsModule } from '@src/modules/ws';
-import type { Server as HttpServer } from 'http';
-import type { Client as PgClient } from 'pg';
-import type { RedisClientType } from 'redis';
-import type { Server as SocketIOServer } from 'socket.io';
-import type { WebSocketServer } from 'ws';
 
 export interface OptimizedApp {
   modules: {

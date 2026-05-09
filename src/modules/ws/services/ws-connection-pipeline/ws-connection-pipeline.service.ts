@@ -1,6 +1,6 @@
 import { BUILT_IN_WEBSOCKET_EVENTS } from '@src/lib/websocket-manager';
-import type { IConnectionPipeline } from '../../types';
 import type { WebSocketServer } from 'ws';
+import type { IConnectionPipeline } from '../../types';
 
 /**
  * Registers a single `connection` listener and runs all steps in order, awaiting each

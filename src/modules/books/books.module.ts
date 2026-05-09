@@ -1,8 +1,8 @@
 import { BooksController } from './controllers/books.controller';
 import { BooksMiddleware } from './middleware/books.middleware';
 import { BooksService } from './services/books.service';
-import type { ModuleFactory } from '@src/lib/lucky-server';
 import type { Application } from 'express';
+import type { ModuleFactory } from '@src/lib/lucky-server';
 
 export class BooksModule implements ModuleFactory {
   private booksService!: BooksService;

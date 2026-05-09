@@ -1,9 +1,9 @@
 import { createWriteStream } from 'fs';
 import { join } from 'path';
 import { extractBoundary, parseMultipartHeaders } from '../utils';
-import type { FileMetadata, UploadResult } from '../types';
-import type { Request } from 'express';
 import type { WriteStream } from 'fs';
+import type { Request } from 'express';
+import type { FileMetadata, UploadResult } from '../types';
 
 export class FileUploadService {
   /**

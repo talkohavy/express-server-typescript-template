@@ -2,10 +2,10 @@ import { API_PATHS, StatusCodes } from '@src/common/constants';
 import { joiBodyMiddleware } from '@src/middlewares/joi-body.middleware';
 import { createDragonSchema } from './dto/createDragon.dto';
 import { updateDragonSchema } from './dto/updateDragon.dto';
+import type { Application } from 'express';
+import type { ControllerFactory } from '@src/lib/lucky-server';
 import type { DragonsService } from '../services/dragons.service';
 import type { UpdateDragonDto } from '../services/interfaces/dragons.service.interface';
-import type { ControllerFactory } from '@src/lib/lucky-server';
-import type { Application } from 'express';
 
 export class DragonsController implements ControllerFactory {
   constructor(

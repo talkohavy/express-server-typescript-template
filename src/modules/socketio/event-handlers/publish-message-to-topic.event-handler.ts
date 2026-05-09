@@ -1,8 +1,8 @@
 import { BUILT_IN_WEBSOCKET_EVENTS, SOCKET_EVENTS } from '../logic/constants';
+import type { Socket, Server as SocketIOServer } from 'socket.io';
+import type { LoggerService } from '@src/lib/logger-service';
 import type { SocketType } from '../types';
 import type { SendMessageToTopicPayload } from './interfaces/publish-message-to-topic.event-handler.interface';
-import type { LoggerService } from '@src/lib/logger-service';
-import type { Socket, Server as SocketIOServer } from 'socket.io';
 
 export class PublishMessageToTopicEventHandler {
   constructor(

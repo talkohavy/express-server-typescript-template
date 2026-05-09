@@ -1,7 +1,7 @@
 import { API_PATHS, StatusCodes } from '@src/common/constants';
-import type { IFileUploadAdapter } from '../adapters/file-upload.adapter.interface';
-import type { ControllerFactory } from '@src/lib/lucky-server';
 import type { Application, Request, Response } from 'express';
+import type { ControllerFactory } from '@src/lib/lucky-server';
+import type { IFileUploadAdapter } from '../adapters/file-upload.adapter.interface';
 
 export class FileUploadController implements ControllerFactory {
   constructor(

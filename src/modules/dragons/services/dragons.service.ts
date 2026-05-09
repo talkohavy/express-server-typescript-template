@@ -1,6 +1,6 @@
+import type { RedisClientType } from 'redis';
 import type { Dragon } from '../types';
 import type { CreateDragonDto, UpdateDragonDto } from './interfaces/dragons.service.interface';
-import type { RedisClientType } from 'redis';
 
 const DRAGONS_KEY = 'dragons';
 const DRAGON_ID_COUNTER_KEY = 'dragons:id_counter';

@@ -5,9 +5,9 @@ import { requirePermissionMiddleware } from '@src/middlewares/require-permission
 import { requireUserAuthMiddleware } from '@src/middlewares/require-user-auth.middleware';
 import { createUserSchema } from './dto/createUserSchema.dto';
 import { updateUserSchema } from './dto/updateUserSchema.dto';
-import type { IUsersAdapter } from '../adapters/users.adapter.interface';
-import type { ControllerFactory } from '@src/lib/lucky-server';
 import type { Application, Request, Response } from 'express';
+import type { ControllerFactory } from '@src/lib/lucky-server';
+import type { IUsersAdapter } from '../adapters/users.adapter.interface';
 
 export class UsersCrudController implements ControllerFactory {
   constructor(

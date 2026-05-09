@@ -1,9 +1,9 @@
 import { API_PATHS } from '@src/common/constants';
 import { ConfigKeys, type CookiesConfig } from '@src/configurations';
-import type { IAuthAdapter } from '../authentication';
+import type { Application, NextFunction, Request, Response } from 'express';
 import type { UserToken } from '@src/common/types';
 import type { MiddlewareFactory } from '@src/lib/lucky-server';
-import type { Application, NextFunction, Request, Response } from 'express';
+import type { IAuthAdapter } from '../authentication';
 
 export class AuthenticationMiddleware implements MiddlewareFactory {
   constructor(

@@ -1,6 +1,6 @@
 import { API_PATHS } from '@src/common/constants';
-import type { MiddlewareFactory } from '@src/lib/lucky-server';
 import type { Application, NextFunction, Request, Response } from 'express';
+import type { MiddlewareFactory } from '@src/lib/lucky-server';
 
 export class BooksMiddleware implements MiddlewareFactory {
   constructor(private readonly app: Application) {}

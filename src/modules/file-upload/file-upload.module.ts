@@ -1,7 +1,7 @@
 import { FileUploadController } from './file-upload.controller';
 import { FileUploadService } from './services/file-upload.service';
-import type { ModuleFactory } from '@src/lib/lucky-server';
 import type { Application } from 'express';
+import type { ModuleFactory } from '@src/lib/lucky-server';
 
 export class FileUploadModule implements ModuleFactory {
   private fileUploadService!: FileUploadService;

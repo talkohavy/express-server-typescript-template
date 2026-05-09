@@ -1,7 +1,7 @@
 import { DragonsController } from './controllers/dragons.controller';
 import { DragonsService } from './services/dragons.service';
-import type { ModuleFactory } from '@src/lib/lucky-server';
 import type { Application } from 'express';
+import type { ModuleFactory } from '@src/lib/lucky-server';
 
 export class DragonsModule implements ModuleFactory {
   private dragonsService!: DragonsService;

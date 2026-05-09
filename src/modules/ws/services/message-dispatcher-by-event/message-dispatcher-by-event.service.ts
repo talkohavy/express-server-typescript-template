@@ -1,10 +1,10 @@
 import { parseJson } from '@src/common/utils/parseJson';
 import { ResponseTypes, type SocketEventValues } from '../../logic/constants';
 import { sendResponse } from '../../logic/utils/sendResponse';
+import type { WebSocket } from 'ws';
+import type { LoggerService } from '@src/lib/logger-service';
 import type { ActionHandler, ClientMessage, WsMiddleware } from '../../types';
 import type { RegisterProps } from './types';
-import type { LoggerService } from '@src/lib/logger-service';
-import type { WebSocket } from 'ws';
 
 /**
  * Parses JSON, validates the "event" key, and dispatches to the registered domain handler.

@@ -1,7 +1,7 @@
 import { API_PATHS, StatusCodes } from '@src/common/constants';
-import type { FileUploadService } from './services/file-upload.service';
-import type { ControllerFactory } from '@src/lib/lucky-server';
 import type { Application, Request, Response } from 'express';
+import type { ControllerFactory } from '@src/lib/lucky-server';
+import type { FileUploadService } from './services/file-upload.service';
 
 export class FileUploadController implements ControllerFactory {
   constructor(

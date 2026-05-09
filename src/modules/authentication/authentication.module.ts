@@ -8,8 +8,8 @@ import { AuthenticationMiddleware } from './middleware/authentication.middleware
 import { PasswordManagementService } from './services/password-management.service';
 import { TokenGenerationService } from './services/token-generation.service';
 import { TokenVerificationService } from './services/token-verification.service';
-import type { ModuleFactory } from '@src/lib/lucky-server';
 import type { Application } from 'express';
+import type { ModuleFactory } from '@src/lib/lucky-server';
 
 export class AuthenticationModule implements ModuleFactory {
   private passwordManagementService!: PasswordManagementService;

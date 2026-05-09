@@ -1,6 +1,6 @@
 import { WsStateController } from './controllers/ws-state.controller';
-import type { ModuleFactory } from '@src/lib/lucky-server';
 import type { Application } from 'express';
+import type { ModuleFactory } from '@src/lib/lucky-server';
 
 export class RedisDebugModule implements ModuleFactory {
   constructor(private readonly app: Application) {}

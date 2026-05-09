@@ -39,8 +39,9 @@ export default [
             'external', // <--- import express from 'express';
             'internal', // <--- import myUtil from '@src/myUtil';
             ['parent', 'sibling', 'index'],
+            'type-builtin',
+            'type-external',
             'type-internal',
-            'type',
             ['type-parent', 'type-sibling', 'type-index'],
             'unknown',
           ],

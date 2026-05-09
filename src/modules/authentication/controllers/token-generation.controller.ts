@@ -1,9 +1,9 @@
 import { API_PATHS } from '@src/common/constants';
 import { joiBodyMiddleware } from '@src/middlewares/joi-body.middleware';
 import { createTokensSchema } from './dto/create-tokens.dto';
-import type { TokenGenerationService } from '../services/token-generation.service';
-import type { ControllerFactory } from '@src/lib/lucky-server';
 import type { Application, Request, Response } from 'express';
+import type { ControllerFactory } from '@src/lib/lucky-server';
+import type { TokenGenerationService } from '../services/token-generation.service';
 
 export class TokenGenerationController implements ControllerFactory {
   constructor(

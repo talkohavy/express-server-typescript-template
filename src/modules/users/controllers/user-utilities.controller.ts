@@ -3,9 +3,9 @@ import { NotFoundError } from '@src/lib/Errors';
 import { joiBodyMiddleware } from '@src/middlewares/joi-body.middleware';
 import { UserNotFoundError } from '../logic/users.errors';
 import { getUserByEmailSchema } from './dto/get-user-by-email.dto';
-import type { UserUtilitiesService } from '../services/user-utilities.service';
-import type { ControllerFactory } from '@src/lib/lucky-server';
 import type { Application, Request, Response } from 'express';
+import type { ControllerFactory } from '@src/lib/lucky-server';
+import type { UserUtilitiesService } from '../services/user-utilities.service';
 
 export class UserUtilitiesController implements ControllerFactory {
   constructor(

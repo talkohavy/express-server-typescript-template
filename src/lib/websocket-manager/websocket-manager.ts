@@ -1,8 +1,8 @@
 import { WS_TOPIC_PUBSUB_CHANNEL } from './logic/constants';
-import type { TopicManager } from './logic/topic-manager';
-import type { TopicPayload } from './types';
 import type { RedisClientType } from 'redis';
 import type { WebSocket } from 'ws';
+import type { TopicManager } from './logic/topic-manager';
+import type { TopicPayload } from './types';
 
 export class WebsocketManager {
   /**

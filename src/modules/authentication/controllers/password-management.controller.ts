@@ -2,9 +2,9 @@ import { API_PATHS } from '@src/common/constants';
 import { UnauthorizedError } from '@src/lib/Errors';
 import { joiBodyMiddleware } from '@src/middlewares/joi-body.middleware';
 import { getIsPasswordValidSchema } from './dto/get-is-password-valid.dto';
-import type { PasswordManagementService } from '../services/password-management.service';
-import type { ControllerFactory } from '@src/lib/lucky-server';
 import type { Application, Request, Response } from 'express';
+import type { ControllerFactory } from '@src/lib/lucky-server';
+import type { PasswordManagementService } from '../services/password-management.service';
 
 export class PasswordManagementController implements ControllerFactory {
   constructor(

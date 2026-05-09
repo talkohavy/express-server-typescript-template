@@ -20,8 +20,8 @@ import {
   UserUtilitiesController,
   type IUsersAdapter,
 } from './users';
-import type { ModuleFactory } from '@src/lib/lucky-server';
 import type { Application } from 'express';
+import type { ModuleFactory } from '@src/lib/lucky-server';
 
 /**
  * BackendModule serves as the BFF (Backend-For-Frontend).

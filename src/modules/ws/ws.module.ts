@@ -15,8 +15,8 @@ import { AttachPongHandlerToSocketPipeline } from './services/ws-connection-pipe
 import { AttachSocketIdToConnectionPipeline } from './services/ws-connection-pipeline/pipeline/attach-socket-id-to-connection.pipeline';
 import { ConnectionAcknowledgePipeline } from './services/ws-connection-pipeline/pipeline/connection-acknowledge.pipeline';
 import { SubscribeSocketToRootTopicPipeline } from './services/ws-connection-pipeline/pipeline/subscribe-socket-to-root-topic.pipeline';
-import type { ModuleFactory } from '@src/lib/lucky-server';
 import type { Application } from 'express';
+import type { ModuleFactory } from '@src/lib/lucky-server';
 
 /**
  * WebSocket module: connection lifecycle, message dispatch, and topic pub/sub.

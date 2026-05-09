@@ -1,5 +1,5 @@
-import type { ServerSocketResponse } from '@src/lib/websocket-manager';
 import type { WebSocket } from 'ws';
+import type { ServerSocketResponse } from '@src/lib/websocket-manager';
 
 type SendResponseProps = {
   socket: WebSocket;

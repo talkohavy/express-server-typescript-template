@@ -2,12 +2,12 @@ import { ResponseTypes, SocketEvents } from '../../logic/constants';
 import { sendResponse } from '../../logic/utils/sendResponse';
 import { RequireTopicPermissionMiddleware } from '../../middleware/require-topic-permission.middleware';
 import { ValidateTopicMessageMiddleware } from '../../middleware/validate-topic-message.middleware';
-import type { MessageDispatcherByEventService } from '../../services/message-dispatcher-by-event';
-import type { TopicMessage } from './types';
+import type { WebSocket } from 'ws';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { EventHandlerFactory } from '@src/lib/lucky-server';
 import type { WebsocketManager } from '@src/lib/websocket-manager';
-import type { WebSocket } from 'ws';
+import type { MessageDispatcherByEventService } from '../../services/message-dispatcher-by-event';
+import type { TopicMessage } from './types';
 
 /**
  * Handles the "send" event: client publishes a message to a topic.

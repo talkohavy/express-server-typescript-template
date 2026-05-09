@@ -1,9 +1,9 @@
 import { WebSocket } from 'ws';
 import { parseJson } from '@src/common/utils/parseJson';
 import { WS_TOPIC_PUBSUB_CHANNEL, type TopicPayload, type WebsocketManager } from '@src/lib/websocket-manager';
-import type { InterceptorFunc } from './types';
-import type { LoggerService } from '@src/lib/logger-service';
 import type { RedisClientType } from 'redis';
+import type { LoggerService } from '@src/lib/logger-service';
+import type { InterceptorFunc } from './types';
 
 export class ConsumeMessageFromTopicService {
   constructor(

@@ -1,6 +1,6 @@
-import type { SocketEventValues } from './logic/constants';
 import type { IncomingMessage } from 'node:http';
 import type { WebSocket } from 'ws';
+import type { SocketEventValues } from './logic/constants';
 
 /**
  * Per-connection context passed through the WebSocket connection pipeline (single ordered chain).
