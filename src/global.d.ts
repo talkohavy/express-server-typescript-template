@@ -1,4 +1,5 @@
 import type { OptimizedApp, UserToken } from './common/types';
+import type { WebSocket as WebSocketType } from 'ws';
 
 declare module 'express' {
   export interface Request {
@@ -17,7 +18,7 @@ declare module 'express' {
 }
 
 declare module 'ws' {
-  export interface WebSocket {
+  export interface WebSocket extends WebSocketType {
     id: string;
   }
 }
