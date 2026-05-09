@@ -29,17 +29,13 @@ export class ConsumeMessageFromTopicService {
   private async onTopicMessage(payloadAsString: string): Promise<void> {
     const parsedPayload = parseJson<TopicPayload>(payloadAsString);
 
-    if (!parsedPayload) {
-      console.error('WS topic pub/sub: invalid JSON received on channel', WS_TOPIC_PUBSUB_CHANNEL);
+    if (!this.getIsValidTopicMessage(parsedPayload)) {
+      this.logger.error('WS topic pub/sub: invalid JSON/data received on channel', WS_TOPIC_PUBSUB_CHANNEL);
+
       return;
     }
 
     const { topic, data } = parsedPayload;
-
-    if (typeof data !== 'object' || data === null) {
-      this.logger.error('WS topic pub/sub: invalid data received on channel', WS_TOPIC_PUBSUB_CHANNEL);
-      return;
-    }
 
     const topicSubscribers = await this.wsManager.getTopicSubscribers(topic);
 
@@ -63,5 +59,13 @@ export class ConsumeMessageFromTopicService {
 
   async cleanup(): Promise<void> {
     await this.redisSub.unsubscribe(WS_TOPIC_PUBSUB_CHANNEL);
+  }
+
+  private getIsValidTopicMessage(topicPayload: TopicPayload | null): topicPayload is TopicPayload {
+    if (!topicPayload) return false;
+
+    const { data } = topicPayload;
+
+    return typeof data === 'object' && data !== null;
   }
 }
