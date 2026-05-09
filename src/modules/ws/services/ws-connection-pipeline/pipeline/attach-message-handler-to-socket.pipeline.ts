@@ -1,4 +1,4 @@
-import { BUILT_IN_WEBSOCKET_EVENTS } from '@src/lib/websocket-manager/logic/constants';
+import { BUILT_IN_WEBSOCKET_EVENTS } from '@src/lib/websocket-manager';
 import type { WsConnectionContext, IConnectionPipeline } from '../../../types';
 import type { MessageDispatcherByEventService } from '../../message-dispatcher-by-event/message-dispatcher-by-event.service';
 

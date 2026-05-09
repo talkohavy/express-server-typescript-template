@@ -1,4 +1,4 @@
-import { BUILT_IN_WEBSOCKET_EVENTS } from '@src/lib/websocket-manager/logic/constants';
+import { BUILT_IN_WEBSOCKET_EVENTS } from '@src/lib/websocket-manager';
 import type { WsConnectionContext, IConnectionPipeline } from '../../../types';
 import type { PingPongService } from '../../ping-pong/ping-pong.service';
 
