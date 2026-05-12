@@ -20,6 +20,7 @@ export default [
   {
     rules: {
       // Error Rules
+      'no-throw-literal': 'error',
       'import/no-duplicates': ['error', { 'prefer-inline': false }],
       'perfectionist/sort-imports': [
         'error',
