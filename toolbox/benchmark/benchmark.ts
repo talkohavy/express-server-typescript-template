@@ -1,6 +1,6 @@
 import autocannon, { type Result } from 'autocannon';
 import express, { type Application } from 'express';
-import { buildMockApp } from '../../src/mockApp';
+import { buildApp } from '../../src/buildApp';
 
 const PORT = 8000;
 
@@ -63,7 +63,7 @@ async function main() {
 
   // Start the server
   const app = express() as unknown as Application;
-  await buildMockApp(app);
+  await buildApp(app);
 
   app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`);
