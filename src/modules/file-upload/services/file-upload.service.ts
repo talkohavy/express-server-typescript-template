@@ -298,15 +298,15 @@ export class FileUploadService {
       const contentStartIndex = partEndIndex + 4;
       const nextBoundaryIndex = remainingBuffer.indexOf(`--${boundary}`, contentStartIndex);
 
-      if (nextBoundaryIndex !== -1) {
+      if (nextBoundaryIndex === -1) {
+        remainingBuffer = remainingBuffer.subarray(contentStartIndex);
+        break;
+      } else {
         // 5. Extracting file content between boundaries
         const fileContent = remainingBuffer.subarray(contentStartIndex, nextBoundaryIndex - 2);
         // 6. Writing to file stream
         fileStreamRef.current?.write(fileContent);
         remainingBuffer = remainingBuffer.subarray(nextBoundaryIndex);
-      } else {
-        remainingBuffer = remainingBuffer.subarray(contentStartIndex);
-        break;
       }
     }
 

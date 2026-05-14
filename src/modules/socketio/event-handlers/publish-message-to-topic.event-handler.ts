@@ -18,11 +18,11 @@ export class PublishMessageToTopicEventHandler {
 
   private async handleSendMessageToTopicEvent(socket: SocketType) {
     socket.on(SOCKET_EVENTS.SendMessageToTopic, (data) => {
-      this.SendMessageToTopic(socket, data);
+      this.sendMessageToTopic(socket, data);
     });
   }
 
-  private async SendMessageToTopic(socket: SocketType, payload: SendMessageToTopicPayload) {
+  private async sendMessageToTopic(socket: SocketType, payload: SendMessageToTopicPayload) {
     const { topic, data } = payload ?? {};
 
     if (!topic) {
