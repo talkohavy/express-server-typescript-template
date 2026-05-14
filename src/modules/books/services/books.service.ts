@@ -9,8 +9,6 @@ const database: Array<Book> = generateMockBooks(DEFAULT_MOCK_BOOKS_COUNT);
 const MAX_LIMIT = 100;
 
 export class BooksService {
-  constructor() {}
-
   async getBooks(query: GetBooksParsedQuery): Promise<PaginatedBooksResponse> {
     const { page: pageInput, limit: limitInput } = query;
 
@@ -19,7 +17,7 @@ export class BooksService {
 
     // Update pagination query parameters:
     const boundedLimit = getBoundedLimit({ limit: limitInput, maxLimit: MAX_LIMIT });
-    const boundedPage = getBoundedPage({ page: pageInput, limit: boundedLimit, totalItemsCount: totalItemsCount });
+    const boundedPage = getBoundedPage({ page: pageInput, limit: boundedLimit, totalItemsCount });
 
     // Mock DB pagination query:
     const offset = boundedLimit * boundedPage;

@@ -7,8 +7,6 @@ type GenerateHashedPasswordProps = {
 };
 
 export class PasswordManagementService {
-  constructor() {}
-
   /**
    * @description
    * In node, we can hash a password with salt by importing scrypt from within crypto & some salt.

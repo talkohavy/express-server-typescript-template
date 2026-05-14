@@ -5,7 +5,7 @@ import type { MessageDispatcherByEventService } from '../../message-dispatcher-b
 export class AttachMessageHandlerToSocketPipeline implements IConnectionPipeline {
   constructor(private readonly messageDispatcherByEventService: MessageDispatcherByEventService) {}
 
-  async handleConnection(props: WsConnectionContext): Promise<void> {
+  handleConnection(props: WsConnectionContext) {
     const { socket } = props;
 
     socket.on(BUILT_IN_WEBSOCKET_EVENTS.Message, (data: Buffer) => {

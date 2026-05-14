@@ -11,7 +11,7 @@ import type { Application } from 'express';
  * - logger plugin
  * - redis plugin
  */
-export async function socketIOPlugin(app: Application): Promise<void> {
+export function socketIOPlugin(app: Application) {
   const { logger, redis } = app;
   const { pub: redisPub, sub: redisSub } = redis;
 

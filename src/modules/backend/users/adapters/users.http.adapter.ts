@@ -21,7 +21,7 @@ export class UsersHttpAdapter implements IUsersAdapter {
   async getUserById(userId: string): Promise<DatabaseUser> {
     const route = `${API_PATHS.users}/${userId}`;
 
-    const response = await this.httpClient.get<DatabaseUser>({ serviceName: ServiceNames.Users, route: route });
+    const response = await this.httpClient.get<DatabaseUser>({ serviceName: ServiceNames.Users, route });
 
     return response;
   }
@@ -51,7 +51,7 @@ export class UsersHttpAdapter implements IUsersAdapter {
 
     const response = await this.httpClient.patch<DatabaseUser>({
       serviceName: ServiceNames.Users,
-      route: route,
+      route,
       body: data,
     });
 
@@ -63,7 +63,7 @@ export class UsersHttpAdapter implements IUsersAdapter {
 
     const response = await this.httpClient.delete<{ success: boolean }>({
       serviceName: ServiceNames.Users,
-      route: route,
+      route,
     });
 
     return response;

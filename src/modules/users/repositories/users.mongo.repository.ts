@@ -1,4 +1,4 @@
-import { type ApplyBasicCreateCasting, type QueryFilter, type Mongoose, Types } from 'mongoose';
+import { type ApplyBasicCreateCasting, type QueryFilter, Types } from 'mongoose';
 import { UserModel } from '../../../databases/mongo/models/user/user.model';
 import type { DatabaseUser } from '../types';
 import type { IUsersRepository } from './interfaces/users.repository.base';
@@ -13,8 +13,6 @@ import type {
 const { ObjectId } = Types;
 
 export class UsersMongoRepository implements IUsersRepository {
-  constructor(_mongoClient: Mongoose) {}
-
   async getUserByEmail(email: string, options: GetUserByEmailOptions = {}): Promise<DatabaseUser | null> {
     const { options: optionsRaw = {} } = options; // , fields
 

@@ -70,7 +70,7 @@ function createGracefulShutdownHandler(app: Application) {
 }
 
 function createGracefulRejectionOrExceptionHandler(app: Application) {
-  return async function gracefulRejectionOrException(error: Error) {
+  return function gracefulRejectionOrException(error: Error) {
     console.error('unhandledRejection', { error });
     console.error('Should not get here!  You are missing a try/catch somewhere.');
 

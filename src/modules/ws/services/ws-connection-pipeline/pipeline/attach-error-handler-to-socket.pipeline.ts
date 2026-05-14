@@ -6,7 +6,7 @@ import type { WsConnectionContext, IConnectionPipeline } from '../../../types';
 export class AttachErrorHandlerToSocketPipeline implements IConnectionPipeline {
   constructor(private readonly logger: LoggerService) {}
 
-  async handleConnection(props: WsConnectionContext): Promise<void> {
+  handleConnection(props: WsConnectionContext) {
     const { socket } = props;
 
     this.attachErrorHandlerToSocket(socket);

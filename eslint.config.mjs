@@ -19,9 +19,32 @@ export default [
   },
   {
     rules: {
+      'no-useless-concat': 'error', // <--- Disallow (no auto fix): const foo = 'a' + 'b';
+      yoda: 'error',
+      'prefer-object-spread': 'error',
+      'object-shorthand': 'error', // <--- Disallow & fix: const foo = { x: x, y: y, z: z };
+      'no-useless-return': 'error', // <--- Disallow unnecessary return statements.
+      'no-useless-rename': 'error', // <--- Disallow (no auto fix): import { foo as foo } from 'bar';
+      'no-useless-constructor': 'error', // <--- Disallow empty constructors.
+      'no-useless-computed-key': 'error', // <--- Disallow & fix: const foo = {["a"]: "b"};
+      'no-return-assign': 'error', // <--- Disallow assignment expressions in return statements.
+      'no-param-reassign': 'error', // <--- Disallow assignment to parameters.
+      'no-new-object': 'error', // <--- Disallow the use of the `new` operator with the `Object` object.
+      'no-new-wrappers': 'error', // <--- Disallow new operators with the String, Number, and Boolean objects.
+      'no-nested-ternary': 'error',
+      'no-negated-condition': 'error',
+      'no-multi-assign': 'error',
+      'no-lone-blocks': 'error',
+      'no-else-return': 'error',
+      'new-cap': 'error', // <--- Capital letter is required for class names.
+      'no-unreachable-loop': 'error',
+      'no-self-compare': 'error',
+      // 'no-promise-executor-return': 'error',
+      'no-async-promise-executor': 'error',
+
       // Error Rules
       'no-throw-literal': 'error',
-      'import/no-duplicates': ['error', { 'prefer-inline': false }],
+      'import/no-duplicates': ['error', { 'prefer-inline': false }], // <--- Use only this rule! Do NOT use the 'no-duplicate-imports' rule, as it doesn't know how to auto-fix.
       'perfectionist/sort-imports': [
         'error',
         {

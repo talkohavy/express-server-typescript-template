@@ -21,8 +21,9 @@ export class MongodbConnection implements ConnectionFactory {
     return MongodbConnection.instance;
   }
 
-  public async connect(): Promise<void> {
+  public connect() {
     if (this.isConnected) return;
+
     console.log('🔗 Attempting to connect to MongoDB...');
 
     const MAX_RETRIES = 5;

@@ -44,7 +44,7 @@ export class RedisConnection implements ConnectionFactory {
     }
   }
 
-  async ensureConnected(): Promise<void> {
+  ensureConnected() {
     if (!this.isConnected()) {
       throw new Error(`Redis client is not connected (${this._config.connectionName})`);
     }

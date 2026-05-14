@@ -4,8 +4,6 @@ import type { InterceptorFunc } from '../consume-message-from-topic';
 import type { InterceptorService } from './types';
 
 export class DataInterceptorService implements InterceptorService {
-  constructor() {}
-
   getInterceptors(): Record<string, InterceptorFunc> {
     return {
       [StaticTopics.Data]: this.interceptDataTopic.bind(this),

@@ -14,7 +14,7 @@ export type WsConnectionContext = {
  * One step in the connection pipeline; each step completes before the next runs.
  */
 export interface IConnectionPipeline {
-  handleConnection(props: WsConnectionContext): Promise<void>;
+  handleConnection(props: WsConnectionContext): Promise<void> | void;
 }
 
 /**
