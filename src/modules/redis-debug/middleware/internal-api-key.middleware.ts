@@ -1,5 +1,5 @@
 import { Headers } from '@src/common/constants';
-import { UnauthorizedError } from '@src/lib/Errors';
+import { UnauthorizedError } from '@src/core/errors';
 import type { Request, Response, NextFunction } from 'express';
 
 const internalDebugApiKey = process.env.INTERNAL_DEBUG_API_KEY;

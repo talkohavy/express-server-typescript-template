@@ -1,5 +1,5 @@
 import { API_PATHS } from '@src/common/constants';
-import { UnauthorizedError } from '@src/lib/Errors';
+import { UnauthorizedError } from '@src/core/errors';
 import { joiBodyMiddleware } from '@src/middlewares/joi-body.middleware';
 import { getIsPasswordValidSchema } from './dto/get-is-password-valid.dto';
 import type { Application, Request, Response } from 'express';

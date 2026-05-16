@@ -1,4 +1,4 @@
-import { BadRequestError } from '@src/lib/Errors';
+import { BadRequestError } from '@src/core/errors';
 import type { NextFunction, Request, Response } from 'express';
 import type Joi from 'joi';
 

@@ -4,8 +4,8 @@ import {
   InternalServerError,
   NotFoundError,
   UnauthorizedError,
-} from '@src/lib/Errors';
-import type { HttpException } from '@src/lib/Errors/HttpException';
+  type HttpException,
+} from '@src/core/errors';
 
 export const StatusCodes = {
   OK: 200,

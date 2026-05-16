@@ -1,5 +1,5 @@
 import { API_PATHS } from '@src/common/constants';
-import { NotFoundError } from '@src/lib/Errors';
+import { NotFoundError } from '@src/core/errors';
 import { joiBodyMiddleware } from '@src/middlewares/joi-body.middleware';
 import { UserNotFoundError } from '../logic/users.errors';
 import { getUserByEmailSchema } from './dto/get-user-by-email.dto';

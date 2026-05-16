@@ -1,4 +1,4 @@
-import { ForbiddenError } from '@src/lib/Errors';
+import { ForbiddenError } from '@src/core/errors';
 import type { Request, Response, NextFunction } from 'express';
 
 export function requirePermissionMiddleware(

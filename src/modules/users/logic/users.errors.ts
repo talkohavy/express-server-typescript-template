@@ -1,4 +1,4 @@
-import { BaseError } from '@src/lib/Errors/BaseError';
+import { BaseError } from '@src/core/errors/BaseError';
 
 export class UserNotFoundError extends BaseError {
   constructor(userId: string) {
