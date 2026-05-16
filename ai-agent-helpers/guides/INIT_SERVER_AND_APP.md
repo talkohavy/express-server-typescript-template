@@ -46,21 +46,18 @@ Responsibilities:
 
 1. Create the raw Express app
 2. Instantiate AppFactory with the app and optimizedApp
-3. Register plugins, modules, error handler, and path-not-found handler
+3. Register plugins (core services), global middleware, modules, error handler, and path-not-found handler
 4. Return the composed app
 
 ```typescript
-export async function buildApp() {
-  const app = express() as unknown as Application;
-  app.disable('x-powered-by');
-
+export async function buildApp(app: Application) {
   const appModule = new AppFactory(app, optimizedApp);
-  await appModule.registerPlugins([...]);
-  appModule.registerModules([...]);
-  appModule.registerErrorHandler(errorHandlerPlugin);
-  appModule.registerPathNotFoundHandler(pathNotFoundPlugin);
 
-  return app;
+  await appModule.registerPlugins([...]);       // core services on app
+  await appModule.registerMiddleware([...]);  // global Express middleware
+  await appModule.registerModules([...]);
+  appModule.registerErrorHandler(errorHandler);
+  appModule.registerPathNotFoundHandler(pathNotFoundHandler);
 }
 ```
 
@@ -87,7 +84,8 @@ If you use `app.listen()` instead, a new HTTP server is created. Socket.IO and W
 
 - **Entry:** `pnpm dev` → `src/initServer.ts`
 - **App:** `src/buildApp.ts` → `buildApp()`
-- **Plugins:** Full set (config, logger, postgres, redis, socket.io, ws, cors, etc.)
+- **Plugins:** Full set (config, logger, postgres, redis, socket.io, ws, etc.)
+- **Middleware:** Full set (CORS, helmet, body limits, fetch-permissions, etc.)
 - **Modules:** All domain modules + BackendModule + SwaggerModule
 - **Listen:** `app.httpServer.listen()` (because of Socket.IO/WS)
 
@@ -107,7 +105,7 @@ Each micro-service has its own `init-server.ts` and `buildApp.ts`, with a focuse
 ## Adding a New Micro-Service
 
 1. Create `src/initAsMicroServices/<name>/<name>.init-server.ts` – import and call `buildApp`, listen on port from config
-2. Create `src/initAsMicroServices/<name>/<name>.buildApp.ts` – define `buildApp()` with AppFactory, plugins, and modules
+2. Create `src/initAsMicroServices/<name>/<name>.buildApp.ts` – define `buildApp()` with AppFactory, plugins, middleware, and modules
 3. Add an npm script in `package.json`, e.g. `"dev:<name>": "node --import tsx --watch --env-file=.env.micro-services src/initAsMicroServices/<name>/<name>.init-server.ts"`
 4. Set `IS_STANDALONE_MICRO_SERVICES` in `.env.micro-services` so domain modules attach routes
 5. Use `configServicePluggable(configSettings)` for service-specific config (port, service name, etc.)

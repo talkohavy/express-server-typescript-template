@@ -20,11 +20,10 @@ The permissions system is **permission-based** (action-based per resource):
 src/
 ├── common/constants/permissions.ts   # Permission string constants (extend per module)
 ├── middlewares/
-│   ├── require-permission.middleware.ts   # Checks req.userPermissions vs required permissions
-│   ├── require-user-auth.middleware.ts    # Optional: ensures req.user exists (throws UnauthorizedError)
+│   ├── fetch-permissions.middleware.ts      # Populates req.userPermissions (registered globally in buildApp)
+│   ├── require-permission.middleware.ts     # Checks req.userPermissions vs required permissions
+│   ├── require-user-auth.middleware.ts      # Optional: ensures req.user exists (throws UnauthorizedError)
 │   └── attach-user-from-headers.middleware.ts  # Populates req.user from X-User-Id, X-User-Role
-├── plugins/
-│   └── fetch-permissions.plugin.ts  # Populates req.userPermissions (runs on every request)
 └── global.d.ts                       # Express Request extends: user?, userPermissions?
 ```
 
@@ -102,7 +101,7 @@ Headers used (from `src/common/constants/headers.ts`):
 
 ### `req.userPermissions`
 
-Populated by the **fetchPermissionsPlugin** (registered in `buildApp.ts`). The plugin runs on every request and sets `req.userPermissions`. Currently mocks all permissions; implement database or cache lookup per user/role as needed.
+Populated by **`registerFetchPermissionsMiddleware`** (registered via `registerMiddleware` in `buildApp.ts`). It runs on every request and sets `req.userPermissions`. Currently mocks all permissions; implement database or cache lookup per user/role as needed.
 
 ### `req.user`
 
@@ -115,7 +114,7 @@ Populated by module-level middleware (e.g. `UsersMiddleware` uses `attachUserFro
 The Users module demonstrates RBAC:
 
 1. **Permission constants** – `Permissions.users.*` in `permissions.ts`
-2. **Fetch plugin** – `fetchPermissionsPlugin` populates `req.userPermissions`
+2. **Fetch middleware** – `registerFetchPermissionsMiddleware` populates `req.userPermissions`
 3. **User from headers** – `UsersMiddleware` applies `attachUserFromHeadersMiddleware` on `API_PATHS.users`
 4. **Route protection** – Each CRUD route uses `requirePermissionMiddleware([Permissions.users.<action>])`
 
@@ -125,5 +124,5 @@ The Users module demonstrates RBAC:
 
 1. Add permission constants in `src/common/constants/permissions.ts`
 2. Add `requirePermissionMiddleware([Permissions.<resource>.<action>])` to route handlers
-3. Ensure `fetchPermissionsPlugin` is registered (already in `buildApp.ts`)
+3. Ensure `registerFetchPermissionsMiddleware` is registered (already in `buildApp.ts` via `registerMiddleware`)
 4. If the route needs `req.user`, ensure `attachUserFromHeadersMiddleware` (or equivalent) runs on the relevant path

@@ -1,6 +1,6 @@
 # Modules
 
-Modules encapsulate domain logic and route providers. They are classes instantiated by the AppFactory and receive the app in their constructor. Modules run **after** plugins, so they can use plugin-attached services.
+Modules encapsulate domain logic and route providers. They are classes instantiated by the AppFactory and receive the app in their constructor. Modules run **after** plugins and global middleware, so they can use plugin-attached services.
 
 **Location:** `src/modules/`
 

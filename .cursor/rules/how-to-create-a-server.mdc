@@ -8,14 +8,14 @@ alwaysApply: false
 
 - to create a server we use 2 files: `initServer.ts` and `buildApp.ts`.
 - `initServer.ts` is responsible for:
-  - calling `buildApp()` to get the composed app.
+  - create the raw Express app.
+  - calling `buildApp(app)` to build the composed app.
   - read the port from config.
   - start the HTTP server listening.
   - register global handlers for `unhandledRejection` and `uncaughtException`.
 - `buildApp.ts`'s job is to expose an async function called `buildApp`.
 - `buildApp` should:
-  - create the raw Express app.
+  - accept the raw Express app.
   - instantiate `AppFactory` with the `app` and `optimizedApp`.
-  - register plugins, modules, error handler, and path-not-found handler.
-  - modules are attached **after** plugins, so they can use plugin-attached services.
-  - return the composed app.
+  - register plugins (core services), then global middleware via `registerMiddleware`, then modules, then error handler and path-not-found handler.
+  - plugins run first; modules run **after** plugins and global middleware so they can use plugin-attached services.

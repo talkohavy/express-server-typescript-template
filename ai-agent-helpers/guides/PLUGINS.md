@@ -1,21 +1,23 @@
 # Plugins
 
-Plugins attach infrastructure and cross-cutting concerns to the Express app. They run **before** modules and provide services that modules depend on.
+Plugins attach **core infrastructure services** to the Express app (e.g. `app.configService`, `app.logger`, `app.pg`). They run **before** global middleware and modules, and provide services that the rest of the app depends on.
 
 **Location:** `src/plugins/`
+
+For **global middleware** (CORS, body parsing, security headers, etc.), use `AppFactory.registerMiddleware()` and place registrars under `src/middlewares/`. See `APP_FACTORY.md`.
 
 ---
 
 ## Definition
 
-A plugin is a function that receives the app and augments it:
+A plugin is a function that receives the app and augments it with services:
 
 ```typescript
 type PluginFn = (app: Application) => void;
 type PluginAsyncFn = (app: Application) => Promise<void>;
 ```
 
-Plugins typically attach services or add middleware to the app, e.g. `app.configService`, `app.logger`, `app.pg`.
+Plugins attach services to the app, e.g. `app.configService`, `app.logger`, `app.pg`. They do **not** call `app.use()` for request middleware—that belongs in `registerMiddleware`.
 
 ---
 
@@ -23,11 +25,23 @@ Plugins typically attach services or add middleware to the app, e.g. `app.config
 
 Create a plugin when you need to:
 
-- Attach an **infrastructure service** used across multiple modules (config, logger, DB clients, Redis)
-- Add **global middleware** (CORS, body parsing, security headers)
+- Attach an **infrastructure service** used across multiple modules (config, logger, DB clients, Redis, Socket.IO)
 - Set up **shared resources** that modules depend on before they initialize
 
-**Do not** create plugins for domain logic—use modules instead. Plugins are for cross-cutting concerns.
+**Do not** create plugins for:
+
+- **Global middleware** — use `registerMiddleware` and `src/middlewares/` instead
+- **Domain logic** — use modules instead
+
+---
+
+## Plugins vs Middleware
+
+| Concern                   | Mechanism                                                  | Location                          |
+| ------------------------- | ---------------------------------------------------------- | --------------------------------- |
+| Core services on `app`    | `registerPlugins()`                                        | `src/plugins/*.plugin.ts`         |
+| Global Express middleware | `registerMiddleware()`                                     | `src/middlewares/*.middleware.ts` |
+| Error / 404 handlers      | `registerErrorHandler()` / `registerPathNotFoundHandler()` | `src/middlewares/`                |
 
 ---
 
@@ -39,10 +53,9 @@ Plugins execute **sequentially** in registration order. Order matters when one p
 
 1. `configServicePlugin` – Always first; many plugins need config
 2. `callContextPlugin` – Request-scoped context
-3. `addRequestIdHeaderPlugin` – Request ID header
-4. `loggerPlugin` – Depends on: configService, callContextService
-5. `postgresPlugin`, `redisPlugin` – Depend on: configService
-6. `corsPlugin`, `helmetPlugin`, `bodyLimitPlugin`, etc. – No app dependencies
+3. `loggerPlugin` – Depends on: configService, callContextService
+4. `postgresPlugin`, `redisPlugin` – Depend on: configService
+5. `socketIOPlugin`, `wsPlugin` – Depend on: configService (when enabled)
 
 Document dependencies in a JSDoc block when a plugin uses other plugins:
 
@@ -58,16 +71,18 @@ export function loggerPlugin(app: Application) {
 }
 ```
 
+After all plugins run, `AppFactory` freezes the app object shape (`Object.freeze(this.app)`).
+
 ---
 
-## Special Plugins/Middleware: Error Handler and Path Not Found Handler
+## Error Handler and Path Not Found Handler
 
-These are registered via dedicated AppFactory methods (not `registerPlugins`):
+These are **not** plugins. They are registered via dedicated `AppFactory` methods (not `registerPlugins` or `registerMiddleware`):
 
 - **Error handler** – `registerErrorHandler()` – Global error middleware, must run after all routes
 - **Path not found** – `registerPathNotFoundHandler()` – 404 handler for unmatched routes
 
-They are still plugin-style functions `(app) => void`, but they are registered separately to preserve the correct middleware order.
+They live in `src/middlewares/` and are registered separately to preserve the correct middleware order.
 
 ---
 
@@ -127,20 +142,14 @@ export async function postgresPlugin(app: Application) {
 
 ## Existing Plugins (Reference)
 
-| Plugin                   | Purpose                          | Dependencies        |
-| ------------------------ | -------------------------------- | ------------------- |
-| configServicePlugin      | App-wide configuration           | None                |
-| callContextPlugin        | Request-scoped async context     | None                |
-| addRequestIdHeaderPlugin | x-request-id header on responses | None                |
-| loggerPlugin             | Structured logging               | config, callContext |
-| postgresPlugin           | PostgreSQL client                | config              |
-| redisPlugin              | Redis pub/sub clients            | config              |
-| socketIOPlugin           | Socket.IO server                 | config              |
-| wsPlugin                 | WebSocket client                 | config              |
-| corsPlugin               | CORS configuration               | None                |
-| helmetPlugin             | Security headers                 | None                |
-| bodyLimitPlugin          | Request body size limit          | None                |
-| urlEncodedPlugin         | URL-encoded body parsing         | None                |
-| cookieParserPlugin       | Cookie parsing                   | None                |
-| errorHandlerPlugin       | Global error middleware          | N/A (special)       |
-| pathNotFoundPlugin       | 404 handler                      | N/A (special)       |
+| Plugin              | Purpose                      | Dependencies        |
+| ------------------- | ---------------------------- | ------------------- |
+| configServicePlugin | App-wide configuration       | None                |
+| callContextPlugin   | Request-scoped async context | None                |
+| loggerPlugin        | Structured logging           | config, callContext |
+| postgresPlugin      | PostgreSQL client            | config              |
+| redisPlugin         | Redis pub/sub clients        | config              |
+| socketIOPlugin      | Socket.IO server             | config              |
+| wsPlugin            | WebSocket client             | config              |
+
+Global middleware (CORS, helmet, body limits, fetch-permissions, etc.) is registered via `registerMiddleware` in `buildApp.ts` — see `src/middlewares/`.

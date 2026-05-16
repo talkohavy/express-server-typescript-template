@@ -16,7 +16,8 @@ alwaysApply: false
 - a module should encapsulate domain logic and route providers.
 - within `init`, instantiate all the services of that module's domain. store them as private (non-readonly, since they are assigned after construction) fields of the class, declared with the definite-assignment assertion (`!`), e.g. `private booksService!: BooksService`.
 - a module should expose its services via a `services` getter, for others to consume.
-- within `init`, you can destruct parts from `this.app`, which you attached using plugins, and send them as arguments to service classes, as per demand.
+- within `init`, you can destruct parts from `this.app`, which you attached using plugins (via `registerPlugins`), and send them as arguments to service classes, as per demand.
+- modules are registered **after** plugins and global middleware.
 - a module directory can include the following sub-folders (all or some): `controllers`, `services`, `repositories`, `middlewares`, and `logic`.
 - Use plugin-attached resources: `this.app.pg`, `this.app.redis`, `this.app.configService`, etc.
 - the root of a module named "banana" (for example) should include the following files:

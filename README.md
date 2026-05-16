@@ -35,9 +35,9 @@ express-server-typescript-template/
 │   ├── databases/            # DB schemas, migrations, and seeds (mongodb, postgres, etc.)
 │   ├── initAsMicroServices/  # initServer.ts & buildApp.ts for each micro-service to run as standalone server.
 │   ├── lib/                  # Extractable building blocks (lucky-server, logger, Errors)
-│   ├── middlewares/          # middleware for request data validation (body & query)
+│   ├── middlewares/          # global Express middleware (CORS, body parsing, RBAC, etc.)
 │   ├── modules/              # modules of the project
-│   ├── plugins/              # plugins of the project
+│   ├── plugins/              # core services attached to the app (config, logger, DB, etc.)
 │   ├── tests/                # tests setup folder
 │   ├── buildApp.ts                # the main app builder
 │   ├── global.d.ts           # global type overrides & type enhancements
@@ -102,7 +102,7 @@ It includes:
 
 - A repository level (database connection)
 - Multiple services (i.e. `users-crud.service.ts`, `user-utilities.service.ts`, etc.)
-- **RBAC permissions** – Routes are protected with `requirePermissionMiddleware` using permission constants (`Permissions.users.create`, `Permissions.users.read`, etc.). The `fetchPermissionsPlugin` populates `req.userPermissions` per request, and `attachUserFromHeadersMiddleware` populates `req.user` from `X-User-Id` / `X-User-Role` headers. See `ai-agent-helpers/guides/PERMISSIONS_RBAC.md` for details.
+- **RBAC permissions** – Routes are protected with `requirePermissionMiddleware` using permission constants (`Permissions.users.create`, `Permissions.users.read`, etc.). `registerFetchPermissionsMiddleware` populates `req.userPermissions` per request, and `attachUserFromHeadersMiddleware` populates `req.user` from `X-User-Id` / `X-User-Role` headers. See `ai-agent-helpers/guides/PERMISSIONS_RBAC.md` for details.
 - A field-screening service
 
 The database/repository layer used here is either `postgres` or `mongodb`. In such a module we create an extra folder called `repositories` where we declare a repository class (`UsersRepository` for example), and define db operations there.

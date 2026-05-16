@@ -9,11 +9,11 @@ All detailed feature-specific documentation can be found in the `ai-agent-helper
 The project has comprehensive documentation organized as follows:
 
 - **ai-agent-helpers/guides/** - Directory containing detailed feature-specific guides:
-  - `APP_FACTORY.md` - The class used for attaching modules & plugins.
+  - `APP_FACTORY.md` - The class used for attaching plugins, global middleware, and modules.
   - `INIT_SERVER_AND_APP.md` - The 2 main files (initServer.ts & buildApp.ts) that should exist in every server.
   - `MODULES.md` - Explains the module system of the project.
   - `PERMISSIONS_RBAC.md` - RBAC permission system: guards, config, and extending for new modules.
-  - `PLUGINS.md` - Explains the purpose of plugins in the project, and when to create them.
+  - `PLUGINS.md` - Explains plugins (core services on `app`) vs global middleware (`registerMiddleware`).
 
 **Start with the README.md for project overview, then refer to specific guides under ai-agent-helpers/guides/ for detailed information on each feature.**
 
