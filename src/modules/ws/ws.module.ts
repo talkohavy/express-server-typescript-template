@@ -1,12 +1,12 @@
-import { WS_TOPIC_PUBSUB_CHANNEL, type TopicPayload } from '@src/lib/websocket-manager';
 import { PublishToTopicController } from './controllers/publish-to-topic';
 import { TopicRegistrationController } from './controllers/topic-registration';
 import { WebRtcSignalingController } from './controllers/webrtc-signaling';
 import { StaticTopics } from './logic/constants';
-import { ConsumeMessageFromTopicService } from './services/consume-message-from-topic';
 import { DataInterceptorService } from './services/consume-message-interceptors/data.interceptor.service';
 import { MessageDispatcherByEventService } from './services/message-dispatcher-by-event';
 import { PingPongService } from './services/ping-pong';
+import { TopicPublisherService } from './services/topic-publisher';
+import { TopicSubscriberService } from './services/topic-subscriber';
 import { WsConnectionPipelineService } from './services/ws-connection-pipeline';
 import { AttachCloseHandlerToSocketPipeline } from './services/ws-connection-pipeline/pipeline/attach-close-handler-to-socket.pipeline';
 import { AttachErrorHandlerToSocketPipeline } from './services/ws-connection-pipeline/pipeline/attach-error-handler-to-socket.pipeline';
@@ -17,36 +17,44 @@ import { ConnectionAcknowledgePipeline } from './services/ws-connection-pipeline
 import { SubscribeSocketToRootTopicPipeline } from './services/ws-connection-pipeline/pipeline/subscribe-socket-to-root-topic.pipeline';
 import type { Application } from 'express';
 import type { ModuleFactory } from '@src/lib/lucky-server';
+import type { TopicPayload } from './types';
 
 /**
  * WebSocket module: connection lifecycle, message dispatch, and topic pub/sub.
  *
  * **Sending messages to clients (by topic):**
- * - Producers call `app.wsManager.publishToTopic({ topic, data })` (e.g. from routes, jobs, or the sample below).
+ * - Producers call `app.topicPublisherService.publishToTopic({ topic, data })` (e.g. from routes, jobs, or the sample below).
  * - Messages are published to Redis channel "ws:topic:pubsub".
- * - Each node receives them in ConsumeMessageFromTopicService and forwards to its local clients subscribed to that topic.
+ * - Each node receives them in TopicSubscriberService and forwards to its local clients subscribed to that topic.
+ *
+ * **Architecture:**
+ * - TopicPublisherService: Publishes messages to Redis pub/sub
+ * - TopicSubscriberService: Manages subscriptions, listens to pub/sub, and forwards to local WebSocket clients
  */
 export class WsModule implements ModuleFactory {
-  private messageDispatcherService!: MessageDispatcherByEventService;
-  private consumeMessageFromTopicService!: ConsumeMessageFromTopicService;
+  private messageDispatcherByEventService!: MessageDispatcherByEventService;
+  private topicSubscriberService!: TopicSubscriberService;
+  private topicPublisherService!: TopicPublisherService;
   private pingPongService!: PingPongService;
 
   constructor(private readonly app: Application) {}
 
   async init(): Promise<void> {
-    const { wsManager, logger, redis } = this.app;
+    const { logger, redis } = this.app;
 
     // Services
     this.pingPongService = new PingPongService();
-    this.messageDispatcherService = new MessageDispatcherByEventService(logger);
 
     const dataInterceptorService = new DataInterceptorService();
 
-    this.consumeMessageFromTopicService = new ConsumeMessageFromTopicService(wsManager, logger, redis.sub, {
+    this.topicSubscriberService = new TopicSubscriberService(redis.pub, redis.sub, logger, {
       ...dataInterceptorService.getInterceptors(),
     });
 
-    await this.consumeMessageFromTopicService.subscribeToPubSub(WS_TOPIC_PUBSUB_CHANNEL);
+    await this.topicSubscriberService.subscribeToPubSub();
+
+    this.topicPublisherService = new TopicPublisherService(redis.pub);
+    this.messageDispatcherByEventService = new MessageDispatcherByEventService(logger);
 
     // Controllers
     this.attachControllers();
@@ -56,15 +64,26 @@ export class WsModule implements ModuleFactory {
   }
 
   private attachControllers(): void {
-    const { wsManager, logger } = this.app;
+    const { logger } = this.app;
 
-    const publishToTopicController = new PublishToTopicController(wsManager, logger, this.messageDispatcherService);
-    const topicRegistrationController = new TopicRegistrationController(
-      wsManager,
+    const publishToTopicController = new PublishToTopicController(
+      this.topicPublisherService,
+      this.messageDispatcherByEventService,
       logger,
-      this.messageDispatcherService,
     );
-    const webRtcSignalingController = new WebRtcSignalingController(wsManager, logger, this.messageDispatcherService);
+
+    const topicRegistrationController = new TopicRegistrationController(
+      this.topicSubscriberService,
+      this.messageDispatcherByEventService,
+      logger,
+    );
+
+    const webRtcSignalingController = new WebRtcSignalingController(
+      this.topicPublisherService,
+      this.topicSubscriberService,
+      this.messageDispatcherByEventService,
+      logger,
+    );
 
     publishToTopicController.attachEventHandlers();
     topicRegistrationController.attachEventHandlers();
@@ -72,17 +91,17 @@ export class WsModule implements ModuleFactory {
   }
 
   private attachConnectionPipeline(): void {
-    const { wsApp, wsManager, logger } = this.app;
+    const { wsApp, logger } = this.app;
 
     const wsConnectionPipelineService = new WsConnectionPipelineService(wsApp);
 
     wsConnectionPipelineService.register([
       new AttachSocketIdToConnectionPipeline(),
-      new SubscribeSocketToRootTopicPipeline(wsManager, logger),
-      new AttachCloseHandlerToSocketPipeline(wsManager, logger),
+      new SubscribeSocketToRootTopicPipeline(this.topicSubscriberService, logger),
+      new AttachCloseHandlerToSocketPipeline(this.topicSubscriberService, logger),
       new AttachErrorHandlerToSocketPipeline(logger),
       new AttachPongHandlerToSocketPipeline(this.pingPongService),
-      new AttachMessageHandlerToSocketPipeline(this.messageDispatcherService),
+      new AttachMessageHandlerToSocketPipeline(this.messageDispatcherByEventService),
       new ConnectionAcknowledgePipeline(),
     ]);
 
@@ -96,15 +115,16 @@ export class WsModule implements ModuleFactory {
           timestamp: Date.now(),
         };
 
-        this.app.wsManager.publishToTopic(payload);
+        this.topicPublisherService.publishToTopic(payload);
       }, 4000);
     }
   }
 
   get services() {
     return {
-      messageDispatcherService: this.messageDispatcherService,
-      consumeMessageFromTopicService: this.consumeMessageFromTopicService,
+      messageDispatcherByEventService: this.messageDispatcherByEventService,
+      topicSubscriberService: this.topicSubscriberService,
+      topicPublisherService: this.topicPublisherService,
       pingPongService: this.pingPongService,
     };
   }
