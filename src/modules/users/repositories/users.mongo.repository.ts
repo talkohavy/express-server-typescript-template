@@ -1,4 +1,4 @@
-import { type ApplyBasicCreateCasting, type QueryFilter, Types } from 'mongoose';
+import { Types, type ApplyBasicCreateCasting, type QueryFilter } from 'mongoose';
 import { UserModel } from '../../../databases/mongo/models/user/user.model';
 import type { DatabaseUser } from '../types';
 import type { IUsersRepository } from './interfaces/users.repository.base';

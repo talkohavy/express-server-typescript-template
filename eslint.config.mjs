@@ -83,6 +83,21 @@ export default [
           environment: 'node', // <--- Possible Options: 'node' | 'bun'
         },
       ],
+      'import/order': [
+        'error',
+        {
+          groups: [['builtin', 'external', 'internal', 'unknown', 'parent', 'sibling', 'index', 'object', 'type']],
+          'newlines-between': 'ignore',
+          alphabetize: {
+            order: 'ignore',
+            caseInsensitive: true,
+          },
+          named: {
+            enabled: true,
+            types: 'types-last',
+          },
+        },
+      ],
       '@typescript-eslint/no-unused-vars': [
         'error',
         {

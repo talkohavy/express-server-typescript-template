@@ -1,10 +1,10 @@
 import { BUILT_IN_WEBSOCKET_EVENTS, type TopicSubscriberService } from '@src/core/topic-subscriber';
 import {
   SocketEvents,
-  type WebRtcSignalValues,
   WebRtcSignals,
   getWebRtcToReceiversTopic,
   getWebRtcToSenderTopic,
+  type WebRtcSignalValues,
 } from '../../logic/constants';
 import { ValidateWebRtcMessageMiddleware } from '../../middleware/validate-webrtc-message.middleware';
 import type { WebSocket } from 'ws';
