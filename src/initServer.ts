@@ -2,6 +2,7 @@ import { hostname } from 'os';
 import { COLORS } from 'color-my-json';
 import express, { type Application } from 'express';
 import { buildApp } from './buildApp';
+import { registerProcessHandlers } from './common/register-process-handlers';
 import { ConfigKeys } from './plugins/config-service';
 
 startServer();
@@ -31,55 +32,5 @@ export async function startServer() {
     process.exit(1);
   });
 
-  const gracefulShutdown = createGracefulShutdownHandler(app);
-  const gracefulRejectionOrException = createGracefulRejectionOrExceptionHandler(app);
-
-  process.on('SIGINT', gracefulShutdown);
-  process.on('SIGTERM', gracefulShutdown);
-  process.on('unhandledRejection', gracefulRejectionOrException);
-  process.on('uncaughtException', gracefulRejectionOrException);
-}
-
-function createGracefulShutdownHandler(app: Application) {
-  let isShuttingDown = false;
-
-  return async function gracefulShutdown() {
-    if (isShuttingDown) return;
-
-    const { logger, topicSubscriber } = app;
-
-    isShuttingDown = true;
-
-    logger.log('Shutting down gracefully...');
-
-    try {
-      await topicSubscriber.cleanup();
-    } catch (error) {
-      logger.error('Redis WS cleanup failed during graceful shutdown', { error });
-    }
-
-    logger.log('Cleanup finished');
-    process.exit(0);
-  };
-}
-
-function createGracefulRejectionOrExceptionHandler(app: Application) {
-  return function gracefulRejectionOrException(error: Error) {
-    console.error('unhandledRejection', { error });
-    console.error('Should not get here!  You are missing a try/catch somewhere.');
-
-    const runRedisCleanup = async () => {
-      try {
-        const { topicSubscriber } = app;
-
-        await topicSubscriber.cleanup();
-      } catch (error) {
-        console.error('Redis WS cleanup failed during unexpected shutdown', { error });
-      }
-    };
-
-    runRedisCleanup().finally(() => {
-      process.exit(1);
-    });
-  };
+  registerProcessHandlers(app);
 }
