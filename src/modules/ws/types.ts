@@ -33,3 +33,14 @@ export type ClientMessage<T = any> = {
 export type ActionHandler = (socket: WebSocket, payload: any) => Promise<void>;
 
 export type WsMiddleware = (socket: WebSocket, payload: any, next: () => void) => Promise<void> | void;
+
+/**
+ * The payload of a message published to a topic.
+ */
+export type TopicPayload<T = unknown> = {
+  topic: string;
+  data: T;
+  timestamp?: number;
+};
+
+export type TopicMessage = Required<ClientMessage<TopicPayload>>;
