@@ -1,4 +1,4 @@
-import { BUILT_IN_WEBSOCKET_EVENTS } from '@src/lib/websocket-manager';
+import { BUILT_IN_WEBSOCKET_EVENTS } from '../topic-subscriber';
 import type { WebSocketServer } from 'ws';
 import type { IConnectionPipeline } from '../../types';
 

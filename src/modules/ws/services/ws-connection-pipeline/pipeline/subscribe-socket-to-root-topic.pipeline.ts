@@ -1,11 +1,11 @@
 import { StaticTopics } from '../../../logic/constants';
 import type { LoggerService } from '@src/lib/logger-service';
-import type { WebsocketManager } from '@src/lib/websocket-manager';
+import type { TopicSubscriberService } from '@src/modules/ws/services/topic-subscriber';
 import type { WsConnectionContext, IConnectionPipeline } from '../../../types';
 
 export class SubscribeSocketToRootTopicPipeline implements IConnectionPipeline {
   constructor(
-    private readonly wsManager: WebsocketManager,
+    private readonly topicSubscriber: TopicSubscriberService,
     private readonly logger: LoggerService,
   ) {}
 
@@ -14,7 +14,7 @@ export class SubscribeSocketToRootTopicPipeline implements IConnectionPipeline {
 
     const topic = StaticTopics.Presence;
 
-    const isSuccess = await this.wsManager.subscribeToTopic(socket, topic);
+    const isSuccess = await this.topicSubscriber.subscribe(socket, topic);
 
     if (!isSuccess) {
       this.logger.debug('Socket already in presence topic on connect', { socketId: socket.id });

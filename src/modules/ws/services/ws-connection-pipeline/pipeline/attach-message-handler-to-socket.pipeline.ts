@@ -1,6 +1,6 @@
-import { BUILT_IN_WEBSOCKET_EVENTS } from '@src/lib/websocket-manager';
+import { BUILT_IN_WEBSOCKET_EVENTS } from '../../topic-subscriber';
 import type { WsConnectionContext, IConnectionPipeline } from '../../../types';
-import type { MessageDispatcherByEventService } from '../../message-dispatcher-by-event/message-dispatcher-by-event.service';
+import type { MessageDispatcherByEventService } from '../../message-dispatcher-by-event';
 
 export class AttachMessageHandlerToSocketPipeline implements IConnectionPipeline {
   constructor(private readonly messageDispatcherByEventService: MessageDispatcherByEventService) {}

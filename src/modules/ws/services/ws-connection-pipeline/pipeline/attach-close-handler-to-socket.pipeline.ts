@@ -1,11 +1,11 @@
-import { BUILT_IN_WEBSOCKET_EVENTS, type WebsocketManager } from '@src/lib/websocket-manager';
+import { BUILT_IN_WEBSOCKET_EVENTS, type TopicSubscriberService } from '../../topic-subscriber';
 import type { WebSocket } from 'ws';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { WsConnectionContext, IConnectionPipeline } from '../../../types';
 
 export class AttachCloseHandlerToSocketPipeline implements IConnectionPipeline {
   constructor(
-    private readonly wsManager: WebsocketManager,
+    private readonly topicSubscriberService: TopicSubscriberService,
     private readonly logger: LoggerService,
   ) {}
 
@@ -17,7 +17,7 @@ export class AttachCloseHandlerToSocketPipeline implements IConnectionPipeline {
 
   private attachCloseHandlerToSocket(socket: WebSocket): void {
     socket.on(BUILT_IN_WEBSOCKET_EVENTS.Close, () => {
-      this.wsManager.unsubscribeFromAllTopics(socket); // <--- redis cleanup! remove phantom keys
+      this.topicSubscriberService.unsubscribeClientFromAllTopics(socket); // <--- redis cleanup! remove phantom keys
 
       this.logger.log('ws connection closed', { socketId: socket.id });
     });
