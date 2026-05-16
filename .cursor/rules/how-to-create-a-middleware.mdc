@@ -1,5 +1,7 @@
 ---
-description: how to create a middleware
+description: HTTP and WebSocket middleware classes — MiddlewareFactory, naming, placement under src/modules/[name]/middleware.
+globs:
+  - "**/*.middleware.ts"
 alwaysApply: false
 ---
 

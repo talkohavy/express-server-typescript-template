@@ -1,5 +1,7 @@
 ---
-description: how to create a controller
+description: Module controllers — ControllerFactory, naming, placement under src/modules/[name]/controllers.
+globs:
+  - "**/*.controller.ts"
 alwaysApply: false
 ---
 

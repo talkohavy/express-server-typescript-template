@@ -1,4 +1,5 @@
 ---
+description: TypeScript type style — prefer type aliases over the interface keyword.
 alwaysApply: true
 ---
 

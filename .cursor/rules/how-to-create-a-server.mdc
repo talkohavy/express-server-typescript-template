@@ -1,5 +1,8 @@
 ---
-description: how to create a server
+description: Express bootstrap — initServer.ts vs buildApp.ts, AppFactory, plugin vs module registration order.
+globs:
+  - "**/initServer.ts"
+  - "**/buildApp.ts"
 alwaysApply: false
 ---
 

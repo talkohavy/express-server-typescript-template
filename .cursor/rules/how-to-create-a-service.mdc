@@ -1,5 +1,7 @@
 ---
-description: how to create a service
+description: Module services — class-based services, naming, placement under src/modules/[name]/services, app injection.
+globs:
+  - "**/*.service.ts"
 alwaysApply: false
 ---
 

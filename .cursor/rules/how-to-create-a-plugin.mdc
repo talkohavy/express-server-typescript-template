@@ -1,10 +1,13 @@
 ---
-description: how to create a plugin
+description: Express plugins under src/plugins — naming, Application augmentation, registerPlugins order, when to use a plugin vs a module.
+globs:
+  - "**/src/plugins/**/*.ts"
+  - "**/*.plugin.ts"
 alwaysApply: false
 ---
 
 - a plugin should always be located under: `./src/plugins/`
-- a service file must be named: `[name].plugin.ts`
+- a plugin file must be named: `[name].plugin.ts`
 - A plugin is a function that receives the `app: Application` object and augments it.
 - Plugins typically attach services or add middleware to the app, e.g. `app.configService`, `app.logger`, `app.pg`.
 - Create a plugin when you need to:

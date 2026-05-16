@@ -1,5 +1,8 @@
 ---
-description: how to create a new module
+description: Domain modules under src/modules — ModuleFactory, empty constructor, async init, services getter, folder layout.
+globs:
+  - "**/*.module.ts"
+  - "**/src/modules/**/*.ts"
 alwaysApply: false
 ---
 
