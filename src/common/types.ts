@@ -6,7 +6,6 @@ import type { WebSocketServer } from 'ws';
 import type { CallContextService } from '@src/lib/call-context';
 import type { ConfigService } from '@src/lib/config-service';
 import type { LoggerService } from '@src/lib/logger-service';
-import type { WebsocketManager } from '@src/lib/websocket-manager';
 import type { AuthenticationModule } from '@src/modules/authentication';
 import type { BooksModule } from '@src/modules/books';
 import type { DragonsModule } from '@src/modules/dragons';
@@ -40,7 +39,6 @@ export interface OptimizedApp {
   httpServer: HttpServer;
   socketIOApp: SocketIOServer;
   wsApp: WebSocketServer;
-  wsManager: WebsocketManager;
 }
 
 export type UserToken = {
