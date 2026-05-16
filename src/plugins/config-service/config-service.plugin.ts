@@ -1,6 +1,7 @@
 import { ConfigService } from '@src/core/config-service';
-import { type Config, configuration } from '../configurations';
+import { configuration } from './logic/configuration';
 import type { Application } from 'express';
+import type { Config } from './logic/constants';
 
 export function configServicePlugin(app: Application) {
   const configSettings: Config = configuration();

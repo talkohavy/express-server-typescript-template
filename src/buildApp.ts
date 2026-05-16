@@ -22,7 +22,7 @@ import { SwaggerModule } from './modules/swagger';
 import { UsersModule } from './modules/users';
 import { WsModule } from './modules/ws';
 import { callContextPlugin } from './plugins/call-context.plugin';
-import { configServicePlugin } from './plugins/config-service.plugin';
+import { configServicePlugin } from './plugins/config-service';
 import { loggerPlugin } from './plugins/logger.plugin';
 import { postgresPlugin } from './plugins/postgres.plugin';
 import { redisPlugin } from './plugins/redis.plugin';
