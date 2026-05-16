@@ -49,6 +49,8 @@ export class AppFactory {
       this.registeredPlugins.push(plugin);
       await plugin(this.app);
     }
+
+    Object.freeze(this.app);
   }
 
   /**
