@@ -1,7 +1,7 @@
 import { createServer } from 'node:http';
 import { WebSocketServer } from 'ws';
-import { TopicPublisherService } from '@src/lib/topic-publisher';
-import { TopicSubscriberService } from '@src/lib/topic-subscriber';
+import { TopicPublisherService } from '@src/core/topic-publisher';
+import { TopicSubscriberService } from '@src/core/topic-subscriber';
 import { WS_TOPIC_PUBSUB_CHANNEL } from '@src/modules/ws/logic/constants';
 import type { Application } from 'express';
 

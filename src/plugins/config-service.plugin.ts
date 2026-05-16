@@ -1,4 +1,4 @@
-import { ConfigService } from '@src/lib/config-service';
+import { ConfigService } from '@src/core/config-service';
 import { type Config, configuration } from '../configurations';
 import type { Application } from 'express';
 

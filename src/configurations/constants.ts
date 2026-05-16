@@ -1,5 +1,5 @@
 import type { EnvironmentValues } from '@src/common/constants';
-import type { RedisConfig } from '@src/lib/database/redis';
+import type { RedisConfig } from '@src/core/database/redis';
 import type { LoggerSettings } from '@src/lib/logger';
 
 export const ConfigKeys = {

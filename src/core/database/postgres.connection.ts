@@ -1,5 +1,5 @@
 import pg, { type Client, type QueryResultRow } from 'pg';
-import type { ConnectionFactory } from '../lucky-server';
+import type { ConnectionFactory } from '@src/lib/lucky-server';
 
 export class PostgresConnection implements ConnectionFactory {
   private static instance: PostgresConnection;

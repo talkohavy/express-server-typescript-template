@@ -1,5 +1,5 @@
 import mongoose, { type Mongoose } from 'mongoose';
-import type { ConnectionFactory } from '../lucky-server';
+import type { ConnectionFactory } from '@src/lib/lucky-server';
 
 export class MongodbConnection implements ConnectionFactory {
   private static instance: MongodbConnection;

@@ -29,11 +29,12 @@ express-server-typescript-template/
 │   │   └── PLUGINS.md
 │   └── AI_CODING_RULES.md
 ├── src/                      # Main source folder
-│   ├── common/               # Holds common utilities, ang global constants.
+│   ├── common/               # Holds common utilities, and global constants.
+│   ├── core/                 # App platform services (config, logging, messaging, DB connections)
 │   ├── configurations/       # Configurations for project startup
-│   ├── database/             # Contains each individual db used in the project (mongodb, postgres, etc.)
+│   ├── databases/            # DB schemas, migrations, and seeds (mongodb, postgres, etc.)
 │   ├── initAsMicroServices/  # initServer.ts & buildApp.ts for each micro-service to run as standalone server.
-│   ├── lib/                  # library
+│   ├── lib/                  # Extractable building blocks (lucky-server, logger, Errors)
 │   ├── middlewares/          # middleware for request data validation (body & query)
 │   ├── modules/              # modules of the project
 │   ├── plugins/              # plugins of the project

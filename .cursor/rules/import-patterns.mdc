@@ -5,4 +5,4 @@ alwaysApply: true
 
 - Generally, use relative imports.
 - Absolute imports are supported by prefixing with `@src/`.
-- For `src/common` and `src/lib`, **always use absolute imports** (e.g. `@src/common/...`, `@src/lib/...`).
+- For `src/common`, `src/core`, and `src/lib`, **always use absolute imports** (e.g. `@src/common/...`, `@src/core/...`, `@src/lib/...`).

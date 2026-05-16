@@ -1,5 +1,5 @@
 import { createClient, type RedisClientType } from 'redis';
-import type { ConnectionFactory } from '../../lucky-server';
+import type { ConnectionFactory } from '@src/lib/lucky-server';
 import type { RedisConfig, RedisConnectionConstructorProps } from './types';
 
 export class RedisConnection implements ConnectionFactory {

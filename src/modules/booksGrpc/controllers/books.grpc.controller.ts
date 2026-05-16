@@ -1,5 +1,5 @@
 import { status, type ServiceError, type ServerUnaryCall } from '@grpc/grpc-js';
-import type { LoggerService } from '@src/lib/logger-service';
+import type { LoggerService } from '@src/core/logger-service';
 import type {
   CreateBookRequest,
   CreateBookResponse,
