@@ -261,7 +261,9 @@ export class TopicSubscriberService {
   }
 
   /**
-   * Stop listening to the Redis pub/sub channel. Call on shutdown.
+   * Call on shutdown.
+   * Stop listening to the Redis pub/sub channel,
+   * and remove all local connections from Redis.
    */
   async cleanup(): Promise<void> {
     await this.unsubscribeFromPubSub();
