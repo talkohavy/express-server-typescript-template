@@ -1,4 +1,3 @@
-import { BUILT_IN_WEBSOCKET_EVENTS, type WebsocketManager } from '@src/lib/websocket-manager';
 import {
   SocketEvents,
   type WebRtcSignalValues,
@@ -7,10 +6,12 @@ import {
   getWebRtcToSenderTopic,
 } from '../../logic/constants';
 import { ValidateWebRtcMessageMiddleware } from '../../middleware/validate-webrtc-message.middleware';
+import { BUILT_IN_WEBSOCKET_EVENTS, type TopicSubscriberService } from '../../services/topic-subscriber';
 import type { WebSocket } from 'ws';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { EventHandlerFactory } from '@src/lib/lucky-server';
 import type { MessageDispatcherByEventService } from '../../services/message-dispatcher-by-event';
+import type { TopicPublisherService } from '../../services/topic-publisher';
 import type { ActionHandler } from '../../types';
 import type { WebRtcSignalingMessage, WebRtcSignalingPayload } from './types';
 
@@ -24,9 +25,10 @@ export class WebRtcSignalingController implements EventHandlerFactory {
   private readonly handlersByType: Record<WebRtcSignalValues, ActionHandler>;
 
   constructor(
-    private readonly wsManager: WebsocketManager,
+    private readonly topicPublisherService: TopicPublisherService,
+    private readonly topicSubscriberService: TopicSubscriberService,
+    private readonly messageDispatcherByEventService: MessageDispatcherByEventService,
     private readonly logger: LoggerService,
-    private readonly messageDispatcher: MessageDispatcherByEventService,
   ) {
     this.handlersByType = this.buildHandlersByType();
   }
@@ -34,7 +36,7 @@ export class WebRtcSignalingController implements EventHandlerFactory {
   attachEventHandlers(): void {
     const validateWebRtcMessageMiddleware = new ValidateWebRtcMessageMiddleware(this.logger).use();
 
-    this.messageDispatcher.register({
+    this.messageDispatcherByEventService.register({
       event: SocketEvents.WebRtc,
       middlewares: [validateWebRtcMessageMiddleware],
       handler: this.handleWebRtcMessage.bind(this),
@@ -69,7 +71,7 @@ export class WebRtcSignalingController implements EventHandlerFactory {
     const { sessionId } = payload;
 
     const topic = getWebRtcToSenderTopic(sessionId);
-    const wasSubscribed = await this.wsManager.subscribeToTopic(socket, topic);
+    const wasSubscribed = await this.topicSubscriberService.subscribe(socket, topic);
 
     if (!wasSubscribed) {
       this.logger.debug('WebRTC sender already subscribed to session', { sessionId });
@@ -86,7 +88,7 @@ export class WebRtcSignalingController implements EventHandlerFactory {
     const { sessionId } = payload;
 
     const topic = getWebRtcToReceiversTopic(sessionId);
-    const wasSubscribed = await this.wsManager.subscribeToTopic(socket, topic);
+    const wasSubscribed = await this.topicSubscriberService.subscribe(socket, topic);
 
     if (!wasSubscribed) {
       this.logger.debug('WebRTC receiver already subscribed to session', { sessionId });
@@ -105,7 +107,7 @@ export class WebRtcSignalingController implements EventHandlerFactory {
 
     const topic = getWebRtcToReceiversTopic(sessionId);
 
-    await this.wsManager.publishToTopic({ topic, data: payload });
+    await this.topicPublisherService.publishToTopic({ topic, data: payload });
 
     this.logger.debug('WebRTC: relayed offer to receivers', { sessionId });
   }
@@ -115,7 +117,7 @@ export class WebRtcSignalingController implements EventHandlerFactory {
 
     const topic = getWebRtcToSenderTopic(sessionId);
 
-    await this.wsManager.publishToTopic({ topic, data: payload });
+    await this.topicPublisherService.publishToTopic({ topic, data: payload });
 
     this.logger.debug('WebRTC: relayed answer to sender', { sessionId });
   }
@@ -128,7 +130,7 @@ export class WebRtcSignalingController implements EventHandlerFactory {
     const topic = isSender ? getWebRtcToReceiversTopic(sessionId) : getWebRtcToSenderTopic(sessionId);
     this.logger.debug(`WebRTC: relayed ICE to ${isSender ? 'receivers' : 'sender'}`, { sessionId });
 
-    await this.wsManager.publishToTopic({ topic, data: payload });
+    await this.topicPublisherService.publishToTopic({ topic, data: payload });
   }
 
   private clearSender(socket: WebSocket): void {

@@ -4,15 +4,15 @@ import { ValidateTopicNameMiddleware } from '../../middleware/validate-topic-nam
 import type { WebSocket } from 'ws';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { EventHandlerFactory } from '@src/lib/lucky-server';
-import type { WebsocketManager } from '@src/lib/websocket-manager';
 import type { MessageDispatcherByEventService } from '../../services/message-dispatcher-by-event';
+import type { TopicSubscriberService } from '../../services/topic-subscriber';
 import type { TopicRegistrationMessage } from './types';
 
 export class TopicRegistrationController implements EventHandlerFactory {
   constructor(
-    private readonly wsManager: WebsocketManager,
-    private readonly logger: LoggerService,
+    private readonly topicSubscriberService: TopicSubscriberService,
     private readonly messageDispatcher: MessageDispatcherByEventService,
+    private readonly logger: LoggerService,
   ) {}
 
   attachEventHandlers(): void {
@@ -34,7 +34,7 @@ export class TopicRegistrationController implements EventHandlerFactory {
   private async handleTopicRegistration(socket: WebSocket, message: TopicRegistrationMessage): Promise<void> {
     const { topic } = message.payload;
 
-    const isSuccess = await this.wsManager.subscribeToTopic(socket, topic);
+    const isSuccess = await this.topicSubscriberService.subscribe(socket, topic);
 
     if (!isSuccess) {
       this.logger.debug('Client is already subscribed to topic', { topic });
@@ -50,7 +50,7 @@ export class TopicRegistrationController implements EventHandlerFactory {
   private async handleTopicUnregister(socket: WebSocket, message: TopicRegistrationMessage): Promise<void> {
     const { topic } = message.payload;
 
-    const isSuccess = await this.wsManager.unsubscribeFromTopic(socket, topic);
+    const isSuccess = await this.topicSubscriberService.unsubscribe(socket, topic);
 
     if (!isSuccess) {
       this.logger.debug('Client not subscribed to topic', { topic });

@@ -5,9 +5,9 @@ import { ValidateTopicMessageMiddleware } from '../../middleware/validate-topic-
 import type { WebSocket } from 'ws';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { EventHandlerFactory } from '@src/lib/lucky-server';
-import type { WebsocketManager } from '@src/lib/websocket-manager';
 import type { MessageDispatcherByEventService } from '../../services/message-dispatcher-by-event';
-import type { TopicMessage } from './types';
+import type { TopicPublisherService } from '../../services/topic-publisher';
+import type { TopicMessage } from '../../types';
 
 /**
  * Handles the "send" event: client publishes a message to a topic.
@@ -15,16 +15,16 @@ import type { TopicMessage } from './types';
  */
 export class PublishToTopicController implements EventHandlerFactory {
   constructor(
-    private readonly wsManager: WebsocketManager,
+    private readonly topicPublisherService: TopicPublisherService,
+    private readonly messageDispatcherByEventService: MessageDispatcherByEventService,
     private readonly logger: LoggerService,
-    private readonly messageDispatcher: MessageDispatcherByEventService,
   ) {}
 
   attachEventHandlers(): void {
     const validateTopicMessageMiddleware = new ValidateTopicMessageMiddleware(this.logger).use();
     const requireTopicPermissionMiddleware = new RequireTopicPermissionMiddleware(this.logger).use();
 
-    this.messageDispatcher.register({
+    this.messageDispatcherByEventService.register({
       event: SocketEvents.Publish,
       middlewares: [validateTopicMessageMiddleware, requireTopicPermissionMiddleware],
       handler: this.handlePublishMessageToTopic.bind(this),
@@ -36,7 +36,7 @@ export class PublishToTopicController implements EventHandlerFactory {
     const { topic } = payload;
 
     try {
-      await this.wsManager.publishToTopic(payload);
+      await this.topicPublisherService.publishToTopic(payload);
 
       this.logger.debug('Client published to topic', { topic, socketId: socket.id });
 
