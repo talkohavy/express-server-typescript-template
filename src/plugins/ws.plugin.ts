@@ -1,5 +1,8 @@
 import { createServer } from 'node:http';
 import { WebSocketServer } from 'ws';
+import { TopicPublisherService } from '@src/lib/topic-publisher';
+import { TopicSubscriberService } from '@src/lib/topic-subscriber';
+import { WS_TOPIC_PUBSUB_CHANNEL } from '@src/modules/ws/logic/constants';
 import type { Application } from 'express';
 
 /**
@@ -22,7 +25,17 @@ import type { Application } from 'express';
 export function wsPlugin(app: Application) {
   app.httpServer ??= createServer(app);
 
-  const wsApp = new WebSocketServer({ server: app.httpServer });
+  app.wsApp = new WebSocketServer({ server: app.httpServer });
 
-  app.wsApp = wsApp;
+  app.topicSubscriber = new TopicSubscriberService(
+    app.redis.pub,
+    app.redis.sub,
+    app.logger,
+    {
+      // ...dataInterceptorService.getInterceptors(),
+    },
+    WS_TOPIC_PUBSUB_CHANNEL,
+  );
+
+  app.topicPublisher = new TopicPublisherService(app.redis.pub, WS_TOPIC_PUBSUB_CHANNEL);
 }

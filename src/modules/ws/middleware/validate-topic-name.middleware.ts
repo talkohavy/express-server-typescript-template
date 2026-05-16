@@ -1,10 +1,10 @@
 import { ResponseTypes } from '../logic/constants';
 import { sendResponse } from '../logic/utils/sendResponse';
 import type { WebSocket } from 'ws';
+import type { ClientMessage } from '@src/common/types';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { MiddlewareFactory } from '@src/lib/lucky-server';
 import type { TopicRegistrationMessage } from '../controllers/topic-registration/types';
-import type { ClientMessage } from '../types';
 
 export class ValidateTopicNameMiddleware implements MiddlewareFactory {
   constructor(private readonly logger: LoggerService) {}

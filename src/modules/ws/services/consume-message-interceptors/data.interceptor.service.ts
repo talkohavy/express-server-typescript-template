@@ -1,6 +1,6 @@
 import { StaticTopics } from '../../logic/constants';
-import type { TopicPayload } from '../../types';
-import type { InterceptorFunc } from '../topic-subscriber';
+import type { TopicPayload } from '@src/common/types';
+import type { InterceptorFunc } from '@src/lib/topic-subscriber';
 import type { InterceptorService } from './types';
 
 export class DataInterceptorService implements InterceptorService {

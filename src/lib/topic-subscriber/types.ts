@@ -1,4 +1,4 @@
-import type { TopicPayload } from '../../types';
+import type { TopicPayload } from '@src/common/types';
 
 export type ServerSocketResponse = {
   type: string;

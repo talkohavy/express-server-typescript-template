@@ -1,4 +1,4 @@
-import { BUILT_IN_WEBSOCKET_EVENTS } from '../../topic-subscriber';
+import { BUILT_IN_WEBSOCKET_EVENTS } from '@src/lib/topic-subscriber';
 import type { WebSocket } from 'ws';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { WsConnectionContext, IConnectionPipeline } from '../../../types';

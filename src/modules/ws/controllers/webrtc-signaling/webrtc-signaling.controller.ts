@@ -1,3 +1,4 @@
+import { BUILT_IN_WEBSOCKET_EVENTS, type TopicSubscriberService } from '@src/lib/topic-subscriber';
 import {
   SocketEvents,
   type WebRtcSignalValues,
@@ -6,12 +7,11 @@ import {
   getWebRtcToSenderTopic,
 } from '../../logic/constants';
 import { ValidateWebRtcMessageMiddleware } from '../../middleware/validate-webrtc-message.middleware';
-import { BUILT_IN_WEBSOCKET_EVENTS, type TopicSubscriberService } from '../../services/topic-subscriber';
 import type { WebSocket } from 'ws';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { EventHandlerFactory } from '@src/lib/lucky-server';
+import type { TopicPublisherService } from '@src/lib/topic-publisher';
 import type { MessageDispatcherByEventService } from '../../services/message-dispatcher-by-event';
-import type { TopicPublisherService } from '../../services/topic-publisher';
 import type { ActionHandler } from '../../types';
 import type { WebRtcSignalingMessage, WebRtcSignalingPayload } from './types';
 

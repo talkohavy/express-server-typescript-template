@@ -1,8 +1,8 @@
 import { sendPermissionDeniedResponse } from '../logic/utils/sendPermissionDeniedResponse';
 import type { WebSocket } from 'ws';
+import type { TopicMessage, TopicPayload } from '@src/common/types';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { MiddlewareFactory } from '@src/lib/lucky-server';
-import type { TopicMessage, TopicPayload } from '../types';
 
 export class RequireTopicPermissionMiddleware implements MiddlewareFactory {
   constructor(private readonly logger: LoggerService) {}

@@ -2,8 +2,9 @@ import { parseJson } from '@src/common/utils/parseJson';
 import { ResponseTypes, type SocketEventValues } from '../../logic/constants';
 import { sendResponse } from '../../logic/utils/sendResponse';
 import type { WebSocket } from 'ws';
+import type { ClientMessage } from '@src/common/types';
 import type { LoggerService } from '@src/lib/logger-service';
-import type { ActionHandler, ClientMessage, WsMiddleware } from '../../types';
+import type { ActionHandler, WsMiddleware } from '../../types';
 import type { RegisterProps } from './types';
 
 /**

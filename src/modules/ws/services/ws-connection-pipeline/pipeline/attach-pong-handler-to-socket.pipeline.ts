@@ -1,4 +1,4 @@
-import { BUILT_IN_WEBSOCKET_EVENTS } from '../../topic-subscriber';
+import { BUILT_IN_WEBSOCKET_EVENTS } from '@src/lib/topic-subscriber';
 import type { WsConnectionContext, IConnectionPipeline } from '../../../types';
 import type { PingPongService } from '../../ping-pong';
 

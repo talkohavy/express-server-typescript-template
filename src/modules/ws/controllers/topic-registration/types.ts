@@ -1,4 +1,4 @@
-import type { ClientMessage } from '../../types';
+import type { ClientMessage } from '@src/common/types';
 
 /**
  * Used for both topic registration and un-registration.

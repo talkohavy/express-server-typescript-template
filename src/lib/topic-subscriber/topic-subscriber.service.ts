@@ -1,6 +1,5 @@
 import { WebSocket as WS } from 'ws';
 import { parseJson } from '@src/common/utils/parseJson';
-import { WS_TOPIC_PUBSUB_CHANNEL } from '../../logic/constants';
 import { DEFAULT_TOPIC_KEY_TTL_SECONDS } from './logic/constants';
 import {
   CLEANUP_CONNECTIONS_SCRIPT,
@@ -9,11 +8,11 @@ import {
   UNSUBSCRIBE_SCRIPT,
 } from './logic/redis-topic-scripts.lua';
 import { getSocketsUnderTopicKey, getTopicsGroupKey, getTopicsUnderSocketKey } from './logic/utils';
-import type { InterceptorFunc } from './types';
 import type { RedisClientType } from 'redis';
 import type { WebSocket } from 'ws';
+import type { TopicPayload } from '@src/common/types';
 import type { LoggerService } from '@src/lib/logger-service';
-import type { TopicPayload } from '../../types';
+import type { InterceptorFunc } from './types';
 
 /**
  * Manages topic subscriptions for WebSocket clients with Redis as the source of truth.
@@ -52,6 +51,7 @@ export class TopicSubscriberService {
     private readonly redisSub: RedisClientType,
     private readonly logger: LoggerService,
     private readonly topicInterceptors: Record<string, InterceptorFunc>,
+    private readonly channelName: string,
   ) {}
 
   /**
@@ -59,9 +59,9 @@ export class TopicSubscriberService {
    * Messages published to this channel are forwarded to local WebSocket clients.
    */
   async subscribeToPubSub(): Promise<void> {
-    await this.redisSub.subscribe(WS_TOPIC_PUBSUB_CHANNEL, this.forwardMessageToSubscribers.bind(this));
+    await this.redisSub.subscribe(this.channelName, this.forwardMessageToSubscribers.bind(this));
 
-    this.logger.info(`Subscribed to Redis pub/sub channel: ${WS_TOPIC_PUBSUB_CHANNEL}`);
+    this.logger.info(`Subscribed to Redis pub/sub channel: ${this.channelName}`);
   }
 
   /**
@@ -69,9 +69,9 @@ export class TopicSubscriberService {
    * Messages published to this channel are forwarded to local WebSocket clients.
    */
   async unsubscribeFromPubSub(): Promise<void> {
-    await this.redisSub.unsubscribe(WS_TOPIC_PUBSUB_CHANNEL);
+    await this.redisSub.unsubscribe(this.channelName);
 
-    this.logger.info(`Unsubscribed from Redis pub/sub channel: ${WS_TOPIC_PUBSUB_CHANNEL}`);
+    this.logger.info(`Unsubscribed from Redis pub/sub channel: ${this.channelName}`);
   }
 
   /**
@@ -269,7 +269,7 @@ export class TopicSubscriberService {
     const parsedPayload = parseJson<TopicPayload>(payloadAsString);
 
     if (!this.isValidTopicMessage(parsedPayload)) {
-      this.logger.error('WS topic pub/sub: invalid JSON/data received on channel', WS_TOPIC_PUBSUB_CHANNEL);
+      this.logger.error('WS topic pub/sub: invalid JSON/data received on channel', this.channelName);
 
       return;
     }

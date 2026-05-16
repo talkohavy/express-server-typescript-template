@@ -1,6 +1,5 @@
-import { WS_TOPIC_PUBSUB_CHANNEL } from '../../logic/constants';
 import type { RedisClientType } from 'redis';
-import type { TopicPayload } from '../../types';
+import type { TopicPayload } from '@src/common/types';
 
 /**
  * Publishes messages to topics via Redis pub/sub.
@@ -11,7 +10,10 @@ export class TopicPublisherService {
   /**
    * @param redis Redis client for publishing (non-subscriber mode).
    */
-  constructor(private readonly redis: RedisClientType) {}
+  constructor(
+    private readonly redis: RedisClientType,
+    private readonly channelName: string,
+  ) {}
 
   /**
    * Publishes a message to a topic via Redis pub/sub. Every node (including this one) receives it
@@ -21,7 +23,7 @@ export class TopicPublisherService {
   async publishToTopic(topicPayload: TopicPayload): Promise<number> {
     const payloadStringified = JSON.stringify(topicPayload);
 
-    const subscriberCount = await this.redis.publish(WS_TOPIC_PUBSUB_CHANNEL, payloadStringified);
+    const subscriberCount = await this.redis.publish(this.channelName, payloadStringified);
 
     return subscriberCount;
   }

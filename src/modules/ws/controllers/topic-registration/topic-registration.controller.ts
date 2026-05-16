@@ -4,8 +4,8 @@ import { ValidateTopicNameMiddleware } from '../../middleware/validate-topic-nam
 import type { WebSocket } from 'ws';
 import type { LoggerService } from '@src/lib/logger-service';
 import type { EventHandlerFactory } from '@src/lib/lucky-server';
+import type { TopicSubscriberService } from '@src/lib/topic-subscriber';
 import type { MessageDispatcherByEventService } from '../../services/message-dispatcher-by-event';
-import type { TopicSubscriberService } from '../../services/topic-subscriber';
 import type { TopicRegistrationMessage } from './types';
 
 export class TopicRegistrationController implements EventHandlerFactory {
