@@ -1,5 +1,6 @@
 import type { EnvironmentValues } from '@src/common/constants';
 import type { LoggerSettings } from '@src/lib/logger';
+import type { ServiceNameValues } from './logic/constants';
 
 export type AuthCookieConfig = {
   /**
@@ -35,3 +36,5 @@ export type LoggerServiceSettings = LoggerSettings & {
 export type PostgresConfig = {
   connectionString: string;
 };
+
+export type ServicesConfig = Record<ServiceNameValues, { baseUrl: string }>;

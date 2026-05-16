@@ -3,8 +3,8 @@ import { sendResponse } from '../../logic/utils/sendResponse';
 import { ValidateTopicNameMiddleware } from '../../middleware/validate-topic-name.middleware';
 import type { WebSocket } from 'ws';
 import type { LoggerService } from '@src/core/logger-service';
-import type { EventHandlerFactory } from '@src/lib/lucky-server';
 import type { TopicSubscriberService } from '@src/core/topic-subscriber';
+import type { EventHandlerFactory } from '@src/lib/lucky-server';
 import type { MessageDispatcherByEventService } from '../../services/message-dispatcher-by-event';
 import type { TopicRegistrationMessage } from './types';
 

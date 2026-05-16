@@ -1,5 +1,5 @@
 import jwt, { type SignOptions } from 'jsonwebtoken';
-import type { JwtConfig } from '../../../configurations';
+import type { JwtConfig } from '@src/plugins/config-service';
 import type { CreateAccessTokenProps, CreateRefreshTokenProps } from './interfaces/token-generation.interface';
 
 export class TokenGenerationService {

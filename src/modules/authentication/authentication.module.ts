@@ -1,4 +1,4 @@
-import { ConfigKeys, type JwtConfig } from '@src/configurations';
+import { ConfigKeys, type JwtConfig } from '@src/plugins/config-service';
 import { AuthenticationController } from './controllers';
 import { PasswordManagementController } from './controllers/password-management.controller';
 import { SessionManagementController } from './controllers/session-management.controller';

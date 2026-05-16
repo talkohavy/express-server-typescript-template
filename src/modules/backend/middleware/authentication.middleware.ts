@@ -1,5 +1,5 @@
 import { API_PATHS } from '@src/common/constants';
-import { ConfigKeys, type CookiesConfig } from '@src/configurations';
+import { ConfigKeys, type CookiesConfig } from '@src/plugins/config-service';
 import type { Application, NextFunction, Request, Response } from 'express';
 import type { UserToken } from '@src/common/types';
 import type { MiddlewareFactory } from '@src/lib/lucky-server';

@@ -1,6 +1,6 @@
 import { API_PATHS } from '@src/common/constants';
-import { ConfigKeys, type CookiesConfig } from '@src/configurations';
 import { UnauthorizedError } from '@src/core/errors';
+import { ConfigKeys, type CookiesConfig } from '@src/plugins/config-service';
 import type { Application, Request, Response } from 'express';
 import type { ControllerFactory } from '@src/lib/lucky-server';
 import type { TokenVerificationService } from '../services/token-verification.service';

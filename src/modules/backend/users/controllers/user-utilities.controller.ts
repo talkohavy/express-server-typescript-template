@@ -1,5 +1,5 @@
 import { API_PATHS, StatusCodes } from '@src/common/constants';
-import { ConfigKeys, type CookiesConfig } from '@src/configurations';
+import { ConfigKeys, type CookiesConfig } from '@src/plugins/config-service';
 import type { Application, Request, Response } from 'express';
 import type { ControllerFactory } from '@src/lib/lucky-server';
 import type { IAuthAdapter } from '../../authentication/adapters/auth.adapter.interface';

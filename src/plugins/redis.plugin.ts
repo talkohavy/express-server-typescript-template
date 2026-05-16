@@ -1,5 +1,5 @@
-import { ConfigKeys } from '@src/configurations';
 import { type RedisConfig, RedisConnection } from '@src/core/database/redis';
+import { ConfigKeys } from './config-service';
 import type { Application } from 'express';
 
 /**

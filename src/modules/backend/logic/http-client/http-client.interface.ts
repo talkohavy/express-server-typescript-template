@@ -1,6 +1,6 @@
 import type { IncomingHttpHeaders } from 'node:http';
 import type { HttpMethodValues } from '@src/common/constants';
-import type { ServiceNameValues } from '@src/configurations';
+import type { ServiceNameValues } from '@src/plugins/config-service';
 
 export type HttpClientRequestOptions = {
   headers?: IncomingHttpHeaders;

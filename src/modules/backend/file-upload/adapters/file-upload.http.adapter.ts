@@ -1,5 +1,5 @@
 import { API_PATHS } from '@src/common/constants';
-import { ServiceNames } from '@src/configurations';
+import { ServiceNames } from '@src/plugins/config-service';
 import type { Request } from 'express';
 import type { UploadResult } from '../../../file-upload/types';
 import type { HttpClient } from '../../logic/http-client';

@@ -5,8 +5,8 @@ import { ValidateTopicMessageMiddleware } from '../../middleware/validate-topic-
 import type { WebSocket } from 'ws';
 import type { TopicMessage } from '@src/common/types';
 import type { LoggerService } from '@src/core/logger-service';
-import type { EventHandlerFactory } from '@src/lib/lucky-server';
 import type { TopicPublisherService } from '@src/core/topic-publisher';
+import type { EventHandlerFactory } from '@src/lib/lucky-server';
 import type { MessageDispatcherByEventService } from '../../services/message-dispatcher-by-event';
 
 /**

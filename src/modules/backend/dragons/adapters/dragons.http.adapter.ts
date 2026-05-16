@@ -1,5 +1,5 @@
 import { API_PATHS } from '@src/common/constants';
-import { ServiceNames } from '@src/configurations';
+import { ServiceNames } from '@src/plugins/config-service';
 import type { CreateDragonDto, UpdateDragonDto } from '../../../dragons/services/interfaces/dragons.service.interface';
 import type { Dragon } from '../../../dragons/types';
 import type { HttpClient } from '../../logic/http-client';

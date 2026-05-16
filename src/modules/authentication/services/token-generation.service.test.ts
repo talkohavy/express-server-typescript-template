@@ -1,5 +1,5 @@
 import { TokenGenerationService } from '../services/token-generation.service';
-import type { JwtConfig } from '../../../configurations';
+import type { JwtConfig } from '@src/plugins/config-service';
 
 describe('TokenGenerationService', () => {
   let service: TokenGenerationService;

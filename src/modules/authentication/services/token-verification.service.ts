@@ -1,5 +1,5 @@
 import jwt, { type VerifyOptions } from 'jsonwebtoken';
-import type { JwtConfig } from '../../../configurations';
+import type { JwtConfig } from '@src/plugins/config-service';
 
 export class TokenVerificationService {
   constructor(private readonly jwtConfig: JwtConfig) {}
