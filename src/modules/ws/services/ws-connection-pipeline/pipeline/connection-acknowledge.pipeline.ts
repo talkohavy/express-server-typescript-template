@@ -1,10 +1,11 @@
 import { ResponseTypes } from '../../../logic/constants';
+import { sendResponse } from '../../../logic/utils/sendResponse';
 import type { IConnectionPipeline, WsConnectionContext } from '../../../types';
 
 export class ConnectionAcknowledgePipeline implements IConnectionPipeline {
   handleConnection(props: WsConnectionContext) {
     const { socket } = props;
 
-    socket.send(JSON.stringify({ type: ResponseTypes.ConnectionAcknowledged }));
+    sendResponse({ socket, type: ResponseTypes.ConnectionAcknowledged });
   }
 }

@@ -12,7 +12,7 @@ import type { RedisClientType } from 'redis';
 import type { WebSocket } from 'ws';
 import type { TopicPayload } from '@src/common/types';
 import type { LoggerService } from '@src/lib/logger-service';
-import type { InterceptorFunc } from './types';
+import type { InterceptorFunc, RegisterInterceptorProps } from './types';
 
 /**
  * Manages topic subscriptions for WebSocket clients with Redis as the source of truth.
@@ -41,18 +41,31 @@ export class TopicSubscriberService {
   private readonly socketIdToSocket = new Map<string, WebSocket>();
 
   /**
+   * Topic-specific message interceptors. Registered via {@link register} before pub/sub starts.
+   */
+  private readonly topicInterceptors: Record<string, InterceptorFunc> = {};
+
+  /**
    * @param redis Non-subscriber Redis client (for EVAL, sets, PUBLISH, etc.).
    * @param redisSub Subscriber Redis client (dedicated for SUBSCRIBE to pub/sub channel).
    * @param logger Logger service for debugging and error tracking.
-   * @param topicInterceptors Optional record of topic-specific message interceptors.
    */
   constructor(
     private readonly redis: RedisClientType,
     private readonly redisSub: RedisClientType,
     private readonly logger: LoggerService,
-    private readonly topicInterceptors: Record<string, InterceptorFunc>,
     private readonly channelName: string,
   ) {}
+
+  /**
+   * Register a topic-specific interceptor that transforms or filters messages before they are sent to clients.
+   * Return `null` from the interceptor to skip delivery for that client.
+   */
+  register(props: RegisterInterceptorProps): void {
+    const { topic, interceptor } = props;
+
+    this.topicInterceptors[topic] = interceptor;
+  }
 
   /**
    * Start listening on the Redis pub/sub channel. Call once on startup.

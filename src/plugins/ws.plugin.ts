@@ -22,20 +22,14 @@ import type { Application } from 'express';
  *
  * Our "normal" Redis client, which can run any operation (EVAL, SADD, SMEMBERS, PUBLISH, etc.).
  */
-export function wsPlugin(app: Application) {
+export async function wsPlugin(app: Application) {
   app.httpServer ??= createServer(app);
 
   app.wsApp = new WebSocketServer({ server: app.httpServer });
 
-  app.topicSubscriber = new TopicSubscriberService(
-    app.redis.pub,
-    app.redis.sub,
-    app.logger,
-    {
-      // ...dataInterceptorService.getInterceptors(),
-    },
-    WS_TOPIC_PUBSUB_CHANNEL,
-  );
+  app.topicSubscriber = new TopicSubscriberService(app.redis.pub, app.redis.sub, app.logger, WS_TOPIC_PUBSUB_CHANNEL);
 
   app.topicPublisher = new TopicPublisherService(app.redis.pub, WS_TOPIC_PUBSUB_CHANNEL);
+
+  await app.topicSubscriber.subscribeToPubSub();
 }

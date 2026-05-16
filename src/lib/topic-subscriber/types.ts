@@ -5,4 +5,9 @@ export type ServerSocketResponse = {
   message?: string;
 };
 
-export type InterceptorFunc = (message: TopicPayload) => any;
+export type InterceptorFunc = (message: TopicPayload) => unknown;
+
+export type RegisterInterceptorProps = {
+  topic: string;
+  interceptor: InterceptorFunc;
+};

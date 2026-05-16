@@ -2,6 +2,7 @@ import { PublishToTopicController } from './controllers/publish-to-topic';
 import { TopicRegistrationController } from './controllers/topic-registration';
 import { WebRtcSignalingController } from './controllers/webrtc-signaling';
 import { StaticTopics } from './logic/constants';
+import { DataInterceptorService } from './services/consume-message-interceptors/data.interceptor.service';
 import { MessageDispatcherByEventService } from './services/message-dispatcher-by-event';
 import { PingPongService } from './services/ping-pong';
 import { WsConnectionPipelineService } from './services/ws-connection-pipeline';
@@ -15,7 +16,6 @@ import { SubscribeSocketToRootTopicPipeline } from './services/ws-connection-pip
 import type { Application } from 'express';
 import type { TopicPayload } from '@src/common/types';
 import type { ModuleFactory } from '@src/lib/lucky-server';
-import type { TopicPublisherService } from '../../lib/topic-publisher';
 
 /**
  * WebSocket module: connection lifecycle, message dispatch, and topic pub/sub.
@@ -24,40 +24,36 @@ import type { TopicPublisherService } from '../../lib/topic-publisher';
  * - Producers call `app.topicPublisherService.publishToTopic({ topic, data })` (e.g. from routes, jobs, or the sample below).
  * - Messages are published to Redis channel "ws:topic:pubsub".
  * - Each node receives them in TopicSubscriberService and forwards to its local clients subscribed to that topic.
- *
- * **Architecture:**
- * - TopicPublisherService: Publishes messages to Redis pub/sub
- * - TopicSubscriberService: Manages subscriptions, listens to pub/sub, and forwards to local WebSocket clients
  */
 export class WsModule implements ModuleFactory {
   private messageDispatcherByEventService!: MessageDispatcherByEventService;
-  // private topicSubscriberService!: TopicSubscriberService;
-  private topicPublisherService!: TopicPublisherService;
   private pingPongService!: PingPongService;
 
   constructor(private readonly app: Application) {}
 
   async init(): Promise<void> {
-    const { logger, topicSubscriber } = this.app;
+    const { logger } = this.app;
 
     // Services
+    this.messageDispatcherByEventService = new MessageDispatcherByEventService(logger);
     this.pingPongService = new PingPongService();
 
-    // const dataInterceptorService = new DataInterceptorService();
-
-    // this.topicSubscriberService = new TopicSubscriberService(redis.pub, redis.sub, logger, {
-    //   ...dataInterceptorService.getInterceptors(),
-    // });
-
-    await topicSubscriber.subscribeToPubSub();
-
-    this.messageDispatcherByEventService = new MessageDispatcherByEventService(logger);
+    // Connection pipeline
+    this.attachConnectionPipeline();
 
     // Controllers
     this.attachControllers();
 
-    // Connection pipeline
-    this.attachConnectionPipeline();
+    // Topic interceptors
+    this.registerTopicInterceptors();
+  }
+
+  private registerTopicInterceptors() {
+    const { topicSubscriber } = this.app;
+
+    const dataInterceptorService = new DataInterceptorService(topicSubscriber);
+
+    dataInterceptorService.registerInterceptors();
   }
 
   private attachControllers(): void {
@@ -88,7 +84,7 @@ export class WsModule implements ModuleFactory {
   }
 
   private attachConnectionPipeline(): void {
-    const { wsApp, logger, topicSubscriber } = this.app;
+    const { wsApp, logger, topicSubscriber, topicPublisher } = this.app;
 
     const wsConnectionPipelineService = new WsConnectionPipelineService(wsApp);
 
@@ -112,7 +108,7 @@ export class WsModule implements ModuleFactory {
           timestamp: Date.now(),
         };
 
-        this.topicPublisherService.publishToTopic(payload);
+        topicPublisher.publishToTopic(payload);
       }, 4000);
     }
   }
