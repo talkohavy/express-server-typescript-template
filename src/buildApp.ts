@@ -23,10 +23,13 @@ import { UsersModule } from './modules/users';
 import { WsModule } from './modules/ws';
 import { callContextPlugin } from './plugins/call-context.plugin';
 import { configServicePlugin } from './plugins/config-service';
+import { httpServerPlugin } from './plugins/http-server.plugin';
 import { loggerPlugin } from './plugins/logger.plugin';
 import { postgresPlugin } from './plugins/postgres.plugin';
 import { redisPlugin } from './plugins/redis.plugin';
 import { socketIOPlugin } from './plugins/socket.io.plugin';
+import { topicPublisherPlugin } from './plugins/topic-publisher.plugin';
+import { topicSubscriberPlugin } from './plugins/topic-subscriber.plugin';
 import { wsPlugin } from './plugins/ws.plugin';
 import type { Application } from 'express';
 
@@ -43,6 +46,9 @@ export async function buildApp(app: Application) {
     loggerPlugin, // <--- dependencies: config-service plugin, call-context plugin
     postgresPlugin, // <--- dependencies: config-service plugin
     redisPlugin, // <--- dependencies: config-service plugin
+    httpServerPlugin,
+    topicPublisherPlugin,
+    topicSubscriberPlugin,
     isSocketIOModuleEnabled && socketIOPlugin,
     isWsModuleEnabled && wsPlugin,
   ]);
