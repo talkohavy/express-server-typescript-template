@@ -63,7 +63,7 @@ export async function buildApp(app: Application) {
     registerFetchPermissionsMiddleware,
   ]);
 
-  appModule.registerModules([
+  await appModule.registerModules([
     // - Main modules (service providers)
     HealthCheckModule,
     AuthenticationModule,
