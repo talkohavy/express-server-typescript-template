@@ -277,8 +277,15 @@ export class TopicSubscriberService {
    * Receives a message from Redis pub/sub, parses it, and forwards to local WebSocket clients
    * subscribed to that topic. Applies topic-specific interceptors if configured.
    *
-   * This is the "stage separation" step where we shed the topic wrapper and send just
-   * the data to the appropriate clients.
+   * **IMPORTANT NOTES**
+   *
+   * - The sent payload is essentially payloadAsString, unless an interceptor is applied.
+   * - We do NOT strip the topic wrapper from the payload! Make sure your interceptors don't strip it either.
+   *
+   * Why not strip the topic wrapper?
+   *
+   * The receiving client needs to know the topic in order to classify the message.
+   * If you strip the topic wrapper, the receiving client won't know the context of the message.
    */
   private async forwardMessageToSubscribers(payloadAsString: string): Promise<void> {
     const parsedPayload = parseJson<TopicPayload>(payloadAsString);
@@ -289,7 +296,7 @@ export class TopicSubscriberService {
       return;
     }
 
-    const { topic, data } = parsedPayload;
+    const { topic } = parsedPayload;
 
     const topicSubscribers = await this.getTopicSubscribers(topic);
 
@@ -298,12 +305,12 @@ export class TopicSubscriberService {
 
       const interceptor = this.topicInterceptors[topic];
 
-      const dataToSend = interceptor ? await interceptor(parsedPayload) : data;
+      const updatedPayload = interceptor ? await interceptor(parsedPayload) : parsedPayload;
 
-      if (dataToSend === null) continue;
+      if (updatedPayload === null) continue;
 
       try {
-        const serialized = JSON.stringify(dataToSend);
+        const serialized = JSON.stringify(updatedPayload);
         socket.send(serialized, { binary: false });
       } catch (error) {
         this.logger.error(`Failed to send topic message to client in topic "${topic}"`, { error });
