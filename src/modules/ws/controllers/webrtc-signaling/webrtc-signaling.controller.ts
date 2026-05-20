@@ -63,7 +63,8 @@ export class WebRtcSignalingController implements EventHandlerFactory {
 
     if (!handler) {
       this.logger.debug('WebRTC signaling: unknown payload.type', { signalType });
-      return;
+
+      return void sendResponse({ socket, type: ResponseTypes.WebRTC.Error.NoSuchType, message: 'Sender signal sent' });
     }
 
     await handler(socket, payload);
@@ -108,7 +109,12 @@ export class WebRtcSignalingController implements EventHandlerFactory {
 
     if (this.senderSocketsBySessionId.get(sessionId) !== socket) {
       this.logger.debug('WebRTC: createOffer from non-sender socket', { sessionId });
-      return;
+
+      return void sendResponse({
+        socket,
+        type: ResponseTypes.WebRTC.Error.CreateOfferFromNonSender,
+        message: 'Only sender can create offer',
+      });
     }
 
     const topic = getWebRtcToReceiversTopic(sessionId);

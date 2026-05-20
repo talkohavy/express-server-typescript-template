@@ -13,6 +13,10 @@ export const ResponseTypes = {
     CreateAnswerSignalSuccess: 'create_answer_success',
     ReceiverSignalSent: 'receiver_signal_sent',
     SenderSignalSent: 'sender_signal_sent',
+    Error: {
+      NoSuchType: 'no_such_type',
+      CreateOfferFromNonSender: 'create_offer_from_non_sender',
+    },
   },
   ValidationError: 'validation_error',
   ServerError: 'server_error',
