@@ -12,9 +12,7 @@ export class DataInterceptorService {
     });
   }
 
-  private async interceptDataTopic<T = any>(topicPayload: TopicPayload<T>): Promise<T | null> {
-    const { data } = topicPayload;
-
-    return data;
+  private async interceptDataTopic<T = any>(topicPayload: TopicPayload<T>): Promise<TopicPayload<T> | null> {
+    return topicPayload;
   }
 }

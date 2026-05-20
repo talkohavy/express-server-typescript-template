@@ -254,7 +254,7 @@ export class TopicSubscriberService {
    * Remove from Redis all keys for connections that belong to this node (local connections).
    * Call on server shutdown so this process does not leave stale keys in Redis.
    */
-  public async removeAllLocalConnectionsFromRedis(): Promise<void> {
+  async removeAllLocalConnectionsFromRedis(): Promise<void> {
     const socketIds = Array.from(this.socketIdToSocket.keys());
 
     await this.removeConnectionsFromRedis(socketIds);
