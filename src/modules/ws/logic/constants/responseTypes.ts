@@ -8,6 +8,12 @@ export const ResponseTypes = {
     SendSuccess: 'send_success',
     SendError: 'send_error',
   },
+  WebRTC: {
+    CreateOfferSuccess: 'create_offer_success',
+    CreateAnswerSignalSuccess: 'create_answer_success',
+    ReceiverSignalSent: 'receiver_signal_sent',
+    SenderSignalSent: 'sender_signal_sent',
+  },
   ValidationError: 'validation_error',
   ServerError: 'server_error',
 };

@@ -1,11 +1,13 @@
 import { BUILT_IN_WEBSOCKET_EVENTS, type TopicSubscriberService } from '@src/core/topic-subscriber';
 import {
+  ResponseTypes,
   SocketEvents,
   WebRtcSignals,
   getWebRtcToReceiversTopic,
   getWebRtcToSenderTopic,
   type WebRtcSignalValues,
 } from '../../logic/constants';
+import { sendResponse } from '../../logic/utils/sendResponse';
 import { ValidateWebRtcMessageMiddleware } from '../../middleware/validate-webrtc-message.middleware';
 import type { WebSocket } from 'ws';
 import type { LoggerService } from '@src/core/logger-service';
@@ -82,6 +84,8 @@ export class WebRtcSignalingController implements EventHandlerFactory {
     this.attachCloseListener(socket);
 
     this.logger.log('WebRTC sender registered', { sessionId });
+
+    sendResponse({ socket, type: ResponseTypes.WebRTC.SenderSignalSent, message: 'Sender signal sent' });
   }
 
   private async handleReceiverSignal(socket: WebSocket, payload: WebRtcSignalingPayload): Promise<void> {
@@ -95,6 +99,8 @@ export class WebRtcSignalingController implements EventHandlerFactory {
     }
 
     this.logger.log('WebRTC receiver registered', { sessionId });
+
+    sendResponse({ socket, type: ResponseTypes.WebRTC.ReceiverSignalSent, message: 'Receiver signal sent' });
   }
 
   private async handleCreateOfferSignal(socket: WebSocket, payload: WebRtcSignalingPayload): Promise<void> {
@@ -110,9 +116,11 @@ export class WebRtcSignalingController implements EventHandlerFactory {
     await this.topicPublisherService.publishToTopic({ topic, data: payload });
 
     this.logger.debug('WebRTC: relayed offer to receivers', { sessionId });
+
+    sendResponse({ socket, type: ResponseTypes.WebRTC.CreateOfferSuccess, message: 'Offer sent to receivers' });
   }
 
-  private async handleCreateAnswerSignal(_socket: WebSocket, payload: WebRtcSignalingPayload): Promise<void> {
+  private async handleCreateAnswerSignal(socket: WebSocket, payload: WebRtcSignalingPayload): Promise<void> {
     const { sessionId } = payload;
 
     const topic = getWebRtcToSenderTopic(sessionId);
@@ -120,6 +128,8 @@ export class WebRtcSignalingController implements EventHandlerFactory {
     await this.topicPublisherService.publishToTopic({ topic, data: payload });
 
     this.logger.debug('WebRTC: relayed answer to sender', { sessionId });
+
+    sendResponse({ socket, type: ResponseTypes.WebRTC.CreateAnswerSignalSuccess, message: 'Answer sent to sender' });
   }
 
   private async handleIceCandidateSignal(socket: WebSocket, payload: WebRtcSignalingPayload): Promise<void> {
@@ -131,6 +141,8 @@ export class WebRtcSignalingController implements EventHandlerFactory {
     this.logger.debug(`WebRTC: relayed ICE to ${isSender ? 'receivers' : 'sender'}`, { sessionId });
 
     await this.topicPublisherService.publishToTopic({ topic, data: payload });
+
+    sendResponse({ socket, type: ResponseTypes.WebRTC.CreateOfferSuccess, message: 'Offer sent to receivers' });
   }
 
   private clearSender(socket: WebSocket): void {
