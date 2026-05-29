@@ -7,7 +7,7 @@ import { ConfigKeys } from './plugins/config-service';
 
 startServer();
 
-export async function startServer() {
+async function startServer() {
   const app = express() as unknown as Application;
   app.disable('x-powered-by');
 
