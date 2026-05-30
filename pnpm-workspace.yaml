@@ -6,6 +6,9 @@ allowBuilds:
 ignoredBuiltDependencies:
   - '@scarf/scarf'
   - unrs-resolver
+minimumReleaseAgeExclude:
+  - '@eslint/plugin-kit@0.7.2'
+  - eslint@10.4.1
 onlyBuiltDependencies:
   - esbuild
   - protobufjs
