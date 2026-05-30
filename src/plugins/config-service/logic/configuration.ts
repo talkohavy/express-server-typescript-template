@@ -1,12 +1,15 @@
 import { Environment } from '@src/common/constants';
-import { LogLevel, type LogLevelValues } from '@src/lib/logger';
+import { validateEnvVariables } from './utils/validateEnvVariables';
+import type { LogLevelValues } from '@src/lib/logger';
 import type { Config } from './constants';
 
 export function configuration(): Config {
+  const env = validateEnvVariables();
+
   return {
-    port: (process.env.PORT || 8000) as number,
-    isDev: !!process.env.IS_DEV,
-    isCI: !!process.env.IS_CI,
+    port: env.PORT,
+    isDev: env.IS_DEV,
+    isCI: env.IS_CI,
     authCookie: {
       maxAge: 1000 * 60 * 60 * 24, // 1 day
     },
@@ -20,26 +23,26 @@ export function configuration(): Config {
     cookies: {
       accessCookie: {
         name: 'access_token',
-        domain: process.env.DOMAIN || 'localhost',
+        domain: env.DOMAIN,
         maxAge: 60 * 60 * 1000, // 1 hour
       },
       refreshCookie: {
         name: 'refresh_token',
-        domain: process.env.DOMAIN || 'localhost',
+        domain: env.DOMAIN,
         maxAge: 24 * 60 * 60 * 1000, // 1 day
       },
     },
     logSettings: {
       serviceName: 'my-nest-like-server',
-      logLevel: (process.env.LOG_LEVEL || LogLevel.Debug) as LogLevelValues,
+      logLevel: env.LOG_LEVEL as LogLevelValues,
       logEnvironment: Environment.Dev,
-      useColoredOutput: process.env.NODE_ENV !== 'production',
+      useColoredOutput: env.NODE_ENV !== 'production',
     },
     postgres: {
-      connectionString: process.env.POSTGRES_CONNECTION_STRING || 'postgres://user:password@localhost:5432/mydb',
+      connectionString: env.POSTGRES_CONNECTION_STRING,
     },
     redis: {
-      connectionString: process.env.REDIS_CONNECTION_STRING || 'redis://localhost:6379',
+      connectionString: env.REDIS_CONNECTION_STRING,
     },
   };
 }

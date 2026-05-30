@@ -38,3 +38,14 @@ export type PostgresConfig = {
 };
 
 export type ServicesConfig = Record<ServiceNameValues, { baseUrl: string }>;
+
+export type ValidEnv = {
+  PORT: number;
+  IS_DEV: boolean;
+  IS_CI: boolean;
+  DOMAIN: string;
+  LOG_LEVEL: string;
+  NODE_ENV: string | undefined;
+  POSTGRES_CONNECTION_STRING: string;
+  REDIS_CONNECTION_STRING: string;
+};
