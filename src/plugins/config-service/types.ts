@@ -49,4 +49,5 @@ export type ValidEnv = {
   NODE_ENV: string | undefined;
   POSTGRES_CONNECTION_STRING: string;
   REDIS_CONNECTION_STRING: string;
+  SHOULD_MIGRATE_POSTGRES: boolean;
 };
