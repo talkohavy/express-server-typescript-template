@@ -11,6 +11,7 @@ export const envSchema = Joi.object<ValidEnv>({
   }),
   POSTGRES_CONNECTION_STRING: Joi.string().required(),
   REDIS_CONNECTION_STRING: Joi.string().required(),
+  MICRO_SERVICES_PROTOCOL: Joi.string().valid('direct', 'http', 'grpc').required(),
   LOG_LEVEL: Joi.string()
     .valid(...logLevelValues)
     .default(LogLevel.Debug)

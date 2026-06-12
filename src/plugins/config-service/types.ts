@@ -41,6 +41,7 @@ export type ServicesConfig = Record<ServiceNameValues, { baseUrl: string }>;
 
 export type ValidEnv = {
   PORT: number;
+  MICRO_SERVICES_PROTOCOL: 'direct' | 'http' | 'grpc';
   IS_DEV: boolean;
   IS_CI: boolean;
   DOMAIN: string;
