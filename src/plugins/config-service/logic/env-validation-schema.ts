@@ -19,6 +19,6 @@ export const envSchema = Joi.object<ValidEnv>({
       'any.only': `"LOG_LEVEL" must be one of [${logLevelValues.join(', ')}]`,
     }),
   NODE_ENV: Joi.string().optional(),
-  POSTGRES_CONNECTION_STRING: Joi.string().default('postgres://user:password@localhost:5432/mydb'),
+  POSTGRES_CONNECTION_STRING: Joi.string(),
   REDIS_CONNECTION_STRING: Joi.string().default('redis://localhost:6379'),
 }).unknown(true);
