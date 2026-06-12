@@ -1,3 +1,4 @@
+import { Colors } from '@src/common/constants';
 import { envSchema } from '../env-validation-schema';
 import type { ValidEnv } from '../../types';
 
@@ -9,12 +10,17 @@ export function validateEnvVariables(): ValidEnv {
       .map((detail) => {
         const provided = detail.context?.value;
         const receivedStr = provided ? ` (received: "${provided}")` : '';
-        return `  • ${detail.message}${receivedStr}`;
+        return `\t• ${detail.message}${receivedStr}`;
       })
       .join('\n');
 
-    throw new Error(`\nEnvironment variable validation failed:\n${messages}\n`);
+    console.log('❌ Environment variable validation failed:');
+    console.error(`${Colors.Red}${messages}${Colors.Reset}`);
+
+    process.exit(1);
+  } else {
+    console.log('✅ Environment variable validation passed');
   }
 
-  return value;
+  return value as ValidEnv;
 }
