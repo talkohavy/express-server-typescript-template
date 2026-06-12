@@ -9,16 +9,16 @@ export const envSchema = Joi.object<ValidEnv>({
     'number.base': '"PORT" must be a valid number',
     'number.port': '"PORT" must be a valid port (0-65535)',
   }),
-  IS_DEV: Joi.boolean().default(false),
-  IS_CI: Joi.boolean().default(false),
-  DOMAIN: Joi.string().default('localhost'),
+  POSTGRES_CONNECTION_STRING: Joi.string().required(),
+  REDIS_CONNECTION_STRING: Joi.string().required(),
   LOG_LEVEL: Joi.string()
     .valid(...logLevelValues)
     .default(LogLevel.Debug)
     .messages({
       'any.only': `"LOG_LEVEL" must be one of [${logLevelValues.join(', ')}]`,
     }),
+  IS_DEV: Joi.boolean().default(false),
+  IS_CI: Joi.boolean().default(false),
+  DOMAIN: Joi.string().default('localhost'),
   NODE_ENV: Joi.string().optional(),
-  POSTGRES_CONNECTION_STRING: Joi.string(),
-  REDIS_CONNECTION_STRING: Joi.string().default('redis://localhost:6379'),
 }).unknown(true);
