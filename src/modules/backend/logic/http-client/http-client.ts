@@ -47,7 +47,7 @@ export class HttpClient {
       const { baseUrl } = services[serviceName];
 
       const stringifiedBody = body ? JSON.stringify(body) : undefined;
-      const headers = new Headers(additionalHeaders as HeadersInit);
+      const headers = new Headers(additionalHeaders as any);
 
       if (!headers.has('Content-Type')) {
         headers.set('Content-Type', 'application/json');
@@ -71,7 +71,7 @@ export class HttpClient {
 
       const data = await response.json();
       return data as T;
-    } catch (error: any) {
+    } catch (error) {
       if (silent) return undefined as T;
 
       const { isDev } = this.configService.get<Config>();

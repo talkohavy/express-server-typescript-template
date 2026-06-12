@@ -52,8 +52,8 @@ export class BooksGrpcAdapter implements IBooksAdapter {
       if (response.book === undefined) return null;
 
       return response.book as Book;
-    } catch (err: unknown) {
-      const code = (err as { code?: number })?.code;
+    } catch (err) {
+      const code = err.code;
       if (code === status.NOT_FOUND) return null;
       throw err;
     }
@@ -113,8 +113,8 @@ export class BooksGrpcAdapter implements IBooksAdapter {
       if (response.book === undefined) return null;
 
       return response.book as Book;
-    } catch (err: unknown) {
-      const code = (err as { code?: number })?.code;
+    } catch (err) {
+      const code = err.code;
       if (code === status.NOT_FOUND) return null;
       throw err;
     }

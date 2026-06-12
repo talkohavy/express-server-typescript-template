@@ -31,7 +31,7 @@ export class UserUtilitiesController implements ControllerFactory {
           const user = await this.userUtilitiesService.getUserByEmail(email);
 
           res.json(user);
-        } catch (error: any) {
+        } catch (error) {
           if (error instanceof UserNotFoundError) {
             throw new NotFoundError(error.message);
           }
