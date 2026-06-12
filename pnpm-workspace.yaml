@@ -1,4 +1,5 @@
 allowBuilds:
+  '@bufbuild/buf': true
   '@scarf/scarf': true
   esbuild: true
   protobufjs: true
