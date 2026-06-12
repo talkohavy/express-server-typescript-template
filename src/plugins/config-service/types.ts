@@ -50,4 +50,5 @@ export type ValidEnv = {
   POSTGRES_CONNECTION_STRING: string;
   REDIS_CONNECTION_STRING: string;
   SHOULD_MIGRATE_POSTGRES: boolean;
+  WEBSOCKET_MODULE: 'socket.io' | 'ws' | undefined;
 };

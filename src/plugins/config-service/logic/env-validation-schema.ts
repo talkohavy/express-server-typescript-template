@@ -19,6 +19,7 @@ export const envSchema = Joi.object<ValidEnv>({
       'any.only': `"LOG_LEVEL" must be one of [${logLevelValues.join(', ')}]`,
     }),
   SHOULD_MIGRATE_POSTGRES: Joi.boolean().default(false),
+  WEBSOCKET_MODULE: Joi.string().valid('socket.io', 'ws').optional(),
   IS_DEV: Joi.boolean().default(false),
   IS_CI: Joi.boolean().default(false),
   DOMAIN: Joi.string().default('localhost'),
